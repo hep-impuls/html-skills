@@ -1,0 +1,220 @@
+﻿<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HTML Skills fuer Lehrpersonen</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0b1020;
+      --bg-soft: #111a33;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --line: #dbe4ef;
+      --brand-a: #0ea5e9;
+      --brand-b: #16a34a;
+      --brand-c: #f97316;
+      --radius: 18px;
+      --shadow: 0 20px 50px rgba(10, 20, 40, 0.16);
+      --max: 1100px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      color: var(--text);
+      font-family: 'Lexend', sans-serif;
+      background:
+        radial-gradient(900px 500px at 0% 0%, rgba(14, 165, 233, 0.18), transparent 58%),
+        radial-gradient(900px 520px at 100% 0%, rgba(22, 163, 74, 0.14), transparent 55%),
+        linear-gradient(180deg, var(--bg) 0%, var(--bg-soft) 100%);
+      min-height: 100vh;
+    }
+
+    .wrap {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 28px 16px 54px;
+    }
+
+    .hero {
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 22px;
+      padding: 28px;
+      color: #e2e8f0;
+      backdrop-filter: blur(3px);
+      background: linear-gradient(135deg, rgba(14, 165, 233, 0.15), rgba(15, 23, 42, 0.35));
+      margin-bottom: 18px;
+    }
+
+    .kicker {
+      margin: 0 0 6px;
+      font-size: 0.84rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #7dd3fc;
+      font-weight: 700;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(1.55rem, 4vw, 2.5rem);
+      line-height: 1.12;
+    }
+
+    .hero p {
+      margin: 12px 0 0;
+      max-width: 74ch;
+      color: #cbd5e1;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: var(--shadow);
+    }
+
+    .card h2 {
+      margin: 0;
+      font-size: 1.02rem;
+      line-height: 1.25;
+    }
+
+    .card p {
+      margin: 8px 0 12px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .links {
+      display: grid;
+      gap: 8px;
+    }
+
+    a.item {
+      display: block;
+      text-decoration: none;
+      color: var(--text);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 0.9rem;
+      transition: transform .16s ease, border-color .16s ease, background .16s ease;
+      background: #f8fafc;
+    }
+
+    a.item:hover {
+      transform: translateY(-1px);
+      border-color: #7dd3fc;
+      background: #eff6ff;
+    }
+
+    .tag {
+      display: inline-block;
+      margin-left: 6px;
+      font-size: 0.72rem;
+      padding: 2px 7px;
+      border-radius: 999px;
+      font-weight: 700;
+      vertical-align: middle;
+      color: #0f172a;
+      background: #e2e8f0;
+    }
+
+    .tag-a { background: #bae6fd; }
+    .tag-b { background: #bbf7d0; }
+    .tag-c { background: #fed7aa; }
+
+    .section-title {
+      margin: 24px 0 8px;
+      color: #e2e8f0;
+      font-size: 1.08rem;
+      letter-spacing: 0.01em;
+      font-family: 'Space Grotesk', sans-serif;
+    }
+
+    .footer {
+      margin-top: 20px;
+      border: 1px dashed rgba(255, 255, 255, 0.24);
+      border-radius: 14px;
+      padding: 12px;
+      color: #cbd5e1;
+      font-size: 0.88rem;
+      background: rgba(15, 23, 42, 0.34);
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.83em;
+      background: rgba(148, 163, 184, 0.22);
+      border-radius: 4px;
+      padding: 2px 5px;
+    }
+
+    @media (max-width: 640px) {
+      .hero { padding: 22px 16px; }
+      .card { padding: 14px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <p class="kicker">GitHub Pages Entry</p>
+      <h1>HTML Skills fuer Lehrpersonen</h1>
+      <p>Diese Startseite verlinkt alle zentralen Ressourcen im Repo. Sie ist absichtlich nach Themen und Typen gegliedert, damit spaetere Beispiele und neue Prompt-Seiten einfach ergaenzt werden koennen.</p>
+    </section>
+
+    <h2 class="section-title">Unterrichtsbeispiele</h2>
+    <section class="grid">
+      <article class="card">
+        <h2>Thema: Lohn</h2>
+        <p>Aktuell vorhandene Beispielseiten fuer das Thema <strong>Lohn</strong>.</p>
+        <div class="links">
+          <a class="item" href="examples/pages/lohn/type_A.html">Interaktive Lektion <span class="tag tag-a">Type A</span></a>
+          <a class="item" href="examples/pages/lohn/type_B.html">Druckdokument <span class="tag tag-b">Type B</span></a>
+          <a class="item" href="examples/pages/lohn/type_C.html">Info-Dossier <span class="tag tag-c">Type C</span></a>
+        </div>
+      </article>
+
+      <article class="card">
+        <h2>Prompt-Bibliothek</h2>
+        <p>Vorlagen fuer Lehrpersonen zum direkten Copy/Paste in ChatGPT, Claude usw.</p>
+        <div class="links">
+          <a class="item" href="examples/prompts/prompts.html">Prompt Copy Page (HTML)</a>
+          <a class="item" href="prompts.md">Prompt Sammlung (Markdown)</a>
+        </div>
+      </article>
+
+      <article class="card">
+        <h2>Skill & Dokumentation</h2>
+        <p>Skill-Paket und Anleitungen zur Generierung neuer Seiten.</p>
+        <div class="links">
+          <a class="item" href="README.md">README</a>
+          <a class="item" href="skill/edu-html-generator/edu-html-generator/SKILL.md">Skill Anleitung</a>
+          <a class="item" href="edu-html-generator.zip">Skill ZIP Download</a>
+        </div>
+      </article>
+    </section>
+
+    <section class="footer">
+      Wenn du neue Beispiele hinzufuegst, verwende am besten dieses Schema: <code>examples/pages/&lt;thema&gt;/type_A.html</code>, <code>type_B.html</code>, <code>type_C.html</code>. Neue Prompt-Seiten koennen unter <code>examples/prompts/</code> abgelegt und hier als eigener Linkblock ergaenzt werden.
+    </section>
+  </main>
+</body>
+</html>

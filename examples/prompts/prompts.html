@@ -1,0 +1,386 @@
+﻿<!DOCTYPE html>
+<html lang="de" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Copy-Paste Prompts fuer Lehrpersonen</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f7fafc;
+      --surface: #ffffff;
+      --surface-2: #edf2f7;
+      --text: #0f172a;
+      --muted: #475569;
+      --border: #dbe4ef;
+      --accent: #0ea5e9;
+      --accent-2: #0284c7;
+      --ok: #047857;
+      --radius: 14px;
+      --radius-lg: 18px;
+      --shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+    }
+
+    :root[data-theme="dark"] {
+      --bg: #0b1220;
+      --surface: #111b2f;
+      --surface-2: #1b2a44;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --border: #2a3a56;
+      --accent: #38bdf8;
+      --accent-2: #0ea5e9;
+      --ok: #34d399;
+      --shadow: 0 12px 26px rgba(0, 0, 0, 0.35);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Lexend', sans-serif;
+      background:
+        radial-gradient(1200px 500px at 100% -10%, rgba(14, 165, 233, 0.22), transparent 60%),
+        radial-gradient(900px 420px at -10% 0%, rgba(2, 132, 199, 0.15), transparent 55%),
+        var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      backdrop-filter: blur(8px);
+      background: color-mix(in srgb, var(--bg) 85%, transparent);
+      border-bottom: 1px solid var(--border);
+    }
+    .topbar-inner {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 12px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+    .topbar-title { font-weight: 700; font-size: 0.95rem; }
+    .topbar-sub { color: var(--muted); font-size: 0.8rem; }
+
+    .wrap {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 26px 18px 64px;
+    }
+
+    .hero {
+      background: linear-gradient(140deg, color-mix(in srgb, var(--accent) 20%, var(--surface)) 0%, var(--surface) 52%);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      box-shadow: var(--shadow);
+      margin-bottom: 22px;
+    }
+    h1 {
+      margin: 0 0 6px;
+      font-size: clamp(1.35rem, 3vw, 2rem);
+      line-height: 1.2;
+    }
+    .hero p { margin: 0; color: var(--muted); }
+
+    .toolbar {
+      margin-top: 16px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--surface);
+      color: var(--text);
+      padding: 8px 14px;
+      font: inherit;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform .18s ease, border-color .18s ease, background .18s ease;
+    }
+    .btn:hover {
+      transform: translateY(-1px);
+      border-color: var(--accent);
+    }
+    .btn-primary {
+      border-color: transparent;
+      color: white;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    }
+
+    .section {
+      margin-top: 28px;
+    }
+    .section h2 {
+      margin: 0 0 4px;
+      font-size: 1.05rem;
+    }
+    .section .hint {
+      margin: 0 0 12px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 12px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      min-height: 100%;
+    }
+    .card-head {
+      padding: 14px 14px 10px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+    .card-title {
+      margin: 0;
+      font-size: 0.94rem;
+      line-height: 1.3;
+    }
+    .copy-state {
+      font-size: 0.73rem;
+      color: var(--ok);
+      min-height: 1em;
+      text-align: right;
+    }
+
+    .prompt {
+      margin: 0;
+      padding: 14px;
+      white-space: pre-wrap;
+      color: var(--text);
+      font-size: 0.9rem;
+      background: color-mix(in srgb, var(--surface-2) 65%, transparent);
+      border-radius: 0 0 var(--radius) var(--radius);
+      flex: 1;
+    }
+
+    .footer-note {
+      margin-top: 30px;
+      color: var(--muted);
+      font-size: 0.9rem;
+      text-align: center;
+    }
+
+    @media (max-width: 720px) {
+      .topbar-sub { display: none; }
+      .hero { padding: 18px; }
+    }
+
+    @media print {
+      .topbar, .toolbar, .btn { display: none !important; }
+      body { background: #fff; }
+      .card { box-shadow: none; break-inside: avoid; }
+      .prompt { background: #fff; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div>
+        <div class="topbar-title">Prompt-Bibliothek fuer Lehrpersonen</div>
+        <div class="topbar-sub">Copy/Paste-Vorlagen fuer Typ A, B und C</div>
+      </div>
+      <button class="btn" id="themeBtn" type="button" aria-label="Theme wechseln">Theme wechseln</button>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="hero">
+      <h1>8 Prompts zum direkten Kopieren</h1>
+      <p>Kopiere einen Prompt, fuege ihn in ChatGPT/Claude ein und beantworte danach die Rueckfragen des Modells.</p>
+      <div class="toolbar">
+        <button class="btn btn-primary" type="button" id="copyAllBtn">Alle Prompts kopieren</button>
+        <button class="btn" type="button" onclick="window.print()">Seite drucken</button>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Type A - Interactive Lessons</h2>
+      <p class="hint">Fuer interaktive Einzel- oder Partnerarbeiten im Browser.</p>
+      <div class="grid">
+        <article class="card">
+          <div class="card-head">
+            <h3 class="card-title">A1 - News/Current Events Lesson</h3>
+            <button class="btn" type="button" data-copy-target="prompt-a1">Kopieren</button>
+          </div>
+          <div class="copy-state" id="state-prompt-a1" aria-live="polite"></div>
+          <p class="prompt" id="prompt-a1">Ich moechte eine interaktive HTML-Lernseite erstellen, die auf einem Nachrichtentranskript oder Zeitungsartikel basiert. Die Seite soll als digitale Einzellektion funktionieren: mit Einfuehrungsfolie, Vokabel-Flipkarten, Multiple-Choice-Fragen, Richtig/Falsch-Aussagen, offenen Reflexionsfragen und einer Ergebnisfolie am Schluss. Alles soll in einer einzigen HTML-Datei sein, die Schueler:innen selbststaendig am Laptop bearbeiten koennen - mit Punktestand, Dunkel/Hell-Umschalter und Druckfunktion. Bitte stelle mir zuerst einige Fragen zu Thema, Stufe und gewuenschten Inhalten, bevor du die Seite generierst.</p>
+        </article>
+
+        <article class="card">
+          <div class="card-head">
+            <h3 class="card-title">A2 - Vocabulary / Concept Trainer</h3>
+            <button class="btn" type="button" data-copy-target="prompt-a2">Kopieren</button>
+          </div>
+          <div class="copy-state" id="state-prompt-a2" aria-live="polite"></div>
+          <p class="prompt" id="prompt-a2">Ich moechte eine interaktive HTML-Seite erstellen, mit der Schueler:innen Fachbegriffe zu einem bestimmten Thema ueben koennen. Die Seite soll Vokabel-Flipkarten (Begriff vorne, Erklaerung hinten), einen Lueckentext mit Wortbank und Multiple-Choice-Fragen enthalten. Am Ende gibt es eine Auswertung mit Punktestand. Alles in einer einzigen HTML-Datei, mit Dunkel/Hell-Modus und Druckfunktion. Bitte frage mich zuerst nach dem Thema, den Begriffen und der Zielgruppe, bevor du die Seite erstellst.</p>
+        </article>
+
+        <article class="card">
+          <div class="card-head">
+            <h3 class="card-title">A3 - Discussion & Opinion Unit</h3>
+            <button class="btn" type="button" data-copy-target="prompt-a3">Kopieren</button>
+          </div>
+          <div class="copy-state" id="state-prompt-a3" aria-live="polite"></div>
+          <p class="prompt" id="prompt-a3">Ich moechte eine interaktive HTML-Lernseite zu einem ethischen oder gesellschaftlichen Thema erstellen, bei dem es keine eindeutig richtige Antwort gibt. Die Seite soll Meinungsfragen, offene Reflexionsfelder und Gespraechskarten fuer Diskussionen im Unterricht enthalten - kein klassisches Punktesystem, sondern Raum zum Nachdenken und Begruenden. Alles in einer einzigen HTML-Datei. Bitte stelle mir zuerst einige Fragen zum Thema, zur Klassenstufe und zu den gewuenschten Diskussionsschwerpunkten, bevor du die Seite generierst.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Type B - Print Documents</h2>
+      <p class="hint">Fuer druckfertige A4-Dokumente und Leistungsnachweise.</p>
+      <div class="grid">
+        <article class="card">
+          <div class="card-head">
+            <h3 class="card-title">B1 - HKO Lernsituation Brochure</h3>
+            <button class="btn" type="button" data-copy-target="prompt-b1">Kopieren</button>
+          </div>
+          <div class="copy-state" id="state-prompt-b1" aria-live="polite"></div>
+          <p class="prompt" id="prompt-b1">Ich moechte ein druckfertiges HTML-Dokument im A4-Format erstellen: eine HKO-Lernsituation fuer den ABU-Unterricht. Das Dokument soll 4 Seiten haben - mit Situationsbeschreibung und Leitfragen, einem Informationsblatt, einem Auftragsblatt mit Handlungsschritten und einer Reflexionsseite. Es soll wie ein professionelles Schulheft aussehen, mit einer Farbleiste oben (je nach Situation A-E) und klaren Abschnitten zum Ausfuellen per Hand. Bitte frage mich zuerst nach dem Thema, der Lerngruppe und der Situationsfarbe, bevor du das Dokument erstellst.</p>
+        </article>
+
+        <article class="card">
+          <div class="card-head">
+            <h3 class="card-title">B2 - Exam / Assessment Sheet</h3>
+            <button class="btn" type="button" data-copy-target="prompt-b2">Kopieren</button>
+          </div>
+          <div class="copy-state" id="state-prompt-b2" aria-live="polite"></div>
+          <p class="prompt" id="prompt-b2">Ich moechte ein druckfertiges HTML-Pruefungsblatt im A4-Format erstellen. Es soll einen Kopfbereich mit Name, Datum und Klasse haben, dann verschiedene Aufgabenteile: Multiple-Choice mit Antwortfeldern, Kurzantwortfragen mit Linien zum Schreiben und eine laengere Schreibaufgabe. Am Schluss kommt eine Bewertungsuebersicht mit Punktetabelle. Das Dokument soll professionell und klar gegliedert aussehen. Bitte stelle mir zuerst einige Fragen zu Fach, Thema, Stufe und gewuenschten Aufgabentypen, bevor du das Dokument generierst.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Type C - Info Dossiers</h2>
+      <p class="hint">Fuer Recherche, Uebersichten und Lernportale.</p>
+      <div class="grid">
+        <article class="card">
+          <div class="card-head">
+            <h3 class="card-title">C1 - News Topic Dossier</h3>
+            <button class="btn" type="button" data-copy-target="prompt-c1">Kopieren</button>
+          </div>
+          <div class="copy-state" id="state-prompt-c1" aria-live="polite"></div>
+          <p class="prompt" id="prompt-c1">Ich moechte eine scrollbare HTML-Informationsseite zu einem aktuellen Thema erstellen - wie ein digitales Pressedossier fuer den Unterricht. Die Seite soll eine Uebersicht mit Fakten-Karten, einer Zeitleiste, eingebetteten Videos oder Links und einem Hintergrundtext enthalten. Mit Dunkel/Hell-Modus und Druckfunktion. Schueler:innen sollen die Seite zur Vorbereitung oder Recherche nutzen koennen. Bitte frage mich zuerst nach dem Thema, den wichtigsten Fakten und allfaelligen Video-Links, bevor du die Seite erstellst.</p>
+        </article>
+
+        <article class="card">
+          <div class="card-head">
+            <h3 class="card-title">C2 - Concept Explainer Page</h3>
+            <button class="btn" type="button" data-copy-target="prompt-c2">Kopieren</button>
+          </div>
+          <div class="copy-state" id="state-prompt-c2" aria-live="polite"></div>
+          <p class="prompt" id="prompt-c2">Ich moechte eine scrollbare HTML-Erklaerseite zu einem politischen, rechtlichen oder wirtschaftlichen Begriff erstellen - zum Beispiel Gewaltenteilung, Foederalismus oder ein Rechtsgebiet. Die Seite soll eine klare Definition, eine grafische Uebersicht oder Vergleichstabelle, konkrete Beispiele und weiterfuehrende Links enthalten. Mit Dunkel/Hell-Modus. Bitte stelle mir zuerst einige Fragen zum Begriff, zur Zielgruppe und zu den gewuenschten Inhalten, bevor du die Seite generierst.</p>
+        </article>
+
+        <article class="card">
+          <div class="card-head">
+            <h3 class="card-title">C3 - Unit Landing / Navigation Hub</h3>
+            <button class="btn" type="button" data-copy-target="prompt-c3">Kopieren</button>
+          </div>
+          <div class="copy-state" id="state-prompt-c3" aria-live="polite"></div>
+          <p class="prompt" id="prompt-c3">Ich moechte eine scrollbare HTML-Uebersichtsseite fuer eine ganze Unterrichtseinheit erstellen - eine Art digitales Lernportal, das alle Materialien der Einheit an einem Ort buendelt: interaktive Lektionen, Dokumente, Videos und externe Links, alles als uebersichtliche Karten dargestellt. Schueler:innen sollen von dieser Seite aus alle Ressourcen der Einheit direkt erreichen koennen. Mit Dunkel/Hell-Modus. Bitte frage mich zuerst nach dem Thema der Einheit, den vorhandenen Materialien und der Zielgruppe, bevor du die Seite erstellst.</p>
+        </article>
+      </div>
+    </section>
+
+    <p class="footer-note">Quelle: <code>prompts.md</code> im Repository. Diese Seite ist fuer schnelles Copy/Paste im Unterrichtsalltag gedacht.</p>
+  </main>
+
+  <script>
+    const root = document.documentElement;
+    const themeBtn = document.getElementById('themeBtn');
+
+    function toggleTheme() {
+      const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      localStorage.setItem('prompts-theme', next);
+    }
+
+    themeBtn.addEventListener('click', toggleTheme);
+
+    const savedTheme = localStorage.getItem('prompts-theme');
+    if (savedTheme === 'dark' || savedTheme === 'light') {
+      root.setAttribute('data-theme', savedTheme);
+    }
+
+    async function copyText(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+        return;
+      }
+      const area = document.createElement('textarea');
+      area.value = text;
+      area.style.position = 'fixed';
+      area.style.left = '-9999px';
+      document.body.appendChild(area);
+      area.focus();
+      area.select();
+      document.execCommand('copy');
+      area.remove();
+    }
+
+    function setState(targetId, message, timeout = 1600) {
+      const state = document.getElementById(`state-${targetId}`);
+      if (!state) return;
+      state.textContent = message;
+      if (timeout) {
+        setTimeout(() => {
+          if (state.textContent === message) state.textContent = '';
+        }, timeout);
+      }
+    }
+
+    document.querySelectorAll('[data-copy-target]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const targetId = btn.getAttribute('data-copy-target');
+        const el = document.getElementById(targetId);
+        if (!el) return;
+        try {
+          await copyText(el.innerText.trim());
+          setState(targetId, 'Kopiert');
+        } catch {
+          setState(targetId, 'Kopieren fehlgeschlagen', 2200);
+        }
+      });
+    });
+
+    document.getElementById('copyAllBtn').addEventListener('click', async () => {
+      const prompts = Array.from(document.querySelectorAll('.prompt'))
+        .map((el) => `${el.previousElementSibling?.querySelector('.card-title')?.innerText || ''}\n${el.innerText.trim()}`)
+        .join('\n\n---\n\n');
+      try {
+        await copyText(prompts);
+        const old = document.getElementById('copyAllBtn').innerText;
+        document.getElementById('copyAllBtn').innerText = 'Alle kopiert';
+        setTimeout(() => { document.getElementById('copyAllBtn').innerText = old; }, 1400);
+      } catch {
+        document.getElementById('copyAllBtn').innerText = 'Fehler beim Kopieren';
+      }
+    });
+  </script>
+</body>
+</html>
