@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lohn und Budget – Interaktive Lektion</title>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ===== 1. CSS VARIABLES ===== */
+    :root[data-theme="dark"] {
+      --bg-primary: #0f172a;
+      --bg-secondary: #1e293b;
+      --bg-card: #334155;
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --border: #475569;
+    }
+    :root[data-theme="light"] {
+      --bg-primary: #f8fafc;
+      --bg-secondary: #ffffff;
+      --bg-card: #f1f5f9;
+      --text-primary: #1e293b;
+      --text-secondary: #64748b;
+      --border: #e2e8f0;
+    }
+    :root {
+      --accent: #f59e0b;
+      --accent-2: #ef4444;
+      --green: #4ade80;
+      --red: #f87171;
+      --yellow: #fbbf24;
+      --radius: 12px;
+      --radius-lg: 20px;
+      --transition: 0.2s ease;
+    }
+
+    /* ===== 2. RESET + BASE ===== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Lexend', sans-serif; background: var(--bg-primary); color: var(--text-primary); min-height: 100vh; transition: background var(--transition), color var(--transition); }
+    
+    /* ===== 3. LAYOUT ===== */
+    .header {
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .header-left { display: flex; align-items: center; gap: 14px; }
+    .header-title { font-size: 0.95rem; font-weight: 700; }
+    .header-sub { font-size: 0.75rem; color: var(--text-secondary); }
+    .header-right { display: flex; align-items: center; gap: 10px; }
+    .score-badge { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: white; border-radius: 20px; padding: 5px 13px; font-size: 0.85rem; font-weight: 700; }
+    .btn-print-header { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 6px 14px; font-size: 0.82rem; font-weight: 600; color: var(--text-primary); cursor: pointer; font-family: inherit; transition: all var(--transition); white-space: nowrap; }
+    .btn-print-header:hover { border-color: var(--accent); color: var(--accent); }
+    .main-container { max-width: 820px; margin: 0 auto; padding: 28px 20px 90px; }
+
+    /* ===== STICKY BOTTOM NAV ===== */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: var(--bg-secondary);
+      border-top: 1px solid var(--border);
+      padding: 10px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 100;
+    }
+    .bottom-nav-center { font-size: 0.82rem; color: var(--text-secondary); font-weight: 500; }
+    .btn-nav { background: linear-gradient(135deg, var(--accent), var(--accent-2)); border: none; border-radius: var(--radius); padding: 10px 22px; font-size: 0.9rem; font-weight: 700; color: white; cursor: pointer; font-family: inherit; transition: all var(--transition); display: inline-flex; align-items: center; gap: 6px; }
+    .btn-nav:hover { transform: translateY(-1px); box-shadow: 0 4px 14px color-mix(in srgb, var(--accent) 35%, transparent); }
+    .btn-nav:disabled { opacity: 0.35; cursor: not-allowed; transform: none; box-shadow: none; }
+    .btn-nav-ghost { background: var(--bg-card); color: var(--text-primary); }
+
+    /* ===== 4. PROGRESS ===== */
+    .progress-wrap { margin-bottom: 28px; }
+    .progress-bar { height: 6px; background: var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 14px; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-2)); border-radius: 10px; transition: width 0.4s ease; width: 0%; }
+    .progress-dots { display: flex; gap: 8px; flex-wrap: wrap; }
+    .progress-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--border); cursor: pointer; transition: all var(--transition); }
+    .progress-dot.active { background: var(--accent); transform: scale(1.4); }
+    .progress-dot.completed { background: var(--green); }
+
+    /* ===== 5. SLIDE SYSTEM ===== */
+    .slide { display: none; animation: slideIn 0.35s ease; }
+    .slide.active { display: block; }
+    @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+    .slide-header { margin-bottom: 22px; }
+    .slide-label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); margin-bottom: 6px; }
+    .slide-title { font-size: 1.6rem; font-weight: 700; }
+    .slide-desc { color: var(--text-secondary); margin-top: 6px; font-size: 0.95rem; line-height: 1.6; }
+
+    /* ===== 6. CARD SYSTEM ===== */
+    .card { background: var(--bg-secondary); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 18px; border: 1px solid var(--border); }
+    .card-accent { border-left: 4px solid var(--accent); }
+
+    /* ===== 7. VOCAB FLIP CARDS ===== */
+    .vocab-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    @media (max-width: 600px) { .vocab-grid { grid-template-columns: repeat(2, 1fr); } }
+    .vocab-card { perspective: 800px; cursor: pointer; }
+    .vocab-card-inner { position: relative; width: 100%; transform-style: preserve-3d; transition: transform 0.55s cubic-bezier(.4,0,.2,1); border-radius: var(--radius-lg); }
+    .vocab-card.revealed .vocab-card-inner { transform: rotateY(180deg); }
+    .vocab-front { border-radius: var(--radius-lg); padding: 18px 12px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; backface-visibility: hidden; -webkit-backface-visibility: hidden; background: var(--bg-card); border: 2px solid transparent; transition: border-color var(--transition); min-height: 150px; }
+    .vocab-card:hover .vocab-front { border-color: var(--accent); }
+    .vocab-back { position: absolute; inset: 0; border-radius: var(--radius-lg); padding: 14px 12px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; backface-visibility: hidden; -webkit-backface-visibility: hidden; background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: white; transform: rotateY(180deg); overflow: hidden; }
+    .vocab-emoji { font-size: 1.8rem; margin-bottom: 6px; flex-shrink: 0; }
+    .vocab-word { font-size: 0.95rem; font-weight: 700; margin-bottom: 4px; line-height: 1.3; }
+    .vocab-tap { font-size: 0.7rem; color: var(--text-secondary); margin-top: 6px; }
+    .vocab-meaning { font-size: 0.78rem; color: rgba(255,255,255,0.95); line-height: 1.45; }
+    .vocab-hint { font-size: 0.7rem; color: rgba(255,255,255,0.75); margin-top: 6px; font-style: italic; }
+
+    /* ===== 8. VIDEO EMBED ===== */
+    .video-wrap { position: relative; width: 100%; padding-top: 56.25%; border-radius: var(--radius); overflow: hidden; margin-bottom: 16px; background: #000; }
+    .video-wrap iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+    .video-caption { font-size: 0.85rem; color: var(--text-secondary); margin-top: 8px; }
+
+    /* ===== 9. MULTIPLE CHOICE ===== */
+    .question-block { background: var(--bg-card); border-radius: var(--radius); padding: 20px; margin-bottom: 15px; }
+    .question-text { font-size: 1.05rem; font-weight: 600; margin-bottom: 14px; display: flex; align-items: flex-start; gap: 10px; line-height: 1.5; }
+    .q-num { width: 32px; height: 32px; border-radius: 50%; background: var(--accent); color: white; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+    .choices { display: flex; flex-direction: column; gap: 9px; }
+    .choice-btn { background: var(--bg-secondary); border: 2px solid var(--border); border-radius: var(--radius); padding: 13px 16px; font-size: 0.95rem; text-align: left; cursor: pointer; color: var(--text-primary); display: flex; align-items: center; gap: 12px; font-family: inherit; transition: all var(--transition); }
+    .choice-btn:hover:not(:disabled) { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, transparent); }
+    .choice-letter { width: 28px; height: 28px; border-radius: 50%; background: var(--bg-card); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; flex-shrink: 0; }
+    .choice-btn.correct { border-color: var(--green); background: color-mix(in srgb, var(--green) 15%, transparent); }
+    .choice-btn.correct .choice-letter { background: var(--green); color: #0f172a; }
+    .choice-btn.wrong { border-color: var(--red); background: color-mix(in srgb, var(--red) 15%, transparent); }
+    .choice-btn.wrong .choice-letter { background: var(--red); color: white; }
+
+    /* ===== 10. YES/NO ===== */
+    .yesno-btns { display: flex; gap: 16px; margin-top: 14px; }
+    .yn-btn { flex: 1; padding: 16px; border: none; border-radius: var(--radius); font-size: 1.1rem; font-weight: 700; cursor: pointer; font-family: inherit; transition: all var(--transition); }
+    .yn-btn.yes { background: var(--green); color: #0f172a; }
+    .yn-btn.no { background: var(--red); color: white; }
+    .yn-btn:hover:not(:disabled) { transform: scale(1.04); }
+    .yn-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    /* ===== 11. OPEN TEXT ===== */
+    .reflection-block { background: var(--bg-card); border-radius: var(--radius); padding: 20px; margin-bottom: 14px; }
+    .reflection-textarea { width: 100%; background: var(--bg-secondary); border: 2px solid var(--border); border-radius: var(--radius); padding: 12px; color: var(--text-primary); font-family: inherit; font-size: 0.95rem; resize: vertical; margin-top: 10px; transition: border-color var(--transition); line-height: 1.5; }
+    .reflection-textarea:focus { outline: none; border-color: var(--accent); }
+
+    /* ===== 12. DISCUSSION ===== */
+    .talk-card { background: color-mix(in srgb, var(--accent) 10%, var(--bg-card)); border: 2px solid var(--accent); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 14px; text-align: center; }
+    .talk-icon { font-size: 1.8rem; margin-bottom: 8px; }
+    .talk-question { font-size: 1.05rem; font-weight: 600; margin-bottom: 8px; }
+    .talk-starter { font-size: 0.85rem; color: var(--text-secondary); }
+
+    /* ===== 13. FEEDBACK ===== */
+    .feedback { padding: 13px 16px; border-radius: var(--radius); margin-top: 12px; display: none; align-items: center; gap: 10px; font-size: 0.9rem; animation: popIn 0.3s ease; }
+    .feedback.show { display: flex; }
+    .feedback.success { background: color-mix(in srgb, var(--green) 15%, transparent); border: 2px solid var(--green); color: var(--green); }
+    .feedback.error { background: color-mix(in srgb, var(--red) 15%, transparent); border: 2px solid var(--red); color: var(--red); }
+    .feedback.hint { background: color-mix(in srgb, var(--yellow) 15%, transparent); border: 2px solid var(--yellow); color: var(--yellow); }
+    @keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+    /* ===== 14. BUTTONS ===== */
+    .nav-buttons { display: none; } /* replaced by sticky bottom bar */
+    .btn { background: linear-gradient(135deg, var(--accent), var(--accent-2)); border: none; border-radius: var(--radius); padding: 13px 26px; font-size: 0.95rem; font-weight: 700; color: white; cursor: pointer; font-family: inherit; transition: all var(--transition); display: inline-flex; align-items: center; gap: 8px; }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px color-mix(in srgb, var(--accent) 35%, transparent); }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+    .btn-ghost { background: var(--bg-card); color: var(--text-primary); }
+    .btn-ghost:hover { box-shadow: none; transform: translateY(-1px); }
+    .btn-small { padding: 9px 18px; font-size: 0.85rem; }
+
+    /* ===== 15. THEME TOGGLE ===== */
+    .theme-toggle { background: var(--bg-card); border: 1px solid var(--border); border-radius: 50%; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.1rem; transition: all var(--transition); }
+    .theme-toggle:hover { transform: scale(1.1); }
+
+    /* ===== 16. MODAL ===== */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); display: flex; align-items: center; justify-content: center; z-index: 999; }
+    .modal-box { background: var(--bg-secondary); border-radius: var(--radius-lg); padding: 36px 32px; max-width: 420px; width: 90%; text-align: center; border: 1px solid var(--border); }
+    .modal-box h2 { font-size: 1.6rem; margin-bottom: 10px; }
+    .modal-box p { color: var(--text-secondary); margin-bottom: 20px; }
+    .modal-input { width: 100%; background: var(--bg-card); border: 2px solid var(--border); border-radius: var(--radius); padding: 13px 18px; font-size: 1rem; color: var(--text-primary); font-family: inherit; transition: border-color var(--transition); }
+    .modal-input:focus { outline: none; border-color: var(--accent); }
+    .modal-emoji { font-size: 3rem; margin-bottom: 14px; }
+
+    /* ===== 17. RESULTS SLIDE ===== */
+    .results-box { text-align: center; background: var(--bg-secondary); border-radius: var(--radius-lg); padding: 40px 30px; border: 1px solid var(--border); }
+    .results-stars { font-size: 2.5rem; margin-bottom: 12px; }
+    .results-score-num { font-size: 4rem; font-weight: 700; background: linear-gradient(135deg, var(--accent), var(--accent-2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .results-label { color: var(--text-secondary); margin-top: 6px; margin-bottom: 24px; }
+    .results-name { font-size: 1.2rem; font-weight: 600; margin-bottom: 6px; }
+
+    /* ===== 18. SECTION DIVIDER ===== */
+    .section-divider { display: flex; align-items: center; gap: 14px; margin: 24px 0 18px; color: var(--text-secondary); font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; }
+    .section-divider::before, .section-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+    /* ===== 19. INFO BOX ===== */
+    .info-box { background: color-mix(in srgb, var(--accent) 8%, var(--bg-card)); border-left: 4px solid var(--accent); border-radius: 0 var(--radius) var(--radius) 0; padding: 16px 18px; margin-bottom: 16px; font-size: 0.95rem; line-height: 1.6; }
+    .info-box strong { color: var(--accent); }
+    .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 18px; }
+    .info-stat { background: var(--bg-card); border-radius: var(--radius); padding: 16px; text-align: center; }
+    .info-stat .stat-val { font-size: 1.6rem; font-weight: 700; color: var(--accent); }
+    .info-stat .stat-label { font-size: 0.8rem; color: var(--text-secondary); margin-top: 4px; }
+
+    /* ===== 20. RESPONSIVE ===== */
+    @media (max-width: 600px) {
+      .main-container { padding: 20px 14px 50px; }
+      .slide-title { font-size: 1.3rem; }
+      .yesno-btns { flex-direction: column; }
+      .vocab-grid { grid-template-columns: repeat(2, 1fr); }
+      .info-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    /* ===== 21. PRINT ===== */
+    @media print {
+      body > *:not(#printContent) { display: none !important; }
+      #printContent { display: block !important; }
+    }
+    #printContent { display: none; }
+  </style>
+</head>
+<body>
+
+<!-- NAME MODAL -->
+<div id="nameModal" class="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-emoji">💰</div>
+    <h2>Willkommen!</h2>
+    <p>Wie heisst du? Dein Name erscheint später auf dem Ausdruck.</p>
+    <input type="text" id="nameInput" class="modal-input" placeholder="Dein Vorname..." autocomplete="off" onkeydown="if(event.key==='Enter')submitName()">
+    <br><br>
+    <button class="btn" onclick="submitName()">Los geht's →</button>
+  </div>
+</div>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-left">
+    <div>
+      <div class="header-title">💰 Lohn und Budget</div>
+      <div class="header-sub">Gesellschaft · <span class="student-name">Schüler/in</span></div>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-print-header" onclick="printLesson()">🖨️ Ausdruck</button>
+    <div class="score-badge">⭐ <span id="scoreDisplay">0</span> Pts</div>
+    <button class="theme-toggle" onclick="toggleTheme()" aria-label="Theme wechseln"><span id="themeIcon">🌙</span></button>
+  </div>
+</div>
+
+<!-- PROGRESS -->
+<div class="main-container">
+  <div class="progress-wrap">
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="progress-dots" id="progressDots"></div>
+  </div>
+
+  <!-- ==================== SLIDE 1: EINSTIEG ==================== -->
+  <div class="slide active" id="slide-1">
+    <div class="slide-header">
+      <div class="slide-label">🚀 Einstieg</div>
+      <div class="slide-title">Mein Lohn, dein Lohn – gerechte Löhne?</div>
+      <div class="slide-desc">Warum verdienen manche Menschen mehr als andere? In dieser Lektion untersuchen wir Lohnunterschiede in der Schweiz – und was mit Geld passiert, wenn man nicht aufpasst.</div>
+    </div>
+    <div class="info-grid">
+      <div class="info-stat"><div class="stat-val">6'118</div><div class="stat-label">CHF Medianlohn Schweiz (2012)</div></div>
+      <div class="info-stat"><div class="stat-val">4'300</div><div class="stat-label">CHF Landschaftsgärtner nach Lehre</div></div>
+      <div class="info-stat"><div class="stat-val">30'000+</div><div class="stat-label">CHF Schulden von Claudia mit 18</div></div>
+      <div class="info-stat"><div class="stat-val">1:12</div><div class="stat-label">Lohnschere-Initiative 2013 (abgelehnt)</div></div>
+    </div>
+    <div class="info-box">
+      <strong>📺 Zwei Videos:</strong> Heute schauen wir zwei SRF-Beiträge. Zuerst: <em>«Mein Lohn, dein Lohn»</em> – über Lohnunterschiede in der Schweiz. Dann: <em>«Einstein»</em> – über Jugendliche und Schulden. Klicke dich durch die Aufgaben!
+    </div>
+    <div class="nav-buttons">
+      <span></span>
+      <button class="btn" onclick="nextSlide()">Weiter →</button>
+    </div>
+  </div>
+
+  <!-- ==================== SLIDE 2: VIDEO 1 ==================== -->
+  <div class="slide" id="slide-2">
+    <div class="slide-header">
+      <div class="slide-label">📺 Video 1</div>
+      <div class="slide-title">Mein Lohn, dein Lohn</div>
+      <div class="slide-desc">Schau dir den SRF-Beitrag an. Achte auf die verschiedenen Berufe und ihre Löhne.</div>
+    </div>
+    <div class="video-wrap">
+      <iframe src="https://www.srf.ch/play/embed?urn=urn:srf:video:8e78f8da-c345-4817-87cc-6cf7a4ce7cc5&subdivisions=false" allowfullscreen allow="geolocation *; autoplay; encrypted-media"></iframe>
+    </div>
+    <div class="video-caption">📌 SRF – «Mein Lohn, dein Lohn» | Lohnunterschiede in der Schweiz</div>
+    <div class="info-box" style="margin-top:16px;">
+      <strong>Beobachtungsauftrag:</strong> Notiere dir während des Videos: Welche Berufe werden erwähnt? Was verdienen diese Personen? Was überrascht dich?
+    </div>
+    <div class="nav-buttons">
+      <button class="btn btn-ghost" onclick="prevSlide()">← Zurück</button>
+      <button class="btn" onclick="nextSlide()">Weiter →</button>
+    </div>
+  </div>
+
+  <!-- ==================== SLIDE 3: VOKABULAR ==================== -->
+  <div class="slide" id="slide-3">
+    <div class="slide-header">
+      <div class="slide-label">📖 Fachbegriffe</div>
+      <div class="slide-title">Wichtige Begriffe rund um den Lohn</div>
+      <div class="slide-desc">Klicke auf jede Karte, um die Erklärung zu sehen. +1 Punkt pro Karte!</div>
+    </div>
+    <div class="vocab-grid" id="vocabGrid"></div>
+    <div class="nav-buttons">
+      <button class="btn btn-ghost" onclick="prevSlide()">← Zurück</button>
+      <button class="btn" onclick="nextSlide()">Weiter →</button>
+    </div>
+  </div>
+
+  <!-- ==================== SLIDE 4: MC LOHN ==================== -->
+  <div class="slide" id="slide-4">
+    <div class="slide-header">
+      <div class="slide-label">❓ Verständnis Video 1</div>
+      <div class="slide-title">Was bestimmt den Lohn?</div>
+      <div class="slide-desc">Beantworte die Fragen zum ersten Video. +2 Punkte pro richtige Antwort.</div>
+    </div>
+    <div id="mcContainer1"></div>
+    <div class="nav-buttons">
+      <button class="btn btn-ghost" onclick="prevSlide()">← Zurück</button>
+      <button class="btn" onclick="nextSlide()">Weiter →</button>
+    </div>
+  </div>
+
+  <!-- ==================== SLIDE 5: JA/NEIN ==================== -->
+  <div class="slide" id="slide-5">
+    <div class="slide-header">
+      <div class="slide-label">🔍 Richtig oder falsch?</div>
+      <div class="slide-title">Aussagen zum Lohn – stimmt das?</div>
+      <div class="slide-desc">Klicke «Ja» oder «Nein» für jede Aussage. +1 Punkt pro richtige Antwort.</div>
+    </div>
+    <div id="yesnoContainer"></div>
+    <div class="nav-buttons">
+      <button class="btn btn-ghost" onclick="prevSlide()">← Zurück</button>
+      <button class="btn" onclick="nextSlide()">Weiter →</button>
+    </div>
+  </div>
+
+  <!-- ==================== SLIDE 6: VIDEO 2 ==================== -->
+  <div class="slide" id="slide-6">
+    <div class="slide-header">
+      <div class="slide-label">📺 Video 2</div>
+      <div class="slide-title">Jugendliche und Schulden</div>
+      <div class="slide-desc">Schau dir den zweiten Beitrag an. Was führt dazu, dass Jugendliche Schulden machen?</div>
+    </div>
+    <div class="video-wrap">
+      <iframe src="https://www.srf.ch/play/embed?urn=urn:srf:video:c264309b-4f69-4ca3-9287-7be4957b3ccf&subdivisions=false" allowfullscreen allow="geolocation *; autoplay; encrypted-media"></iframe>
+    </div>
+    <div class="video-caption">📌 SRF Einstein – Jugendliche in der Schuldenfalle</div>
+    <div class="info-box" style="margin-top:16px;">
+      <strong>Beobachtungsauftrag:</strong> Warum kommt Claudia in die Schuldenfalle? Was sagt der Experte Christoph Mattes? Was sollte besser gemacht werden?
+    </div>
+    <div class="nav-buttons">
+      <button class="btn btn-ghost" onclick="prevSlide()">← Zurück</button>
+      <button class="btn" onclick="nextSlide()">Weiter →</button>
+    </div>
+  </div>
+
+  <!-- ==================== SLIDE 7: MC SCHULDEN ==================== -->
+  <div class="slide" id="slide-7">
+    <div class="slide-header">
+      <div class="slide-label">❓ Verständnis Video 2</div>
+      <div class="slide-title">Schulden und Budget</div>
+      <div class="slide-desc">Was hast du aus dem zweiten Video mitgenommen? +2 Punkte pro richtige Antwort.</div>
+    </div>
+    <div id="mcContainer2"></div>
+    <div class="nav-buttons">
+      <button class="btn btn-ghost" onclick="prevSlide()">← Zurück</button>
+      <button class="btn" onclick="nextSlide()">Weiter →</button>
+    </div>
+  </div>
+
+  <!-- ==================== SLIDE 8: REFLEXION ==================== -->
+  <div class="slide" id="slide-8">
+    <div class="slide-header">
+      <div class="slide-label">✍️ Reflexion</div>
+      <div class="slide-title">Deine Gedanken</div>
+      <div class="slide-desc">Beantworte die Fragen in eigenen Worten. Diese Antworten erscheinen auf deinem Ausdruck.</div>
+    </div>
+    <div id="reflectionContainer"></div>
+    <div class="nav-buttons">
+      <button class="btn btn-ghost" onclick="prevSlide()">← Zurück</button>
+      <button class="btn" onclick="nextSlide()">Weiter →</button>
+    </div>
+  </div>
+
+  <!-- ==================== SLIDE 9: DISKUSSION ==================== -->
+  <div class="slide" id="slide-9">
+    <div class="slide-header">
+      <div class="slide-label">💬 Diskussion</div>
+      <div class="slide-title">Sprecht in der Klasse</div>
+      <div class="slide-desc">Diskutiert diese Fragen zu zweit oder in der Gruppe.</div>
+    </div>
+    <div id="discussionContainer"></div>
+    <div class="nav-buttons">
+      <button class="btn btn-ghost" onclick="prevSlide()">← Zurück</button>
+      <button class="btn" onclick="nextSlide()">Zum Ergebnis →</button>
+    </div>
+  </div>
+
+  <!-- ==================== SLIDE 10: RESULTS ==================== -->
+  <div class="slide" id="slide-10">
+    <div class="slide-header">
+      <div class="slide-label">🏆 Fertig!</div>
+      <div class="slide-title">Dein Ergebnis</div>
+    </div>
+    <div class="results-box">
+      <div class="results-stars" id="finalStars">⭐</div>
+      <div class="results-name" id="resultName"></div>
+      <div class="results-score-num" id="finalScore">0</div>
+      <div class="results-label">Punkte erreicht</div>
+      <button class="btn" onclick="printLesson()" style="margin-top:10px;">🖨️ Ausdruck erstellen</button>
+      <br><br>
+      <button class="btn btn-ghost btn-small" onclick="if(confirm('Fortschritt löschen und neu starten?')) clearState()">🔄 Neu starten</button>
+    </div>
+    <div style="margin-top:20px; background:var(--bg-card); border-radius:var(--radius); padding:18px;">
+      <div style="font-weight:600; margin-bottom:12px; color:var(--accent);">📝 Das habe ich gelernt:</div>
+      <ul style="list-style:none; display:flex; flex-direction:column; gap:8px; font-size:0.9rem; color:var(--text-secondary);">
+        <li>✅ Lohnunterschiede entstehen durch Angebot/Nachfrage, Produktivität, Branche und Region</li>
+        <li>✅ Gewerkschaften und Verhandlungen beeinflussen Löhne</li>
+        <li>✅ Nicht hoher Lohn allein, sondern Vergleich mit anderen bestimmt Zufriedenheit</li>
+        <li>✅ Schulden entstehen oft durch strukturelle Probleme – nicht nur durch schlechtes Konsumverhalten</li>
+        <li>✅ Prävention beginnt bei der Familie: offener Umgang mit Geld ist entscheidend</li>
+      </ul>
+    </div>
+    <div class="nav-buttons">
+      <button class="btn btn-ghost" onclick="prevSlide()">← Zurück</button>
+      <span></span>
+    </div>
+  </div>
+
+</div><!-- end main-container -->
+
+<!-- PRINT CONTENT -->
+<div class="print-content" id="printContent"></div>
+
+<script>
+// ==================== DATA ====================
+const VOCABULARY = [
+  { word: "Bruttolohn", emoji: "💵", meaning: "Lohn vor dem Abzug von Sozialversicherungen und Steuern", hint: "z.B. 5'000 CHF brutto" },
+  { word: "Nettolohn", emoji: "💳", meaning: "Lohn, den man tatsächlich ausbezahlt bekommt, nach allen Abzügen", hint: "z.B. 4'200 CHF netto" },
+  { word: "Lohnregulativ", emoji: "📋", meaning: "Offizielles Dokument einer Branche, das Mindest- und Maximallöhne festlegt", hint: "z.B. Gärtnerverband" },
+  { word: "Gesamtarbeitsvertrag (GAV)", emoji: "🤝", meaning: "Vertrag zwischen Gewerkschaften und Arbeitgebern, der Löhne und Bedingungen regelt", hint: "schützt Arbeitnehmende" },
+  { word: "Produktivität", emoji: "⚙️", meaning: "Leistung pro Zeiteinheit – je höher, desto mehr Wert für den Arbeitgeber", hint: "Arbeiter B macht 20 Teile/h" },
+  { word: "Überschuldung", emoji: "📉", meaning: "Schulden übersteigen das Vermögen und Einkommen dauerhaft", hint: "kann zur Betreibung führen" },
+  { word: "Zahlungsbefehl", emoji: "⚠️", meaning: "Offizielles Schreiben des Betreibungsamts bei unbezahlten Rechnungen", hint: "erste Stufe der Betreibung" },
+  { word: "Schuldenprävention", emoji: "🛡️", meaning: "Massnahmen, die verhindern, dass Menschen in die Schuldenfalle geraten", hint: "beginnt in der Familie" },
+];
+
+const MC_LOHN = [
+  {
+    question: "Was verdiente man in der Schweiz 2012 im Durchschnitt (Median)?",
+    choices: ["5'200 CHF", "6'118 CHF", "7'400 CHF", "4'300 CHF"],
+    correct: 1, emoji: "📊"
+  },
+  {
+    question: "Warum sind die Löhne im Baubereich in den letzten Jahren gestiegen, obwohl viele Arbeitskräfte verfügbar sind?",
+    choices: ["Weil die Bauwirtschaft besonders produktiv ist", "Wegen aktiver Gewerkschaften und Verhandlungen", "Weil es einen Fachkräftemangel gibt", "Wegen staatlicher Lohnvorgaben"],
+    correct: 1, emoji: "🏗️"
+  },
+  {
+    question: "Ein Zürcher Sacklehrer verdient im ersten Jahr 7'400 CHF, ein Bündner 6'300 CHF. Was erklärt diesen Unterschied hauptsächlich?",
+    choices: ["Unterschiedliche Qualifikationen", "Unterschiedliche Lebenshaltungskosten", "Mehr Verantwortung in Zürich", "Kürzere Arbeitszeiten in Graubünden"],
+    correct: 1, emoji: "🗺️"
+  },
+  {
+    question: "Was besagt das Prinzip der Produktivitätsleistung?",
+    choices: ["Alle verdienen gleich viel, egal wie viel sie leisten", "Wer mehr leistet, bekommt mehr Lohn", "Der Lohn richtet sich nur nach der Ausbildung", "Produktivere Firmen zahlen mehr Steuern"],
+    correct: 1, emoji: "⚙️"
+  },
+];
+
+const YESNO = [
+  { statement: "Im Detailhandel gilt: hohe Unternehmensgewinne führen automatisch zu hohen Löhnen.", answer: false, emoji: "🛒" },
+  { statement: "Laut einer wissenschaftlichen Studie ist vor allem der Vergleich mit anderen entscheidend für die Lohnzufriedenheit.", answer: true, emoji: "🔍" },
+  { statement: "Die 1:12-Initiative, die Cheflöhne auf das 12-fache des tiefsten Lohns begrenzen wollte, wurde 2013 angenommen.", answer: false, emoji: "🗳️" },
+  { statement: "Platon fand es gerecht, wenn der Reichste maximal das Vierfache des Ärmsten besitzt.", answer: true, emoji: "🏛️" },
+];
+
+const MC_SCHULDEN = [
+  {
+    question: "Was sagt Sozialwissenschaftler Christoph Mattes zum Umgang Jugendlicher mit Geld?",
+    choices: ["Jugendliche sind generell leichtsinnig mit Geld", "Der Umgang ist erstaunlich rational – Risikogruppen sind sozial Benachteiligte", "Schulden sind immer selbstverschuldet", "Schulden entstehen hauptsächlich durch übermässigen Konsum"],
+    correct: 1, emoji: "👨‍🔬"
+  },
+  {
+    question: "Warum ist Geld in Problemfamilien oft ein Tabuthema?",
+    choices: ["Weil Geld generell nicht besprochen werden sollte", "Weil es mit Scham und Schuldgefühlen verbunden ist", "Weil die Eltern die Kinder schützen wollen", "Weil Schulden nicht so schlimm sind"],
+    correct: 1, emoji: "🤫"
+  },
+  {
+    question: "Was empfiehlt Mattes als Schuldenprävention?",
+    choices: ["Strengere Gesetze für Jugendliche", "Bessere Finanzbildung in der Schule", "Familien befähigen, offen mit Geld umzugehen", "Kreditkarten für Jugendliche verbieten"],
+    correct: 2, emoji: "💡"
+  },
+];
+
+const REFLECTION_PROMPTS = [
+  {
+    prompt: "Was findest du an der Lohndiskussion am ungerechtesten? Begründe deine Meinung.",
+    placeholder: "Meiner Meinung nach ist es ungerecht, dass..."
+  },
+  {
+    prompt: "Claudia hatte über 30'000 Franken Schulden. Was hätte ihr helfen können, das zu verhindern?",
+    placeholder: "Ich denke, Claudia hätte..."
+  },
+  {
+    prompt: "Welchen Einfluss hat die Familie auf den Umgang mit Geld? Was nimmst du aus deiner eigenen Familie mit?",
+    placeholder: "In meiner Familie wird Geld..."
+  },
+];
+
+const DISCUSSION = [
+  {
+    question: "Ist es gerecht, dass ein CEO bis zu mehrere Millionen Franken pro Jahr verdient, während eine Coiffeuse 3'700 Franken erhält?",
+    starter: "Ich finde das (un)gerecht, weil..."
+  },
+  {
+    question: "Stell dir vor, du verdienst gleich viel wie heute, aber dein Nachbar verdient plötzlich viel mehr. Wie fühlt sich das an?",
+    starter: "Das würde mich... weil..."
+  },
+  {
+    question: "Wie viel Verantwortung tragen Eltern dafür, dass ihre Kinder nicht in die Schuldenfalle geraten?",
+    starter: "Eltern sind verantwortlich für..."
+  },
+  {
+    question: "Würdest du einen gut bezahlten Job annehmen, der dir keinen Spass macht – oder lieber weniger verdienen und etwas tun, das du liebst?",
+    starter: "Ich würde..., weil..."
+  },
+];
+
+// ==================== STATE ====================
+let currentSlide = 1;
+const TOTAL_SLIDES = 10;
+let score = 0;
+let studentName = '';
+const ynAnswered = {};
+const mcAnswered1 = {};
+const mcAnswered2 = {};
+const STORAGE_KEY = 'lohn_budget_v1';
+
+function saveState(overrides) {
+  const s = overrides || {
+    score, studentName, currentSlide,
+    ynAnswered: {...ynAnswered},
+    mcAnswered1: {...mcAnswered1},
+    mcAnswered2: {...mcAnswered2},
+    reflections: REFLECTION_PROMPTS.map((p,i) => document.getElementById(`refl-${i}`)?.value || ''),
+    theme: document.documentElement.getAttribute('data-theme') || 'dark'
+  };
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); } catch(e) {}
+}
+
+function loadState() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch(e) { return {}; }
+}
+
+function clearState() {
+  try { localStorage.removeItem(STORAGE_KEY); } catch(e) {}
+  location.reload();
+}
+
+// ==================== INIT ====================
+document.addEventListener('DOMContentLoaded', () => {
+  buildProgressDots();
+  initVocab();
+  initMC1();
+  initYesNo();
+  initMC2();
+  initReflection();
+  initDiscussion();
+
+  const s = loadState();
+
+  // Restore theme
+  if (s.theme) {
+    document.documentElement.setAttribute('data-theme', s.theme);
+    document.getElementById('themeIcon').textContent = s.theme === 'dark' ? '🌙' : '☀️';
+  }
+
+  // Restore name
+  if (s.studentName) {
+    studentName = s.studentName;
+    document.querySelectorAll('.student-name').forEach(el => el.textContent = studentName);
+    document.getElementById('nameModal').style.display = 'none';
+  }
+
+  // Restore score
+  if (s.score) {
+    score = s.score;
+    document.getElementById('scoreDisplay').textContent = score;
+  }
+
+  // Restore MC1 answers
+  if (s.mcAnswered1) {
+    Object.entries(s.mcAnswered1).forEach(([qi, ci]) => {
+      if (ci === undefined || ci === null) return;
+      mcAnswered1[qi] = true;
+      const block = document.getElementById(`mc1-${qi}`);
+      if (!block) return;
+      const buttons = block.querySelectorAll('.choice-btn');
+      buttons.forEach(b => b.disabled = true);
+      buttons[ci]?.classList.add(ci == MC_LOHN[qi].correct ? 'correct' : 'wrong');
+      if (ci != MC_LOHN[qi].correct) buttons[MC_LOHN[qi].correct]?.classList.add('correct');
+      const fb = document.getElementById(`mc1-fb-${qi}`);
+      if (fb) { fb.className = `feedback show ${ci == MC_LOHN[qi].correct ? 'success' : 'error'}`; fb.innerHTML = ci == MC_LOHN[qi].correct ? '✅ Richtig! +2 Punkte' : '❌ Nicht ganz – die richtige Antwort ist markiert.'; }
+    });
+  }
+
+  // Restore YN answers
+  if (s.ynAnswered) {
+    Object.entries(s.ynAnswered).forEach(([i, val]) => {
+      if (val === undefined || val === null) return;
+      ynAnswered[i] = true;
+      const block = document.getElementById(`yn-${i}`);
+      if (!block) return;
+      const btns = block.querySelectorAll('.yn-btn');
+      btns.forEach(b => b.disabled = true);
+      const isCorrect = val === YESNO[i].answer;
+      const chosenBtn = val === true ? btns[0] : btns[1];
+      if (chosenBtn) chosenBtn.style.outline = `3px solid ${isCorrect ? 'var(--green)' : 'var(--red)'}`;
+      const fb = document.getElementById(`yn-fb-${i}`);
+      if (fb) { fb.className = `feedback show ${isCorrect ? 'success' : 'error'}`; fb.innerHTML = isCorrect ? '✅ Richtig! +1 Punkt' : `❌ Falsch! Die Aussage ist ${YESNO[i].answer ? 'richtig' : 'falsch'}.`; }
+    });
+  }
+
+  // Restore MC2 answers
+  if (s.mcAnswered2) {
+    Object.entries(s.mcAnswered2).forEach(([qi, ci]) => {
+      if (ci === undefined || ci === null) return;
+      mcAnswered2[qi] = true;
+      const block = document.getElementById(`mc2-${qi}`);
+      if (!block) return;
+      const buttons = block.querySelectorAll('.choice-btn');
+      buttons.forEach(b => b.disabled = true);
+      buttons[ci]?.classList.add(ci == MC_SCHULDEN[qi].correct ? 'correct' : 'wrong');
+      if (ci != MC_SCHULDEN[qi].correct) buttons[MC_SCHULDEN[qi].correct]?.classList.add('correct');
+      const fb = document.getElementById(`mc2-fb-${qi}`);
+      if (fb) { fb.className = `feedback show ${ci == MC_SCHULDEN[qi].correct ? 'success' : 'error'}`; fb.innerHTML = ci == MC_SCHULDEN[qi].correct ? '✅ Richtig! +2 Punkte' : '❌ Nicht ganz – die richtige Antwort ist markiert.'; }
+    });
+  }
+
+  // Restore reflections
+  if (s.reflections) {
+    s.reflections.forEach((val, i) => {
+      const el = document.getElementById(`refl-${i}`);
+      if (el) el.value = val;
+    });
+  }
+
+  // Restore slide (after all components initialized)
+  if (s.currentSlide) {
+    goToSlide(s.currentSlide);
+  } else {
+    updateProgress();
+  }
+
+  // Auto-save reflections on input
+  document.querySelectorAll('.reflection-textarea').forEach(ta => {
+    ta.addEventListener('input', () => saveState());
+  });
+});
+
+// ==================== MODAL ====================
+function submitName() {
+  const val = document.getElementById('nameInput').value.trim();
+  if (!val) return;
+  studentName = val;
+  document.getElementById('nameModal').style.display = 'none';
+  document.querySelectorAll('.student-name').forEach(el => el.textContent = val);
+  saveState();
+}
+
+// ==================== NAVIGATION ====================
+function goToSlide(n) {
+  if (n < 1 || n > TOTAL_SLIDES) return;
+  document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+  document.getElementById(`slide-${n}`).classList.add('active');
+  currentSlide = n;
+  updateProgress();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  saveState();
+  if (n === TOTAL_SLIDES) showResults();
+}
+function nextSlide() { goToSlide(currentSlide + 1); }
+function prevSlide() { goToSlide(currentSlide - 1); }
+
+function buildProgressDots() {
+  const container = document.getElementById('progressDots');
+  for (let i = 1; i <= TOTAL_SLIDES; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'progress-dot';
+    dot.title = `Folie ${i}`;
+    dot.onclick = () => goToSlide(i);
+    container.appendChild(dot);
+  }
+}
+
+function updateProgress() {
+  const pct = ((currentSlide - 1) / (TOTAL_SLIDES - 1)) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.querySelectorAll('.progress-dot').forEach((dot, i) => {
+    dot.classList.toggle('active', i + 1 === currentSlide);
+    dot.classList.toggle('completed', i + 1 < currentSlide);
+  });
+  // Bottom nav
+  const counter = document.getElementById('slideCounter');
+  if (counter) counter.textContent = `${currentSlide} / ${TOTAL_SLIDES}`;
+  const btnPrev = document.getElementById('btnPrev');
+  const btnNext = document.getElementById('btnNext');
+  if (btnPrev) btnPrev.disabled = currentSlide === 1;
+  if (btnNext) btnNext.disabled = currentSlide === TOTAL_SLIDES;
+}
+
+// Keyboard navigation
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') return;
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') nextSlide();
+  if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') prevSlide();
+});
+
+// ==================== SCORING ====================
+function addScore(pts) {
+  score += pts;
+  document.getElementById('scoreDisplay').textContent = score;
+  saveState();
+}
+
+// ==================== VOCAB ====================
+function initVocab() {
+  const saved = loadState();
+  document.getElementById('vocabGrid').innerHTML = VOCABULARY.map((v, i) => `
+    <div class="vocab-card${saved.vocabFlipped && saved.vocabFlipped[i] ? ' revealed' : ''}" onclick="flipCard(this,${i})">
+      <div class="vocab-card-inner">
+        <div class="vocab-front">
+          <div class="vocab-emoji">${v.emoji}</div>
+          <div class="vocab-word">${v.word}</div>
+          <div class="vocab-tap">👆 anklicken</div>
+        </div>
+        <div class="vocab-back">
+          <div class="vocab-emoji">${v.emoji}</div>
+          <div class="vocab-word">${v.word}</div>
+          <div class="vocab-meaning">${v.meaning}</div>
+          ${v.hint ? `<div class="vocab-hint">${v.hint}</div>` : ''}
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+function flipCard(card, i) {
+  if (card.classList.contains('revealed')) return;
+  card.classList.add('revealed');
+  addScore(1);
+  const s = loadState();
+  if (!s.vocabFlipped) s.vocabFlipped = {};
+  s.vocabFlipped[i] = true;
+  saveState(s);
+}
+
+// ==================== MC 1 ====================
+function initMC1() {
+  document.getElementById('mcContainer1').innerHTML = MC_LOHN.map((q, qi) => `
+    <div class="question-block" id="mc1-${qi}">
+      <div class="question-text"><span class="q-num">${qi+1}</span>${q.emoji} ${q.question}</div>
+      <div class="choices">
+        ${q.choices.map((c, ci) => `
+          <button class="choice-btn" onclick="selectMC1(${qi},${ci},this)">
+            <span class="choice-letter">${String.fromCharCode(65+ci)}</span>${c}
+          </button>`).join('')}
+      </div>
+      <div class="feedback" id="mc1-fb-${qi}"></div>
+    </div>`).join('');
+}
+function selectMC1(qi, ci, btn) {
+  if (mcAnswered1[qi]) return;
+  mcAnswered1[qi] = ci;
+  const block = document.getElementById(`mc1-${qi}`);
+  block.querySelectorAll('.choice-btn').forEach(b => b.disabled = true);
+  const isCorrect = ci === MC_LOHN[qi].correct;
+  btn.classList.add(isCorrect ? 'correct' : 'wrong');
+  if (!isCorrect) block.querySelectorAll('.choice-btn')[MC_LOHN[qi].correct].classList.add('correct');
+  const fb = document.getElementById(`mc1-fb-${qi}`);
+  fb.className = `feedback show ${isCorrect ? 'success' : 'error'}`;
+  fb.innerHTML = isCorrect ? '✅ Richtig! +2 Punkte' : '❌ Nicht ganz – die richtige Antwort ist markiert.';
+  if (isCorrect) addScore(2); else saveState();
+}
+
+// ==================== YES/NO ====================
+function initYesNo() {
+  document.getElementById('yesnoContainer').innerHTML = YESNO.map((q, i) => `
+    <div class="question-block" id="yn-${i}">
+      <div class="question-text" style="flex-direction:column; gap:6px; text-align:center;">
+        <span style="font-size:2rem">${q.emoji}</span>
+        ${q.statement}
+      </div>
+      <div class="yesno-btns">
+        <button class="yn-btn yes" onclick="answerYN(${i},true,this)">Ja ✓</button>
+        <button class="yn-btn no" onclick="answerYN(${i},false,this)">Nein ✗</button>
+      </div>
+      <div class="feedback" id="yn-fb-${i}"></div>
+    </div>`).join('');
+}
+function answerYN(i, val, btn) {
+  if (ynAnswered[i]) return;
+  ynAnswered[i] = val;
+  const block = document.getElementById(`yn-${i}`);
+  block.querySelectorAll('.yn-btn').forEach(b => b.disabled = true);
+  const isCorrect = val === YESNO[i].answer;
+  btn.style.outline = `3px solid ${isCorrect ? 'var(--green)' : 'var(--red)'}`;
+  const fb = document.getElementById(`yn-fb-${i}`);
+  fb.className = `feedback show ${isCorrect ? 'success' : 'error'}`;
+  fb.innerHTML = isCorrect ? '✅ Richtig! +1 Punkt' : `❌ Falsch! Die Aussage ist ${YESNO[i].answer ? 'richtig' : 'falsch'}.`;
+  if (isCorrect) addScore(1); else saveState();
+}
+
+// ==================== MC 2 ====================
+function initMC2() {
+  document.getElementById('mcContainer2').innerHTML = MC_SCHULDEN.map((q, qi) => `
+    <div class="question-block" id="mc2-${qi}">
+      <div class="question-text"><span class="q-num">${qi+1}</span>${q.emoji} ${q.question}</div>
+      <div class="choices">
+        ${q.choices.map((c, ci) => `
+          <button class="choice-btn" onclick="selectMC2(${qi},${ci},this)">
+            <span class="choice-letter">${String.fromCharCode(65+ci)}</span>${c}
+          </button>`).join('')}
+      </div>
+      <div class="feedback" id="mc2-fb-${qi}"></div>
+    </div>`).join('');
+}
+function selectMC2(qi, ci, btn) {
+  if (mcAnswered2[qi]) return;
+  mcAnswered2[qi] = ci;
+  const block = document.getElementById(`mc2-${qi}`);
+  block.querySelectorAll('.choice-btn').forEach(b => b.disabled = true);
+  const isCorrect = ci === MC_SCHULDEN[qi].correct;
+  btn.classList.add(isCorrect ? 'correct' : 'wrong');
+  if (!isCorrect) block.querySelectorAll('.choice-btn')[MC_SCHULDEN[qi].correct].classList.add('correct');
+  const fb = document.getElementById(`mc2-fb-${qi}`);
+  fb.className = `feedback show ${isCorrect ? 'success' : 'error'}`;
+  fb.innerHTML = isCorrect ? '✅ Richtig! +2 Punkte' : '❌ Nicht ganz – die richtige Antwort ist markiert.';
+  if (isCorrect) addScore(2); else saveState();
+}
+
+// ==================== REFLECTION ====================
+function initReflection() {
+  document.getElementById('reflectionContainer').innerHTML = REFLECTION_PROMPTS.map((p, i) => `
+    <div class="reflection-block">
+      <div class="question-text"><span class="q-num">${i+1}</span>${p.prompt}</div>
+      <textarea class="reflection-textarea" id="refl-${i}" placeholder="${p.placeholder}" rows="4"></textarea>
+    </div>`).join('');
+}
+function getReflections() {
+  return REFLECTION_PROMPTS.map((p, i) => ({
+    prompt: p.prompt,
+    answer: document.getElementById(`refl-${i}`)?.value || '(keine Antwort)'
+  }));
+}
+
+// ==================== DISCUSSION ====================
+function initDiscussion() {
+  document.getElementById('discussionContainer').innerHTML = DISCUSSION.map(d => `
+    <div class="talk-card">
+      <div class="talk-icon">💬</div>
+      <div class="talk-question">${d.question}</div>
+      <div class="talk-starter"><em>Satzstart: «${d.starter}»</em></div>
+    </div>`).join('');
+}
+
+// ==================== RESULTS ====================
+function showResults() {
+  document.getElementById('finalScore').textContent = score;
+  const maxScore = VOCABULARY.length + MC_LOHN.length * 2 + YESNO.length + MC_SCHULDEN.length * 2;
+  const pct = score / maxScore;
+  const stars = pct >= 0.8 ? '⭐⭐⭐' : pct >= 0.5 ? '⭐⭐' : '⭐';
+  document.getElementById('finalStars').textContent = stars;
+  if (studentName) document.getElementById('resultName').textContent = studentName;
+}
+
+// ==================== THEME ====================
+function toggleTheme() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  document.getElementById('themeIcon').textContent = isDark ? '☀️' : '🌙';
+  saveState();
+}
+
+// ==================== PRINT ====================
+function printLesson() {
+  const reflections = getReflections();
+  const now = new Date().toLocaleDateString('de-CH');
+
+  // MC1 answers
+  const mc1Section = MC_LOHN.map((q, qi) => {
+    const answered = mcAnswered1[qi] !== undefined && mcAnswered1[qi] !== true;
+    const ci = answered ? mcAnswered1[qi] : null;
+    const isCorrect = ci !== null && ci === q.correct;
+    const icon = ci === null ? '⬜' : isCorrect ? '✅' : '❌';
+    const chosen = ci !== null ? q.choices[ci] : '<em style="color:#999">nicht beantwortet</em>';
+    const correct = q.choices[q.correct];
+    return `
+      <div style="margin-bottom:14px; padding:12px 14px; border-radius:4px; border-left:4px solid ${ci===null?'#ccc':isCorrect?'#4ade80':'#f87171'}; background:${ci===null?'#f9f9f9':isCorrect?'#f0fdf4':'#fff5f5'}; page-break-inside:avoid;">
+        <p style="font-weight:600; font-size:0.88rem; margin-bottom:6px;">${icon} ${q.emoji} ${q.question}</p>
+        <p style="font-size:0.85rem; color:#333;">Deine Antwort: <strong>${chosen}</strong></p>
+        ${!isCorrect && ci !== null ? `<p style="font-size:0.82rem; color:#666; margin-top:3px;">Richtige Antwort: <em>${correct}</em></p>` : ''}
+      </div>`;
+  }).join('');
+
+  // YN answers
+  const ynSection = YESNO.map((q, i) => {
+    const val = ynAnswered[i];
+    const answered = val !== undefined;
+    const isCorrect = answered && val === q.answer;
+    const icon = !answered ? '⬜' : isCorrect ? '✅' : '❌';
+    const chosen = !answered ? '<em style="color:#999">nicht beantwortet</em>' : val ? 'Ja' : 'Nein';
+    return `
+      <div style="margin-bottom:14px; padding:12px 14px; border-radius:4px; border-left:4px solid ${!answered?'#ccc':isCorrect?'#4ade80':'#f87171'}; background:${!answered?'#f9f9f9':isCorrect?'#f0fdf4':'#fff5f5'}; page-break-inside:avoid;">
+        <p style="font-weight:600; font-size:0.88rem; margin-bottom:6px;">${icon} ${q.emoji} ${q.statement}</p>
+        <p style="font-size:0.85rem; color:#333;">Deine Antwort: <strong>${chosen}</strong>${!isCorrect && answered ? ` &nbsp;→&nbsp; Richtig wäre: <em>${q.answer ? 'Ja' : 'Nein'}</em>` : ''}</p>
+      </div>`;
+  }).join('');
+
+  // MC2 answers
+  const mc2Section = MC_SCHULDEN.map((q, qi) => {
+    const answered = mcAnswered2[qi] !== undefined && mcAnswered2[qi] !== true;
+    const ci = answered ? mcAnswered2[qi] : null;
+    const isCorrect = ci !== null && ci === q.correct;
+    const icon = ci === null ? '⬜' : isCorrect ? '✅' : '❌';
+    const chosen = ci !== null ? q.choices[ci] : '<em style="color:#999">nicht beantwortet</em>';
+    const correct = q.choices[q.correct];
+    return `
+      <div style="margin-bottom:14px; padding:12px 14px; border-radius:4px; border-left:4px solid ${ci===null?'#ccc':isCorrect?'#4ade80':'#f87171'}; background:${ci===null?'#f9f9f9':isCorrect?'#f0fdf4':'#fff5f5'}; page-break-inside:avoid;">
+        <p style="font-weight:600; font-size:0.88rem; margin-bottom:6px;">${icon} ${q.emoji} ${q.question}</p>
+        <p style="font-size:0.85rem; color:#333;">Deine Antwort: <strong>${chosen}</strong></p>
+        ${!isCorrect && ci !== null ? `<p style="font-size:0.82rem; color:#666; margin-top:3px;">Richtige Antwort: <em>${correct}</em></p>` : ''}
+      </div>`;
+  }).join('');
+
+  // Vocab flipped
+  const s = loadState();
+  const flippedCount = s.vocabFlipped ? Object.keys(s.vocabFlipped).length : 0;
+  const vocabSection = VOCABULARY.map((v, i) => {
+    const flipped = s.vocabFlipped && s.vocabFlipped[i];
+    return `<span style="display:inline-block; margin:3px 4px; padding:4px 10px; border-radius:20px; font-size:0.82rem; background:${flipped?'#fef9ec':'#f3f4f6'}; color:${flipped?'#92400e':'#9ca3af'}; border:1px solid ${flipped?'#f59e0b':'#e5e7eb'};">${flipped?'✅':'⬜'} ${v.word}</span>`;
+  }).join('');
+
+  const maxScore = VOCABULARY.length + MC_LOHN.length * 2 + YESNO.length + MC_SCHULDEN.length * 2;
+
+  document.getElementById('printContent').innerHTML = `
+    <div style="font-family:Georgia,serif; max-width:700px; margin:0 auto; padding:40px 30px; color:#111;">
+      <h1 style="font-size:1.5rem; border-bottom:3px solid #f59e0b; padding-bottom:10px; margin-bottom:6px;">💰 Lohn und Budget</h1>
+      <p style="color:#555; font-size:0.88rem; margin-bottom:28px;">Schüler/in: <strong>${studentName || '—'}</strong> &nbsp;|&nbsp; Datum: ${now} &nbsp;|&nbsp; Punkte: <strong>${score} / ${maxScore}</strong></p>
+
+      <h2 style="font-size:1rem; color:#b45309; margin-bottom:10px; text-transform:uppercase; letter-spacing:0.05em;">📖 Fachbegriffe</h2>
+      <p style="font-size:0.82rem; color:#777; margin-bottom:8px;">${flippedCount} von ${VOCABULARY.length} Karten aufgedeckt</p>
+      <div style="margin-bottom:24px;">${vocabSection}</div>
+
+      <h2 style="font-size:1rem; color:#b45309; margin-bottom:10px; text-transform:uppercase; letter-spacing:0.05em;">❓ Video 1 – Lohnunterschiede</h2>
+      <div style="margin-bottom:24px;">${mc1Section}</div>
+
+      <h2 style="font-size:1rem; color:#b45309; margin-bottom:10px; text-transform:uppercase; letter-spacing:0.05em;">🔍 Richtig oder falsch?</h2>
+      <div style="margin-bottom:24px;">${ynSection}</div>
+
+      <h2 style="font-size:1rem; color:#b45309; margin-bottom:10px; text-transform:uppercase; letter-spacing:0.05em;">❓ Video 2 – Schulden</h2>
+      <div style="margin-bottom:24px;">${mc2Section}</div>
+
+      <h2 style="font-size:1rem; color:#b45309; margin-bottom:10px; text-transform:uppercase; letter-spacing:0.05em;">✍️ Reflexionen</h2>
+      ${reflections.map(r => `
+        <div style="margin-bottom:16px; background:#fef9ec; border-left:4px solid #f59e0b; padding:12px 16px; border-radius:4px; page-break-inside:avoid;">
+          <p style="font-weight:600; margin-bottom:6px; font-size:0.88rem;">${r.prompt}</p>
+          <p style="color:#333; font-size:0.88rem; line-height:1.6; white-space:pre-wrap;">${r.answer || '<em style="color:#aaa">(keine Antwort)</em>'}</p>
+        </div>`).join('')}
+
+      <div style="margin-top:28px; padding:14px 18px; background:#fffbeb; border:2px solid #f59e0b; border-radius:6px;">
+        <strong style="font-size:1rem;">Gesamtpunkte: ${score} / ${maxScore}</strong>
+      </div>
+      <p style="font-size:0.78rem; color:#bbb; margin-top:24px; border-top:1px solid #eee; padding-top:10px;">Lektion: Lohn und Budget &nbsp;|&nbsp; SRF-Videos: «Mein Lohn, dein Lohn» & «Einstein»</p>
+    </div>`;
+  window.print();
+}
+</script>
+
+<!-- STICKY BOTTOM NAV -->
+<div class="bottom-nav">
+  <button class="btn-nav btn-nav-ghost" id="btnPrev" onclick="prevSlide()">← Zurück</button>
+  <span class="bottom-nav-center" id="slideCounter">1 / 10</span>
+  <button class="btn-nav" id="btnNext" onclick="nextSlide()">Weiter →</button>
+</div>
+
+<!-- PRINT CONTENT -->
+<div id="printContent"></div>
+
+</body>
+</html>
