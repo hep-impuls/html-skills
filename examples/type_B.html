@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lohn und Budget — ABU Lerndokument</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <!-- QR code generation via qrcode.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    :root {
+      --sit-color: #2471A3;
+      --sit-light: #EAF3FB;
+      --ink: #1a1a1a;
+      --ink-soft: #555555;
+      --ink-faint: #999999;
+      --paper: #FDFCF9;
+      --rule: #E0DDD6;
+      --field-bg: #F5F4F0;
+      --font-head: 'DM Serif Display', Georgia, serif;
+      --font-body: 'DM Sans', Helvetica, sans-serif;
+      --font-mono: 'DM Mono', monospace;
+      --page-w: 210mm;
+      --page-h: 297mm;
+      --mg: 11mm;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 9.5pt; }
+    body { font-family: var(--font-body); color: var(--ink); background: #ccc; line-height: 1.5; }
+
+    .page {
+      width: var(--page-w); min-height: var(--page-h);
+      background: var(--paper); margin: 8mm auto; padding: var(--mg);
+      padding-top: calc(var(--mg) + 2mm);
+      position: relative; display: flex; flex-direction: column; gap: 4mm;
+      page-break-after: always;
+    }
+    .page::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+      background: var(--sit-color);
+    }
+    .page-tag {
+      position: absolute; top: 5.5mm; right: var(--mg);
+      font-family: var(--font-mono); font-size: 6.5pt; color: var(--ink-faint); letter-spacing: 0.05em;
+    }
+    .page-footer {
+      margin-top: auto; padding-top: 2mm; border-top: 1px solid var(--rule);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .page-footer span { font-family: var(--font-mono); font-size: 6pt; color: var(--ink-faint); letter-spacing: 0.05em; }
+
+    /* Typography */
+    h1 { font-family: var(--font-head); font-size: 22pt; color: var(--sit-color); line-height: 1.1; letter-spacing: -0.02em; }
+    h2 { font-family: var(--font-head); font-size: 12pt; color: var(--ink); letter-spacing: -0.01em; }
+    h3 { font-family: var(--font-body); font-size: 7.5pt; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--sit-color); }
+    p { font-size: 8.5pt; line-height: 1.55; color: var(--ink-soft); }
+
+    /* Chips */
+    .chip { display: inline-block; font-family: var(--font-mono); font-size: 6.5pt; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; background: var(--sit-color); color: white; padding: 1.5px 6px; border-radius: 2px; }
+    .chip-outline { background: transparent; color: var(--sit-color); border: 1px solid var(--sit-color); }
+
+    /* Section header */
+    .section-head { display: flex; align-items: center; gap: 3mm; padding-bottom: 1.5mm; border-bottom: 1.5px solid var(--sit-color); margin-bottom: 3mm; }
+    .s-icon { width: 18px; height: 18px; background: var(--sit-color); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 8.5pt; font-weight: 600; flex-shrink: 0; font-family: var(--font-mono); }
+
+    /* Situation box */
+    .sit-box { border: 2px solid var(--sit-color); border-radius: 4px; overflow: hidden; }
+    .sit-box-head { background: var(--sit-color); color: white; padding: 2.5mm 4mm; display: flex; align-items: center; gap: 3mm; }
+    .sit-letter { font-family: var(--font-head); font-size: 20pt; line-height: 1; opacity: 0.65; }
+    .sit-title { font-family: var(--font-head); font-size: 12pt; line-height: 1.2; }
+    .sit-pages { margin-left: auto; font-family: var(--font-mono); font-size: 6.5pt; opacity: 0.8; white-space: nowrap; }
+    .sit-body { padding: 4mm; }
+    .sit-body p { font-size: 9pt; color: var(--ink); line-height: 1.6; }
+    .sit-q { margin-top: 3mm; padding-top: 3mm; border-top: 1px dashed var(--rule); font-size: 8.5pt; font-style: italic; color: var(--sit-color); font-weight: 500; }
+
+    /* Video card with QR */
+    .video-card {
+      border: 1.5px solid var(--rule); border-radius: 4px; overflow: hidden;
+      display: flex; flex-direction: column;
+    }
+    .video-card-head {
+      background: var(--sit-light); border-bottom: 1.5px solid var(--sit-color);
+      padding: 2mm 4mm; display: flex; align-items: center; justify-content: space-between;
+    }
+    .video-card-title { font-size: 8pt; font-weight: 600; color: var(--sit-color); font-family: var(--font-body); }
+    .video-card-body { padding: 3mm 4mm; display: flex; gap: 4mm; align-items: flex-start; }
+    .video-card-desc { flex: 1; }
+    .video-card-desc p { font-size: 8pt; color: var(--ink-soft); line-height: 1.5; }
+    .video-card-qr { flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 1mm; }
+    .video-card-qr .qr-label { font-family: var(--font-mono); font-size: 5.5pt; color: var(--ink-faint); text-transform: uppercase; letter-spacing: 0.08em; text-align: center; }
+    .qr-box { width: 22mm; height: 22mm; background: white; border: 1px solid var(--rule); border-radius: 2px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+    .qr-box canvas, .qr-box img { width: 100% !important; height: 100% !important; }
+
+    /* Beobachtungsauftrag */
+    .beob-box { border-left: 3px solid var(--sit-color); background: var(--sit-light); padding: 2.5mm 4mm; border-radius: 0 3px 3px 0; }
+    .beob-box h3 { margin-bottom: 1.5mm; }
+    .beob-item { font-size: 8pt; color: var(--ink); margin-bottom: 1.5mm; padding-left: 3mm; position: relative; line-height: 1.45; }
+    .beob-item::before { content: '→'; position: absolute; left: 0; color: var(--sit-color); font-size: 7.5pt; }
+
+    /* Leitfragen */
+    .lq { display: grid; grid-template-columns: 22px 1fr; gap: 0 3mm; margin-bottom: 3.5mm; }
+    .lq-n { width: 22px; height: 22px; background: var(--sit-color); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 8pt; font-weight: 500; flex-shrink: 0; margin-top: 0.5mm; }
+    .lq-level { font-family: var(--font-mono); font-size: 6pt; color: var(--ink-faint); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.5mm; }
+    .lq-ref { color: var(--sit-color); }
+    .lq-text { font-size: 8.5pt; color: var(--ink); font-weight: 500; margin-bottom: 1mm; line-height: 1.4; }
+    .lq-field { grid-column: 2; background: var(--field-bg); border: 1px solid var(--rule); border-radius: 2px; min-height: 13mm; padding: 2mm; margin-top: 1mm; }
+    .lq-field-sm { min-height: 10mm; }
+    .lq-field-lg { min-height: 18mm; }
+
+    /* Mindmap zone */
+    .mm-zone { border: 1.5px solid var(--rule); border-radius: 4px; flex: 1; min-height: 44mm; position: relative; }
+    .mm-label { position: absolute; top: 2.5mm; left: 3mm; font-family: var(--font-mono); font-size: 6.5pt; color: var(--ink-faint); text-transform: uppercase; letter-spacing: 0.08em; }
+
+    /* Handlungsprodukt */
+    .hp-box { border: 2px solid var(--sit-color); border-radius: 4px; overflow: hidden; }
+    .hp-head { background: var(--sit-light); padding: 2mm 4mm; border-bottom: 1.5px solid var(--sit-color); display: flex; align-items: center; gap: 3mm; }
+    .hp-body { padding: 3mm 4mm; }
+    .hp-steps { display: flex; flex-direction: column; gap: 1.5mm; margin-top: 2mm; }
+    .hp-step { display: grid; grid-template-columns: 20px 1fr; gap: 0 2.5mm; }
+    .hp-step-n { width: 20px; height: 20px; background: var(--sit-color); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 7.5pt; font-weight: 500; flex-shrink: 0; }
+    .hp-step-label { font-size: 7.5pt; font-weight: 600; color: var(--ink); }
+    .hp-step-hint { font-size: 7pt; color: var(--ink-faint); line-height: 1.35; }
+    .hp-write { border: 1.5px dashed var(--sit-color); border-radius: 4px; flex: 1; min-height: 60mm; position: relative; background: white; margin-top: 3mm; }
+    .hp-write-label { position: absolute; top: 2.5mm; left: 3mm; font-family: var(--font-mono); font-size: 6.5pt; color: var(--sit-color); text-transform: uppercase; letter-spacing: 0.08em; }
+    .hp-write-note { position: absolute; bottom: 2.5mm; right: 3mm; font-family: var(--font-mono); font-size: 6pt; color: var(--ink-faint); font-style: italic; }
+
+    /* Reflexion */
+    .rx-item { margin-bottom: 3.5mm; }
+    .rx-q { font-size: 8.5pt; font-weight: 600; color: var(--ink); margin-bottom: 1.5mm; display: flex; gap: 2mm; }
+    .rx-n { font-family: var(--font-mono); color: var(--sit-color); font-size: 8pt; flex-shrink: 0; }
+    .rx-field { background: var(--field-bg); border: 1px solid var(--rule); border-radius: 2px; min-height: 14mm; padding: 2mm; }
+
+    /* Key facts row */
+    .facts-row { display: flex; gap: 3mm; }
+    .fact-card { flex: 1; border: 1.5px solid var(--rule); border-radius: 4px; padding: 3mm; text-align: center; background: white; }
+    .fact-num { font-family: var(--font-head); font-size: 16pt; color: var(--sit-color); line-height: 1.1; }
+    .fact-label { font-family: var(--font-mono); font-size: 6pt; color: var(--ink-faint); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 0.5mm; }
+
+    /* Info quote */
+    .quote-box { border-left: 3px solid var(--sit-color); padding: 2mm 4mm; background: var(--field-bg); border-radius: 0 3px 3px 0; }
+    .quote-box p { font-size: 8.5pt; font-style: italic; color: var(--ink); }
+    .quote-source { font-family: var(--font-mono); font-size: 6.5pt; color: var(--ink-faint); margin-top: 1.5mm; }
+
+    /* Two-column layout */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; }
+
+    /* Assessment table */
+    .bw-table { width: 100%; border-collapse: collapse; font-size: 7.5pt; }
+    .bw-table th { background: var(--sit-color); color: white; font-weight: 600; font-size: 7pt; text-transform: uppercase; letter-spacing: 0.06em; padding: 2mm 3mm; text-align: left; }
+    .bw-table td { padding: 1.8mm 3mm; border-bottom: 1px solid var(--rule); vertical-align: middle; color: var(--ink-soft); }
+    .bw-table tr:nth-child(even) td { background: var(--field-bg); }
+    .bw-table .w { font-family: var(--font-mono); font-weight: 500; color: var(--sit-color); }
+    .bw-table .total td { font-weight: 600; color: var(--ink); border-top: 2px solid var(--sit-color); border-bottom: none; }
+
+    /* Cover meta grid */
+    .meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3mm; }
+    .meta-field { background: var(--field-bg); border: 1px solid var(--rule); border-radius: 2px; padding: 2mm 3mm; }
+    .meta-label { font-family: var(--font-mono); font-size: 6pt; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-faint); margin-bottom: 0.5mm; }
+    .meta-line { min-height: 7mm; border-bottom: 1px solid var(--rule); }
+
+    /* Factor tags */
+    .factor-row { display: flex; flex-wrap: wrap; gap: 2mm; margin-top: 1.5mm; }
+    .factor-tag { font-family: var(--font-mono); font-size: 6.5pt; text-transform: uppercase; letter-spacing: 0.06em; padding: 1.5px 5px; border-radius: 2px; border: 1px solid var(--sit-color); color: var(--sit-color); background: transparent; }
+
+    /* Budget table */
+    .budget-table { width: 100%; border-collapse: collapse; font-size: 8pt; }
+    .budget-table th { background: var(--sit-color); color: white; padding: 1.5mm 2.5mm; text-align: left; font-size: 7pt; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; }
+    .budget-table td { padding: 1.8mm 2.5mm; border-bottom: 1px solid var(--rule); color: var(--ink-soft); }
+    .budget-table tr:last-child td { border-bottom: none; }
+    .budget-table .amt { font-family: var(--font-mono); text-align: right; }
+    .budget-table tfoot td { font-weight: 600; color: var(--ink); border-top: 2px solid var(--sit-color); border-bottom: none; background: var(--field-bg); }
+
+    @media print {
+      body { background: white; }
+      .page { margin: 0; box-shadow: none; }
+      @page { size: A4 portrait; margin: 0; }
+    }
+    @media screen {
+      body { padding: 8mm 0 20mm; }
+      .page { box-shadow: 0 4px 24px rgba(0,0,0,0.14); border-radius: 2px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════ PAGE 1 — COVER -->
+<div class="page">
+  <span class="page-tag">SEITE 1 / 4</span>
+
+  <!-- Header chips -->
+  <div style="display:flex; gap:2mm; flex-wrap:wrap; margin-bottom:1mm;">
+    <span class="chip">ABU Reform 2030</span>
+    <span class="chip chip-outline">Thema 1 — Lohn und Budget</span>
+    <span class="chip chip-outline">Gesellschaft & Wirtschaft</span>
+  </div>
+
+  <!-- Title block -->
+  <div style="margin-bottom:2mm;">
+    <h1 style="font-size:28pt; margin-bottom:1mm;">Mein Lohn,<br>Dein Lohn</h1>
+    <p style="font-size:10pt; color:var(--ink-soft); line-height:1.5; max-width:140mm;">Was beeinflusst den Lohn? Wie funktioniert ein Budget? Zwei SRF-Beiträge zeigen, wie Lohnunterschiede entstehen und warum Jugendliche in die Schuldenfalle geraten.</p>
+  </div>
+
+  <!-- Key facts row -->
+  <div class="facts-row">
+    <div class="fact-card">
+      <div class="fact-num">CHF 6'118</div>
+      <div class="fact-label">Medianlohn Schweiz 2012</div>
+    </div>
+    <div class="fact-card">
+      <div class="fact-num">13 : 1</div>
+      <div class="fact-label">Lohnspanne: Chef vs. Coiffeuse</div>
+    </div>
+    <div class="fact-card">
+      <div class="fact-num">30'000+</div>
+      <div class="fact-label">Schulden einer Jugendlichen (CHF)</div>
+    </div>
+    <div class="fact-card">
+      <div class="fact-num">1 zu 12</div>
+      <div class="fact-label">Initiative 2013 (abgelehnt)</div>
+    </div>
+  </div>
+
+  <!-- Situation box -->
+  <div class="sit-box">
+    <div class="sit-box-head">
+      <span class="sit-letter">B</span>
+      <span class="sit-title">«Was ist mein Lohn wert — und was mache ich damit?»</span>
+    </div>
+    <div class="sit-body">
+      <p>Verschiedene Berufe, verschiedene Löhne: Ein Landschaftsgärtner verdient nach der Lehre 4'300 Franken, ein Maurer rund 1'000 Franken mehr — für ähnlich anspruchsvolle Arbeit. Was ist gerecht? Und: Wer bestimmt, was Arbeit wert ist? Gleichzeitig zeigt das Beispiel von Claudia, wie schnell Jugendliche in die Schuldenfalle geraten können — besonders wenn Geld in der Familie zum Tabuthema wird.</p>
+      <p class="sit-q">→ Welche Faktoren bestimmen meinen späteren Lohn — und wie plane ich damit ein verantwortungsvolles Budget?</p>
+    </div>
+  </div>
+
+  <!-- Video cards with QR codes -->
+  <div style="display:flex; flex-direction:column; gap:3mm;">
+
+    <div class="video-card">
+      <div class="video-card-head">
+        <span class="video-card-title">📺 Video 1 — Mein Lohn, dein Lohn (SRF Einstein)</span>
+        <span style="font-family:var(--font-mono); font-size:6pt; color:var(--ink-faint);">ca. 12 Min.</span>
+      </div>
+      <div class="video-card-body">
+        <div class="video-card-desc">
+          <p>Warum verdienen Landschaftsgärtner weniger als Maurer? Was bestimmt den Lohn — Angebot und Nachfrage, Produktivität, Weiterbildung? Der Beitrag erklärt Lohnunterschiede in der Schweiz und stellt die Frage nach dem gerechten Lohn.</p>
+          <div class="factor-row" style="margin-top:2mm;">
+            <span class="factor-tag">Angebot & Nachfrage</span>
+            <span class="factor-tag">Produktivität</span>
+            <span class="factor-tag">Gewerkschaften</span>
+            <span class="factor-tag">Lohnvergleich</span>
+            <span class="factor-tag">Platon 1:4</span>
+          </div>
+        </div>
+        <div class="video-card-qr">
+          <div class="qr-box" id="qr1"></div>
+          <div class="qr-label">Video aufrufen<br>via QR-Code</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="video-card">
+      <div class="video-card-head">
+        <span class="video-card-title">📺 Video 2 — Schulden & Budget (SRF Einstein)</span>
+        <span style="font-family:var(--font-mono); font-size:6pt; color:var(--ink-faint);">ca. 8 Min.</span>
+      </div>
+      <div class="video-card-body">
+        <div class="video-card-desc">
+          <p>Claudia hat seit ihrem 18. Lebensjahr über 30'000 Franken Schulden angehäuft. Sozialwissenschaftler Christoph Mattes erklärt: Nicht Leichtsinn, sondern schwierige Familienverhältnisse und das Tabuthema Geld sind häufige Ursachen für Jugendverschuldung.</p>
+          <div class="factor-row" style="margin-top:2mm;">
+            <span class="factor-tag">Budgetplanung</span>
+            <span class="factor-tag">Schuldenfalle</span>
+            <span class="factor-tag">Familienfinanzen</span>
+            <span class="factor-tag">Prävention</span>
+            <span class="factor-tag">Tabuthema Geld</span>
+          </div>
+        </div>
+        <div class="video-card-qr">
+          <div class="qr-box" id="qr2"></div>
+          <div class="qr-label">Video aufrufen<br>via QR-Code</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Meta fields -->
+  <div class="meta-grid">
+    <div class="meta-field">
+      <div class="meta-label">Name / Vorname</div>
+      <div class="meta-line"></div>
+    </div>
+    <div class="meta-field">
+      <div class="meta-label">Klasse / Datum</div>
+      <div class="meta-line"></div>
+    </div>
+  </div>
+
+  <div class="page-footer">
+    <span>ABU REFORM 2030 — THEMA 1</span>
+    <span>LOHN UND BUDGET</span>
+    <span>S. 1 / 4</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ PAGE 2 — VIDEO 1 AUFGABEN -->
+<div class="page">
+  <span class="page-tag">SEITE 2 / 4</span>
+
+  <div class="section-head">
+    <div class="s-icon">A</div>
+    <h2>Video 1 — «Mein Lohn, dein Lohn»</h2>
+    <span style="margin-left:auto; font-family:var(--font-mono); font-size:7pt; color:var(--ink-faint);">Beobachtungsauftrag + Leitfragen</span>
+  </div>
+
+  <!-- Beobachtungsauftrag -->
+  <div class="beob-box">
+    <h3>Beobachtungsauftrag — vor dem Ansehen</h3>
+    <div style="margin-top:1.5mm;">
+      <div class="beob-item">Notiere drei Berufe, die im Film vorkommen, und deren Löhne.</div>
+      <div class="beob-item">Achte auf die Erklärungen: Warum verdienen manche mehr als andere?</div>
+      <div class="beob-item">Welche Lösung findet Stefan Ebneter persönlich — obwohl er weniger verdient als Maurer?</div>
+    </div>
+  </div>
+
+  <!-- Notizen Beobachtungsauftrag -->
+  <div style="margin-top:1mm;">
+    <h3 style="margin-bottom:1mm;">Meine Notizen während dem Video</h3>
+    <div style="background:var(--field-bg); border:1px solid var(--rule); border-radius:3px; min-height:20mm; padding:2mm; display:grid; grid-template-columns:1fr 1fr 1fr; gap:2mm;">
+      <div>
+        <div style="font-family:var(--font-mono); font-size:6pt; color:var(--sit-color); text-transform:uppercase; letter-spacing:0.07em; margin-bottom:1mm;">Beruf 1</div>
+        <div style="border-bottom:1px solid var(--rule); min-height:8mm;"></div>
+        <div style="font-family:var(--font-mono); font-size:6pt; color:var(--ink-faint); margin-top:1mm;">CHF / Monat:</div>
+        <div style="border-bottom:1px solid var(--rule); min-height:6mm;"></div>
+      </div>
+      <div>
+        <div style="font-family:var(--font-mono); font-size:6pt; color:var(--sit-color); text-transform:uppercase; letter-spacing:0.07em; margin-bottom:1mm;">Beruf 2</div>
+        <div style="border-bottom:1px solid var(--rule); min-height:8mm;"></div>
+        <div style="font-family:var(--font-mono); font-size:6pt; color:var(--ink-faint); margin-top:1mm;">CHF / Monat:</div>
+        <div style="border-bottom:1px solid var(--rule); min-height:6mm;"></div>
+      </div>
+      <div>
+        <div style="font-family:var(--font-mono); font-size:6pt; color:var(--sit-color); text-transform:uppercase; letter-spacing:0.07em; margin-bottom:1mm;">Beruf 3</div>
+        <div style="border-bottom:1px solid var(--rule); min-height:8mm;"></div>
+        <div style="font-family:var(--font-mono); font-size:6pt; color:var(--ink-faint); margin-top:1mm;">CHF / Monat:</div>
+        <div style="border-bottom:1px solid var(--rule); min-height:6mm;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Leitfragen Video 1 -->
+  <div class="section-head" style="margin-top:1mm;">
+    <div class="s-icon">1</div>
+    <h2>Leitfragen — Video 1</h2>
+  </div>
+
+  <div class="lq">
+    <div class="lq-n">1</div>
+    <div>
+      <div class="lq-level">K2 — Verstehen</div>
+      <div class="lq-text">Erkläre das Prinzip von Angebot und Nachfrage beim Lohn anhand eines Beispiels aus dem Film.</div>
+    </div>
+    <div class="lq-field lq-field-lg"></div>
+  </div>
+
+  <div class="lq">
+    <div class="lq-n">2</div>
+    <div>
+      <div class="lq-level">K2 — Verstehen</div>
+      <div class="lq-text">Was bedeutet «Produktivitätsleistung»? Erkläre anhand des Beispiels Arbeiter A und B.</div>
+    </div>
+    <div class="lq-field lq-field-sm"></div>
+  </div>
+
+  <div class="lq">
+    <div class="lq-n">3</div>
+    <div>
+      <div class="lq-level">K3 — Anwenden</div>
+      <div class="lq-text">Warum sind die Löhne im Bau trotz vieler Arbeitskräfte gestiegen — obwohl das Marktprinzip eigentlich das Gegenteil erwarten lässt?</div>
+    </div>
+    <div class="lq-field lq-field-sm"></div>
+  </div>
+
+  <div class="lq">
+    <div class="lq-n">4</div>
+    <div>
+      <div class="lq-level">K4 — Analysieren</div>
+      <div class="lq-text">Platon fand eine Gesellschaft gerecht, wenn der Reichste maximal das Vierfache des Ärmsten besitzt. Beurteile: Ist das auf die Schweiz anwendbar? Begründe mit einer Zahl aus dem Film.</div>
+    </div>
+    <div class="lq-field lq-field-lg"></div>
+  </div>
+
+  <!-- Quote -->
+  <div class="quote-box" style="margin-top:1mm;">
+    <p>«Eine Gesellschaft geht es dann gut, wenn es möglichst allen gut geht.»</p>
+    <div class="quote-source">— Prof. Ueli Mäder, Experte für Lohn und Arbeit (SRF Einstein)</div>
+  </div>
+
+  <div class="page-footer">
+    <span>ABU REFORM 2030 — THEMA 1</span>
+    <span>LOHN UND BUDGET</span>
+    <span>S. 2 / 4</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ PAGE 3 — VIDEO 2 AUFGABEN -->
+<div class="page">
+  <span class="page-tag">SEITE 3 / 4</span>
+
+  <div class="section-head">
+    <div class="s-icon">B</div>
+    <h2>Video 2 — «Schulden & Budget»</h2>
+    <span style="margin-left:auto; font-family:var(--font-mono); font-size:7pt; color:var(--ink-faint);">Beobachtungsauftrag + Leitfragen</span>
+  </div>
+
+  <!-- Beobachtungsauftrag V2 -->
+  <div class="beob-box">
+    <h3>Beobachtungsauftrag — vor dem Ansehen</h3>
+    <div style="margin-top:1.5mm;">
+      <div class="beob-item">Wie kommt Claudia in die Schuldenfalle — welche Schritte führen dazu?</div>
+      <div class="beob-item">Was sagt Sozialwissenschaftler Mattes über den typischen Umgang von Jugendlichen mit Geld?</div>
+      <div class="beob-item">Warum wird Geld in manchen Familien zum Tabuthema — und welche Folgen hat das?</div>
+    </div>
+  </div>
+
+  <!-- Leitfragen Video 2 -->
+  <div class="section-head" style="margin-top:2mm;">
+    <div class="s-icon">1</div>
+    <h2>Leitfragen — Video 2</h2>
+  </div>
+
+  <div class="lq">
+    <div class="lq-n">5</div>
+    <div>
+      <div class="lq-level">K1 — Erinnern</div>
+      <div class="lq-text">Nenne drei konkrete Schuldenquellen, die im Beispiel von Claudia vorkommen.</div>
+    </div>
+    <div class="lq-field lq-field-sm"></div>
+  </div>
+
+  <div class="lq">
+    <div class="lq-n">6</div>
+    <div>
+      <div class="lq-level">K2 — Verstehen</div>
+      <div class="lq-text">Erkläre, weshalb laut Mattes nicht «Leichtsinn», sondern die familiäre Situation der häufigste Auslöser für Jugendverschuldung ist.</div>
+    </div>
+    <div class="lq-field lq-field-lg"></div>
+  </div>
+
+  <div class="lq">
+    <div class="lq-n">7</div>
+    <div>
+      <div class="lq-level">K3 — Anwenden</div>
+      <div class="lq-text">Mattes sagt: «Wo Geld zum Tabuthema wird, lernen Kinder nicht mehr, damit umzugehen.» Erkläre, wie das in Claudias Familie konkret geschehen ist.</div>
+    </div>
+    <div class="lq-field lq-field-sm"></div>
+  </div>
+
+  <!-- Budget-Aufgabe -->
+  <div class="section-head" style="margin-top:1mm;">
+    <div class="s-icon">2</div>
+    <h2>Budgetaufgabe — Dein erstes Lehrjahr</h2>
+    <span style="margin-left:auto; font-family:var(--font-mono); font-size:7pt; color:var(--ink-faint);">K3 Anwenden</span>
+  </div>
+
+  <p style="margin-bottom:2mm;">Du beginnst eine Lehre und verdienst im 1. Lehrjahr <strong>CHF 700.—</strong> netto. Erstelle ein realistisches Monatsbudget. Recherchiere Beträge falls nötig.</p>
+
+  <table class="budget-table">
+    <thead>
+      <tr>
+        <th style="width:45%">Ausgabenposten</th>
+        <th class="amt" style="width:25%">Betrag CHF</th>
+        <th style="width:30%">Bemerkung</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Handy / Abonnement</td><td class="amt"></td><td></td></tr>
+      <tr><td>ÖV / Fahrkosten</td><td class="amt"></td><td></td></tr>
+      <tr><td>Freizeit / Sport / Hobby</td><td class="amt"></td><td></td></tr>
+      <tr><td>Kleider / Schuhe</td><td class="amt"></td><td></td></tr>
+      <tr><td>Essen ausser Haus</td><td class="amt"></td><td></td></tr>
+      <tr><td>Sonstiges</td><td class="amt"></td><td></td></tr>
+    </tbody>
+    <tfoot>
+      <tr>
+        <td><strong>Total Ausgaben</strong></td>
+        <td class="amt"><strong>CHF</strong></td>
+        <td style="font-size:7pt; color:var(--sit-color);">Lohn: CHF 700.—</td>
+      </tr>
+    </tfoot>
+  </table>
+
+  <div style="display:flex; gap:3mm; margin-top:2mm;">
+    <div style="flex:1; background:var(--field-bg); border:1px solid var(--rule); border-radius:3px; padding:2mm;">
+      <div style="font-family:var(--font-mono); font-size:6pt; color:var(--sit-color); text-transform:uppercase; letter-spacing:0.07em; margin-bottom:1mm;">Bilanz: Lohn minus Ausgaben</div>
+      <div style="border-bottom:1px solid var(--rule); min-height:8mm;"></div>
+    </div>
+    <div style="flex:2; background:var(--field-bg); border:1px solid var(--rule); border-radius:3px; padding:2mm;">
+      <div style="font-family:var(--font-mono); font-size:6pt; color:var(--sit-color); text-transform:uppercase; letter-spacing:0.07em; margin-bottom:1mm;">Was würdest du ändern, wenn du 200 CHF weniger hättest?</div>
+      <div style="border-bottom:1px solid var(--rule); min-height:8mm;"></div>
+    </div>
+  </div>
+
+  <div class="page-footer">
+    <span>ABU REFORM 2030 — THEMA 1</span>
+    <span>LOHN UND BUDGET</span>
+    <span>S. 3 / 4</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ PAGE 4 — HANDLUNGSPRODUKT + REFLEXION -->
+<div class="page">
+  <span class="page-tag">SEITE 4 / 4</span>
+
+  <!-- Handlungsprodukt -->
+  <div class="section-head">
+    <div class="s-icon">C</div>
+    <h2>Handlungsprodukt</h2>
+    <span style="margin-left:auto; font-family:var(--font-mono); font-size:7pt; color:var(--ink-faint);">Schriftliches Produkt</span>
+  </div>
+
+  <div class="hp-box">
+    <div class="hp-head">
+      <h3>Format: Kurzessay oder Leserbrief</h3>
+      <span style="margin-left:auto; font-size:7.5pt; color:var(--sit-color); font-weight:500;">ca. 200–300 Wörter</span>
+    </div>
+    <div class="hp-body">
+      <p>Wähle eine der beiden Aufgaben und schreibe einen kurzen Text:</p>
+      <div class="hp-steps">
+        <div class="hp-step">
+          <div class="hp-step-n">A</div>
+          <div>
+            <div class="hp-step-label">Lohngerechtigkeit</div>
+            <div class="hp-step-hint">Nimm Stellung: Ist es gerecht, dass ein Landschaftsgärtner weniger verdient als ein Maurer? Verwende mindestens zwei Faktoren aus dem Film (z.B. Angebot/Nachfrage, Produktivität, Gewerkschaft).</div>
+          </div>
+        </div>
+        <div class="hp-step">
+          <div class="hp-step-n">B</div>
+          <div>
+            <div class="hp-step-label">Schuldenprävention</div>
+            <div class="hp-step-hint">Schreibe einen Ratgebertext für 15-Jährige: «5 Tipps, damit du nicht in die Schuldenfalle gerätst» — basierend auf den Erkenntnissen aus Video 2.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hp-write">
+    <div class="hp-write-label">Hier schreiben — Aufgabe gewählt: □ A — Lohngerechtigkeit &nbsp;&nbsp; □ B — Schuldenprävention</div>
+    <div class="hp-write-note">Weitere Blätter können als Anhang abgegeben werden</div>
+  </div>
+
+  <!-- Reflexion -->
+  <div class="section-head" style="margin-top:1mm;">
+    <div class="s-icon">R</div>
+    <h2>Reflexion</h2>
+    <span style="margin-left:auto; font-family:var(--font-mono); font-size:7pt; color:var(--ink-faint);">Nach der Situation</span>
+  </div>
+
+  <div class="two-col">
+    <div>
+      <div class="rx-item">
+        <div class="rx-q"><span class="rx-n">R1</span>Was hat mich in den Videos am meisten überrascht?</div>
+        <div class="rx-field"></div>
+      </div>
+      <div class="rx-item">
+        <div class="rx-q"><span class="rx-n">R2</span>Welcher Lohnfaktor ist für meinen Berufsweg am relevantesten?</div>
+        <div class="rx-field"></div>
+      </div>
+    </div>
+    <div>
+      <div class="rx-item">
+        <div class="rx-q"><span class="rx-n">R3</span>Was nehme ich für meinen persönlichen Umgang mit Geld mit?</div>
+        <div class="rx-field"></div>
+      </div>
+      <div class="rx-item">
+        <div class="rx-q"><span class="rx-n">R4</span>Welche Frage ist für mich noch offen?</div>
+        <div class="rx-field"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Assessment -->
+  <div class="section-head" style="margin-top:1mm;">
+    <div class="s-icon">✦</div>
+    <h2>Bewertungsübersicht</h2>
+  </div>
+
+  <table class="bw-table">
+    <thead>
+      <tr><th>Produkt</th><th>Abgabe</th><th>Gewicht</th><th>Kriterium</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Leitfragen 1–4 (Video 1)</td><td>Woche 1</td><td class="w">30%</td><td>Inhaltliche Korrektheit, Vollständigkeit</td></tr>
+      <tr><td>Leitfragen 5–7 + Budget (Video 2)</td><td>Woche 1</td><td class="w">30%</td><td>Realismus, Begründung, Genauigkeit</td></tr>
+      <tr><td>Handlungsprodukt (Essay/Ratgeber)</td><td>Woche 2</td><td class="w">30%</td><td>Argumentation, Bezug zu Filmen, Sprache</td></tr>
+      <tr><td>Reflexion (R1–R4)</td><td>Woche 2</td><td class="w">10%</td><td>Ehrlichkeit, Tiefe der Reflexion</td></tr>
+      <tr class="total"><td colspan="2">Gesamtbewertung</td><td class="w">100%</td><td></td></tr>
+    </tbody>
+  </table>
+
+  <div class="page-footer">
+    <span>ABU REFORM 2030 — THEMA 1</span>
+    <span>LOHN UND BUDGET — SITUATION B</span>
+    <span>S. 4 / 4</span>
+  </div>
+</div>
+
+<script>
+  // Generate QR codes after DOM is ready
+  document.addEventListener('DOMContentLoaded', function() {
+    // Video 1 — Mein Lohn, dein Lohn
+    new QRCode(document.getElementById('qr1'), {
+      text: 'https://www.srf.ch/play/tv/redirect/detail/8e78f8da-c345-4817-87cc-6cf7a4ce7cc5',
+      width: 84,
+      height: 84,
+      colorDark: '#2471A3',
+      colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.M
+    });
+
+    // Video 2 — Schulden & Budget
+    new QRCode(document.getElementById('qr2'), {
+      text: 'https://www.srf.ch/play/tv/redirect/detail/c264309b-4f69-4ca3-9287-7be4957b3ccf',
+      width: 84,
+      height: 84,
+      colorDark: '#2471A3',
+      colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.M
+    });
+  });
+</script>
+</body>
+</html>

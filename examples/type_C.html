@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lohn & Budget — Dossier</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: '#1d4ed8',
+            brand2: '#0ea5e9'
+          },
+          fontFamily: {
+            sans: ['Lexend', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Lexend', sans-serif; }
+
+    /* Dark mode */
+    [data-theme="dark"] body { background: #0f172a !important; color: #f1f5f9 !important; }
+    [data-theme="dark"] .bg-white { background: #1e293b !important; }
+    [data-theme="dark"] .bg-slate-50 { background: #0f172a !important; }
+    [data-theme="dark"] .bg-slate-100 { background: #1e293b !important; }
+    [data-theme="dark"] .text-slate-600 { color: #94a3b8 !important; }
+    [data-theme="dark"] .text-slate-700 { color: #cbd5e1 !important; }
+    [data-theme="dark"] .text-slate-800 { color: #f1f5f9 !important; }
+    [data-theme="dark"] .text-slate-500 { color: #94a3b8 !important; }
+    [data-theme="dark"] .border-slate-100 { border-color: #334155 !important; }
+    [data-theme="dark"] .border-slate-200 { border-color: #334155 !important; }
+    [data-theme="dark"] .shadow-sm { box-shadow: 0 1px 2px rgba(0,0,0,0.5) !important; }
+    [data-theme="dark"] .stat-card { background: #1e293b !important; }
+    [data-theme="dark"] .quote-box { background: #1e293b !important; border-color: #334155 !important; }
+    [data-theme="dark"] .glossary-item { background: #1e293b !important; border-color: #334155 !important; }
+
+    /* Video embed wrapper */
+    .video-wrapper {
+      position: relative;
+      padding-bottom: 56.25%;
+      height: 0;
+      overflow: hidden;
+      border-radius: 12px;
+    }
+    .video-wrapper iframe {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      border: none;
+    }
+
+    /* Timeline scroll */
+    .timeline-scroll::-webkit-scrollbar { width: 6px; }
+    .timeline-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
+    .timeline-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+
+    /* Stat big number */
+    .stat-card {
+      background: white;
+      border-radius: 16px;
+      padding: 20px 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    .stat-number {
+      font-size: 2.2rem;
+      font-weight: 700;
+      line-height: 1.1;
+    }
+
+    /* Quote styling */
+    .quote-box {
+      background: #f8fafc;
+      border-left: 4px solid #1d4ed8;
+      border-radius: 0 12px 12px 0;
+      padding: 16px 20px;
+      margin: 10px 0;
+      font-style: italic;
+    }
+
+    /* Lohnfaktor pill */
+    .factor-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(135deg, #1d4ed8, #0ea5e9);
+      color: white;
+      border-radius: 999px;
+      padding: 8px 18px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    /* Glossary */
+    .glossary-item {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 14px 18px;
+      transition: box-shadow 0.2s;
+    }
+    .glossary-item:hover {
+      box-shadow: 0 4px 12px rgba(29,78,216,0.12);
+    }
+
+    @media print {
+      .no-print { display: none !important; }
+      body { background: white !important; color: black !important; }
+      .bg-white { background: white !important; }
+      .shadow-sm, .shadow-md { box-shadow: none !important; }
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased" id="pageBody">
+
+  <!-- Header -->
+  <header style="background: linear-gradient(135deg, #1d4ed8 0%, #0ea5e9 100%);" class="text-white py-10 shadow-lg">
+    <div class="max-w-5xl mx-auto px-4">
+      <div class="flex items-start justify-between flex-wrap gap-4">
+        <div>
+          <div class="text-sm font-medium mb-2 opacity-80 uppercase tracking-widest">💼 Gesellschaft · ABU</div>
+          <h1 class="text-3xl md:text-4xl font-bold mb-2">Lohn & Budget</h1>
+          <p class="opacity-90 text-lg max-w-xl">Warum verdienen wir, was wir verdienen – und was passiert, wenn das Geld nicht reicht?</p>
+          <div class="flex flex-wrap gap-2 mt-4">
+            <span class="bg-white bg-opacity-20 text-white text-xs font-semibold px-3 py-1 rounded-full">Lohnfaktoren</span>
+            <span class="bg-white bg-opacity-20 text-white text-xs font-semibold px-3 py-1 rounded-full">Schulden & Prävention</span>
+            <span class="bg-white bg-opacity-20 text-white text-xs font-semibold px-3 py-1 rounded-full">Gerechter Lohn</span>
+            <span class="bg-white bg-opacity-20 text-white text-xs font-semibold px-3 py-1 rounded-full">Schweizer Arbeitsmarkt</span>
+          </div>
+        </div>
+        <div class="flex gap-2 no-print self-start mt-1">
+          <button onclick="toggleTheme()" id="themeBtn"
+            class="bg-white bg-opacity-20 hover:bg-opacity-30 px-4 py-2 rounded-lg text-sm font-semibold transition flex items-center gap-2">
+            🌙 Dark
+          </button>
+          <button onclick="window.print()"
+            class="bg-white bg-opacity-20 hover:bg-opacity-30 px-4 py-2 rounded-lg text-sm font-semibold transition flex items-center gap-2">
+            🖨️ Drucken
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-4 py-10 space-y-14">
+
+    <!-- ── KENNZAHLEN ── -->
+    <section>
+      <h2 class="text-xl font-bold mb-6 text-slate-800 flex items-center gap-2">
+        <i class="fa-solid fa-chart-bar text-blue-600"></i> Zahlen im Überblick
+      </h2>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="stat-card">
+          <div class="stat-number text-blue-600">6'118</div>
+          <div class="text-sm text-slate-500 mt-1">CHF Medianlohn (2012)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number text-sky-500">~400'000</div>
+          <div class="text-sm text-slate-500 mt-1">CHF Ø Vermögen Erwachsene</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number text-orange-500">30'000+</div>
+          <div class="text-sm text-slate-500 mt-1">CHF Schulden (Claudia, 18 J.)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number text-green-600">1:12</div>
+          <div class="text-sm text-slate-500 mt-1">Initiative Chefvs. Tieflohn (abgelehnt 2013)</div>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+        <div class="stat-card">
+          <div class="stat-number text-blue-700">4'300</div>
+          <div class="text-sm text-slate-500 mt-1">CHF Einstiegslohn Landschaftsgärtner</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number text-blue-500">5'300+</div>
+          <div class="text-sm text-slate-500 mt-1">CHF Einstiegslohn Maurer (ca.)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number text-purple-600">7'400</div>
+          <div class="text-sm text-slate-500 mt-1">CHF Zürcher Sekundarlehrer (1. Jahr)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number text-red-500">13.2 Mio</div>
+          <div class="text-sm text-slate-500 mt-1">CHF/Jahr: Chefgehalt CH-Chemiefirma</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── VIDEOS ── -->
+    <section>
+      <h2 class="text-xl font-bold mb-6 text-slate-800 flex items-center gap-2">
+        <i class="fa-solid fa-circle-play text-blue-600"></i> Videomaterial (SRF)
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+        <div>
+          <div class="video-wrapper shadow-md mb-4">
+            <iframe src="https://www.srf.ch/play/embed?urn=urn:srf:video:c264309b-4f69-4ca3-9287-7be4957b3ccf&subdivisions=false"
+              allowfullscreen allow="geolocation *; autoplay; encrypted-media"></iframe>
+          </div>
+          <div class="bg-white rounded-xl p-5 shadow-sm border border-slate-100">
+            <div class="flex items-center gap-2 mb-2">
+              <span class="bg-orange-100 text-orange-700 text-xs font-bold px-2 py-1 rounded-full">VIDEO 1</span>
+              <h3 class="font-bold text-slate-800">Jugend & Schulden</h3>
+            </div>
+            <p class="text-slate-600 text-sm mb-3">Sind Jugendliche wirklich leichtsinnig mit Geld? Der Sozialwissenschaftler Christoph Mattes (FHNW) räumt mit dem Klischee auf – und zeigt, wo echte Risikogruppen liegen.</p>
+            <div class="text-xs text-slate-500 font-semibold uppercase tracking-wide mb-1">Kernaussagen</div>
+            <ul class="text-sm text-slate-700 space-y-1 list-disc list-inside">
+              <li>Jugendliche gehen überraschend rational mit Geld um</li>
+              <li>Verschuldung entsteht oft durch familiäre Armut – nicht Konsum</li>
+              <li>Wenn Geld Tabuthema wird, fehlt Lernraum für Kinder</li>
+              <li>Prävention = Elternbildung & Familienunterstützung</li>
+            </ul>
+          </div>
+        </div>
+
+        <div>
+          <div class="video-wrapper shadow-md mb-4">
+            <iframe src="https://www.srf.ch/play/embed?urn=urn:srf:video:8e78f8da-c345-4817-87cc-6cf7a4ce7cc5&subdivisions=false"
+              allowfullscreen allow="geolocation *; autoplay; encrypted-media"></iframe>
+          </div>
+          <div class="bg-white rounded-xl p-5 shadow-sm border border-slate-100">
+            <div class="flex items-center gap-2 mb-2">
+              <span class="bg-blue-100 text-blue-700 text-xs font-bold px-2 py-1 rounded-full">VIDEO 2</span>
+              <h3 class="font-bold text-slate-800">Mein Lohn – Dein Lohn</h3>
+            </div>
+            <p class="text-slate-600 text-sm mb-3">Warum verdient ein Landschaftsgärtner weniger als ein Maurer, obwohl beide gleich lang lernen und gleich hart arbeiten? Das Video erklärt Lohnmechanismen im Schweizer Arbeitsmarkt.</p>
+            <div class="text-xs text-slate-500 font-semibold uppercase tracking-wide mb-1">Kernaussagen</div>
+            <ul class="text-sm text-slate-700 space-y-1 list-disc list-inside">
+              <li>Angebot & Nachfrage bestimmen den Lohn – aber nicht allein</li>
+              <li>Gewerkschaften und Verhandlungen beeinflussen Löhne stark</li>
+              <li>Produktivität, Weiterbildung, Verantwortung erhöhen Lohn</li>
+              <li>Gerechter Lohn = immer auch Vergleichsfrage</li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ── LOHNFAKTOREN ── -->
+    <section>
+      <h2 class="text-xl font-bold mb-6 text-slate-800 flex items-center gap-2">
+        <i class="fa-solid fa-scale-balanced text-blue-600"></i> Was bestimmt den Lohn?
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+        <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-6">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold">1</div>
+            <h3 class="font-bold text-slate-800">Angebot & Nachfrage</h3>
+          </div>
+          <p class="text-slate-600 text-sm mb-3">Je weniger Menschen einen Beruf ausüben können, desto höher der Lohn. Klassisches Marktprinzip – aber es greift nicht immer.</p>
+          <div class="quote-box text-sm text-slate-700">
+            «Im Bau gibt es viele Arbeitskräfte – und trotzdem sind die Löhne gestiegen. Das hat mit Gewerkschaften zu tun.» <span class="not-italic font-semibold">– Prof. Ueli Mäder</span>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-6">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-10 h-10 rounded-full bg-sky-100 flex items-center justify-center text-sky-700 font-bold">2</div>
+            <h3 class="font-bold text-slate-800">Produktivität</h3>
+          </div>
+          <p class="text-slate-600 text-sm mb-3">Wer mehr leistet, ist wertvoller für den Betrieb – und kann höheren Lohn aushandeln.</p>
+          <div class="flex items-center gap-4 mt-4 bg-slate-50 rounded-lg p-3">
+            <div class="text-center">
+              <div class="text-2xl font-bold text-slate-400">A</div>
+              <div class="text-xs text-slate-500">10 Teile/h</div>
+            </div>
+            <div class="flex-1 text-center text-slate-400 text-xl">→</div>
+            <div class="text-center">
+              <div class="text-2xl font-bold text-blue-600">B</div>
+              <div class="text-xs text-slate-500">20 Teile/h</div>
+            </div>
+            <div class="flex-1 text-center text-slate-400 text-xl">→</div>
+            <div class="text-center">
+              <div class="text-sm font-bold text-green-600">B = 2× Lohn</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-6">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-700 font-bold">3</div>
+            <h3 class="font-bold text-slate-800">Branche & Unternehmen</h3>
+          </div>
+          <p class="text-slate-600 text-sm mb-3">Je mehr Gewinn eine Firma macht, desto mehr können sie (aber müssen sie nicht) zahlen. Im Detailhandel: hoher Umsatz, oft tiefer Lohn.</p>
+          <div class="flex flex-wrap gap-2 mt-3">
+            <span class="bg-green-100 text-green-700 text-xs font-semibold px-3 py-1 rounded-full">Investmentbanker 💰💰💰</span>
+            <span class="bg-yellow-100 text-yellow-700 text-xs font-semibold px-3 py-1 rounded-full">Maurer 💰💰</span>
+            <span class="bg-orange-100 text-orange-700 text-xs font-semibold px-3 py-1 rounded-full">Landschaftsgärtner 💰</span>
+            <span class="bg-red-100 text-red-700 text-xs font-semibold px-3 py-1 rounded-full">Coiffeuse 💰</span>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-6">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-700 font-bold">4</div>
+            <h3 class="font-bold text-slate-800">Region & Weiterbildung</h3>
+          </div>
+          <p class="text-slate-600 text-sm mb-3">Stadt zahlt mehr als Land (höhere Lebenshaltungskosten). Weiterbildung und mehr Verantwortung bringen einige hundert Franken mehr.</p>
+          <div class="grid grid-cols-2 gap-3 mt-3">
+            <div class="bg-slate-50 rounded-lg p-3 text-center">
+              <div class="font-bold text-slate-800">7'400 CHF</div>
+              <div class="text-xs text-slate-500">Sekundarlehrer Zürich</div>
+            </div>
+            <div class="bg-slate-50 rounded-lg p-3 text-center">
+              <div class="font-bold text-slate-800">6'300 CHF</div>
+              <div class="text-xs text-slate-500">Sekundarlehrer Graubünden</div>
+            </div>
+          </div>
+          <div class="text-xs text-slate-500 mt-2 text-center">= 15% Unterschied für gleiche Arbeit</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── SCHULDEN PRÄVENTION ── -->
+    <section>
+      <h2 class="text-xl font-bold mb-6 text-slate-800 flex items-center gap-2">
+        <i class="fa-solid fa-triangle-exclamation text-orange-500"></i> Schulden & Prävention
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+        <div class="bg-white rounded-xl shadow-sm border-l-4 border-red-400 p-5">
+          <div class="font-bold text-slate-800 mb-2 flex items-center gap-2"><span>⚠️</span> Claudias Geschichte</div>
+          <p class="text-sm text-slate-600">Claudia sammelte seit 18 über 30'000 CHF Schulden. Auslöser: Krankenkassenvertrag der Mutter, sozialer Druck, kein Rückhalt. Kaum noch Mut, den Briefkasten zu öffnen.</p>
+          <div class="mt-3 quote-box text-sm text-slate-700" style="border-color:#f87171;">
+            «Es hat mir einfach die Luft abgestellt.» – Claudia
+          </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm border-l-4 border-yellow-400 p-5">
+          <div class="font-bold text-slate-800 mb-2 flex items-center gap-2"><span>🔇</span> Geld als Tabuthema</div>
+          <p class="text-sm text-slate-600">Wenn Geld in der Familie knapp wird, wird es oft nicht mehr besprochen. Scham und Schuldgefühle entstehen. Kinder lernen dann nicht mehr, wie man mit Geld umgeht.</p>
+          <div class="mt-3 quote-box text-sm text-slate-700" style="border-color:#fbbf24;">
+            «Wenn Geld zum Tabuthema wird, haben Kinder keine Chance, davon zu lernen.» – C. Mattes
+          </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm border-l-4 border-green-400 p-5">
+          <div class="font-bold text-slate-800 mb-2 flex items-center gap-2"><span>✅</span> Was wirklich hilft</div>
+          <p class="text-sm text-slate-600">Nicht pauschale Kritik am Konsumverhalten. Sondern: Familien befähigen, offen über Geld zu reden. Elternbildung und Unterstützung für gefährdete Haushalte.</p>
+          <div class="mt-3 quote-box text-sm text-slate-700" style="border-color:#4ade80;">
+            «Verschuldungsprävention ist ein Anliegen der Elternbildung.» – C. Mattes
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ── GERECHTER LOHN ── -->
+    <section>
+      <h2 class="text-xl font-bold mb-6 text-slate-800 flex items-center gap-2">
+        <i class="fa-solid fa-gavel text-purple-600"></i> Was ist ein gerechter Lohn?
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="space-y-4">
+          <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-5">
+            <div class="font-bold text-slate-800 mb-2">🏛️ Platons Formel (ca. 380 v. Chr.)</div>
+            <p class="text-sm text-slate-600">Der Reichste darf maximal das <strong>Vierfache</strong> des Ärmsten besitzen. Übertragen auf heute: Bei einem Chefgehalt von 13.2 Mio. CHF/Jahr müsste die ärmste Person <strong>3.3 Mio. CHF/Jahr</strong> verdienen.</p>
+          </div>
+          <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-5">
+            <div class="font-bold text-slate-800 mb-2">🗳️ 1:12-Initiative (2013)</div>
+            <p class="text-sm text-slate-600">Chef max. 12× mehr als Tiefstlöhner. Am Volk <strong>abgelehnt</strong>. Gleichzeitig: Mindestlohninitiative (4'000 CHF) ebenfalls gescheitert.</p>
+          </div>
+        </div>
+        <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-5 flex flex-col justify-between">
+          <div>
+            <div class="font-bold text-slate-800 mb-3">🧪 Die Vergleichsfalle</div>
+            <p class="text-sm text-slate-600 mb-4">Wissenschaftliche Studien zeigen: Die absolute Lohnhöhe ist weniger entscheidend als der Vergleich. Wer mehr verdient als die Nachbarn, ist zufriedener – auch wenn sich der Lohn nicht geändert hat.</p>
+          </div>
+          <div class="bg-gradient-to-r from-blue-50 to-sky-50 rounded-lg p-4 border border-blue-100">
+            <div class="text-sm font-semibold text-blue-800 mb-2">Was ist für Prof. Ueli Mäder ein fairer Lohn?</div>
+            <ul class="text-sm text-slate-700 space-y-1 list-disc list-inside">
+              <li>Sichert die Existenz</li>
+              <li>Berücksichtigt Leistung – aber nicht nur</li>
+              <li>Ermöglicht allen ein gutes Leben</li>
+              <li>Gesellschaft: es geht gut, wenn es allen gut geht</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── GLOSSAR ── -->
+    <section>
+      <h2 class="text-xl font-bold mb-6 text-slate-800 flex items-center gap-2">
+        <i class="fa-solid fa-book-open text-blue-600"></i> Fachbegriffe
+      </h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+
+        <div class="glossary-item">
+          <div class="font-bold text-blue-700 mb-1">Angebot & Nachfrage</div>
+          <div class="text-sm text-slate-600">Marktprinzip: Je weniger Angebot (Arbeitskräfte), desto höher der Preis (Lohn). Gilt beim Lohn aber nicht immer.</div>
+        </div>
+        <div class="glossary-item">
+          <div class="font-bold text-blue-700 mb-1">Produktivitätsleistung</div>
+          <div class="text-sm text-slate-600">Wer produktiver arbeitet, bringt mehr Wert – und erhält potenziell höheren Lohn.</div>
+        </div>
+        <div class="glossary-item">
+          <div class="font-bold text-blue-700 mb-1">Lohnregulativ</div>
+          <div class="text-sm text-slate-600">Von Berufsverbänden festgelegte Mindestlöhne für eine Branche (z.B. Schweizerischer Gärtnerverband).</div>
+        </div>
+        <div class="glossary-item">
+          <div class="font-bold text-blue-700 mb-1">Gewerkschaft</div>
+          <div class="text-sm text-slate-600">Organisation, die Arbeitnehmerrechte vertritt und Lohnverhandlungen mit Arbeitgebern führt.</div>
+        </div>
+        <div class="glossary-item">
+          <div class="font-bold text-blue-700 mb-1">Überschuldung</div>
+          <div class="text-sm text-slate-600">Schulden übersteigen Einnahmen dauerhaft. Zahlungsbefehle, Betreibungen und sozialer Druck entstehen.</div>
+        </div>
+        <div class="glossary-item">
+          <div class="font-bold text-blue-700 mb-1">Schuldenprävention</div>
+          <div class="text-sm text-slate-600">Massnahmen, um Überschuldung zu verhindern – z.B. Elternbildung, offene Gespräche über Geld in Familien.</div>
+        </div>
+        <div class="glossary-item">
+          <div class="font-bold text-blue-700 mb-1">Medianlohn</div>
+          <div class="text-sm text-slate-600">Der mittlere Lohn – 50% verdienen mehr, 50% weniger. In der Schweiz 2012: CHF 6'118/Monat.</div>
+        </div>
+        <div class="glossary-item">
+          <div class="font-bold text-blue-700 mb-1">Gesamtpaket</div>
+          <div class="text-sm text-slate-600">Lohn + Ferien + 13. Monatslohn + berufliche Vorsorge + Sozialversicherungen = fairer Vergleich.</div>
+        </div>
+        <div class="glossary-item">
+          <div class="font-bold text-blue-700 mb-1">1:12-Initiative</div>
+          <div class="text-sm text-slate-600">Volksinitiative 2013: Chef darf max. 12× so viel verdienen wie Tiefstlöhner. Wurde abgelehnt.</div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ── DISKUSSIONSFRAGEN ── -->
+    <section>
+      <h2 class="text-xl font-bold mb-6 text-slate-800 flex items-center gap-2">
+        <i class="fa-solid fa-comments text-sky-600"></i> Diskussionsfragen
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-white rounded-xl border border-slate-100 shadow-sm p-5 flex gap-4">
+          <div class="text-2xl">💬</div>
+          <div>
+            <div class="font-semibold text-slate-800 mb-1">Lohnunterschied gerecht?</div>
+            <div class="text-sm text-slate-600">Ein Landschaftsgärtner verdient ~1'000 CHF/Monat weniger als ein Maurer – beide lernen 3 Jahre. Findest du das gerecht? Was würdest du als Argument anführen?</div>
+          </div>
+        </div>
+        <div class="bg-white rounded-xl border border-slate-100 shadow-sm p-5 flex gap-4">
+          <div class="text-2xl">💬</div>
+          <div>
+            <div class="font-semibold text-slate-800 mb-1">Geld als Tabuthema?</div>
+            <div class="text-sm text-slate-600">Wird in deiner Familie offen über Geld gesprochen? Was wären Vor- und Nachteile, wenn man offener damit umginge?</div>
+          </div>
+        </div>
+        <div class="bg-white rounded-xl border border-slate-100 shadow-sm p-5 flex gap-4">
+          <div class="text-2xl">💬</div>
+          <div>
+            <div class="font-semibold text-slate-800 mb-1">Was ist ein fairer Lohn?</div>
+            <div class="text-sm text-slate-600">Platon sagte: max. Vierfaches vom Ärmsten. Was denkst du? Sollte es eine Obergrenze für Chefgehälter geben?</div>
+          </div>
+        </div>
+        <div class="bg-white rounded-xl border border-slate-100 shadow-sm p-5 flex gap-4">
+          <div class="text-2xl">💬</div>
+          <div>
+            <div class="font-semibold text-slate-800 mb-1">Dein eigener Lohn?</div>
+            <div class="text-sm text-slate-600">Welchen Beruf planst du? Was weisst du über den Lohn in deinem Berufsfeld? Und: Was würde ihn deiner Meinung nach erhöhen?</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="bg-slate-800 text-slate-400 py-6 mt-12 text-center text-sm">
+    <p>Erstellt für Bildungszwecke · Quellen: SRF Einstein (Jugend & Schulden), SRF Mein Lohn – Dein Lohn</p>
+    <p class="mt-1 text-slate-500">newsweise.ch · ABU Gesellschaft · Lehrjahr 1–2</p>
+  </footer>
+
+  <script>
+    function toggleTheme() {
+      const html = document.documentElement;
+      const isDark = html.getAttribute('data-theme') === 'dark';
+      html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+      document.getElementById('themeBtn').textContent = isDark ? '🌙 Dark' : '☀️ Hell';
+    }
+  </script>
+</body>
+</html>
