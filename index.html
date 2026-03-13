@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="de">
 <head>
   <meta charset="UTF-8">
@@ -15,9 +15,6 @@
       --text: #0f172a;
       --muted: #475569;
       --line: #dbe4ef;
-      --brand-a: #0ea5e9;
-      --brand-b: #16a34a;
-      --brand-c: #f97316;
       --radius: 18px;
       --shadow: 0 20px 50px rgba(10, 20, 40, 0.16);
       --max: 1100px;
@@ -42,19 +39,20 @@
       padding: 28px 16px 54px;
     }
 
+    /* Hero */
     .hero {
       border: 1px solid rgba(255, 255, 255, 0.18);
       border-radius: 22px;
-      padding: 28px;
+      padding: 28px 28px 24px;
       color: #e2e8f0;
       backdrop-filter: blur(3px);
       background: linear-gradient(135deg, rgba(14, 165, 233, 0.15), rgba(15, 23, 42, 0.35));
-      margin-bottom: 18px;
+      margin-bottom: 36px;
     }
 
     .kicker {
       margin: 0 0 6px;
-      font-size: 0.84rem;
+      font-size: 0.82rem;
       letter-spacing: 0.08em;
       text-transform: uppercase;
       color: #7dd3fc;
@@ -62,36 +60,177 @@
     }
 
     h1 {
-      margin: 0;
+      margin: 0 0 10px;
       font-family: 'Space Grotesk', sans-serif;
       font-size: clamp(1.55rem, 4vw, 2.5rem);
       line-height: 1.12;
     }
 
-    .hero p {
-      margin: 12px 0 0;
-      max-width: 74ch;
+    .hero-desc {
+      margin: 0 0 20px;
+      max-width: 70ch;
       color: #cbd5e1;
+      font-size: 0.94rem;
+      line-height: 1.6;
     }
 
-    .hero ul {
-      margin: 12px 0 0;
-      padding-left: 20px;
-      color: #cbd5e1;
-    }
-
-    .hero li {
-      margin: 6px 0;
-    }
-
-    .grid {
+    .steps {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      grid-template-columns: repeat(3, 1fr);
       gap: 12px;
-      margin-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding-top: 18px;
     }
 
-    .card {
+    .step {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .step-num {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: rgba(14, 165, 233, 0.3);
+      border: 1px solid rgba(14, 165, 233, 0.55);
+      color: #7dd3fc;
+      font-size: 0.82rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .step-text strong {
+      display: block;
+      color: #e2e8f0;
+      font-size: 0.88rem;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .step-text span {
+      color: #94a3b8;
+      font-size: 0.8rem;
+      line-height: 1.4;
+    }
+
+    /* Section headers */
+    .section { margin-bottom: 36px; }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 6px;
+    }
+
+    .section-num {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: rgba(14, 165, 233, 0.2);
+      border: 1px solid rgba(14, 165, 233, 0.45);
+      color: #7dd3fc;
+      font-size: 0.88rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    h2.section-title {
+      margin: 0;
+      color: #e2e8f0;
+      font-size: 1.08rem;
+      font-family: 'Space Grotesk', sans-serif;
+    }
+
+    .section-sub {
+      margin: 0 0 14px 42px;
+      color: #94a3b8;
+      font-size: 0.85rem;
+    }
+
+    .section-sub strong { color: #cbd5e1; }
+
+    /* Type cards */
+    .types-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+      gap: 10px;
+    }
+
+    a.type-card {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 14px 16px 12px;
+      box-shadow: var(--shadow);
+      text-decoration: none;
+      color: var(--text);
+      transition: transform .16s ease, border-color .16s ease, box-shadow .16s ease;
+    }
+
+    a.type-card:hover {
+      transform: translateY(-2px);
+      border-color: #7dd3fc;
+      box-shadow: 0 8px 30px rgba(14, 165, 233, 0.14);
+    }
+
+    .card-top {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+
+    .type-badge {
+      font-size: 0.72rem;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-weight: 700;
+      color: #0f172a;
+      flex-shrink: 0;
+    }
+
+    .badge-orig { background: #bae6fd; }
+    .badge-new  { background: #ddd6fe; }
+
+    .type-name {
+      font-size: 0.95rem;
+      font-weight: 600;
+      line-height: 1.2;
+    }
+
+    .type-desc {
+      font-size: 0.82rem;
+      color: var(--muted);
+      line-height: 1.45;
+      margin: 0;
+    }
+
+    .card-cta {
+      font-size: 0.77rem;
+      color: #0ea5e9;
+      font-weight: 600;
+      margin-top: 2px;
+    }
+
+    /* Prompt section */
+    .prompt-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 10px;
+    }
+
+    .prompt-card {
       background: var(--card);
       border: 1px solid var(--line);
       border-radius: var(--radius);
@@ -99,33 +238,30 @@
       box-shadow: var(--shadow);
     }
 
-    .card h2 {
-      margin: 0;
-      font-size: 1.02rem;
-      line-height: 1.25;
+    .prompt-card h3 {
+      margin: 0 0 6px;
+      font-size: 0.97rem;
     }
 
-    .card p {
-      margin: 8px 0 12px;
+    .prompt-card p {
+      margin: 0 0 12px;
       color: var(--muted);
-      font-size: 0.92rem;
+      font-size: 0.86rem;
+      line-height: 1.45;
     }
 
-    .links {
-      display: grid;
-      gap: 8px;
-    }
+    .links { display: grid; gap: 7px; }
 
     a.item {
       display: block;
       text-decoration: none;
       color: var(--text);
       border: 1px solid var(--line);
-      border-radius: 12px;
-      padding: 10px 12px;
-      font-size: 0.9rem;
-      transition: transform .16s ease, border-color .16s ease, background .16s ease;
+      border-radius: 10px;
+      padding: 9px 12px;
+      font-size: 0.88rem;
       background: #f8fafc;
+      transition: transform .15s ease, border-color .15s ease, background .15s ease;
     }
 
     a.item:hover {
@@ -134,132 +270,303 @@
       background: #eff6ff;
     }
 
-    .tag {
-      display: inline-block;
-      margin-left: 6px;
-      font-size: 0.72rem;
-      padding: 2px 7px;
-      border-radius: 999px;
-      font-weight: 700;
-      vertical-align: middle;
-      color: #0f172a;
-      background: #e2e8f0;
+    /* Skill section (advanced, subtle) */
+    .skill-block {
+      border: 1px dashed rgba(255, 255, 255, 0.18);
+      border-radius: 16px;
+      padding: 18px 20px;
+      background: rgba(15, 23, 42, 0.28);
+      margin-bottom: 28px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      align-items: flex-start;
     }
 
-    .tag-a { background: #bae6fd; }
-    .tag-b { background: #bbf7d0; }
-    .tag-c { background: #fed7aa; }
-    .tag-d { background: #ddd6fe; }
+    .skill-left { flex: 1; min-width: 200px; }
 
-    .section-title {
-      margin: 24px 0 8px;
+    .skill-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+
+    .skill-badge {
+      font-size: 0.7rem;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-weight: 700;
+      background: rgba(148, 163, 184, 0.25);
+      color: #94a3b8;
+    }
+
+    h2.skill-title {
+      margin: 0;
       color: #e2e8f0;
-      font-size: 1.08rem;
-      letter-spacing: 0.01em;
+      font-size: 0.95rem;
       font-family: 'Space Grotesk', sans-serif;
     }
 
-    .footer {
-      margin-top: 20px;
-      border: 1px dashed rgba(255, 255, 255, 0.24);
-      border-radius: 14px;
-      padding: 12px;
-      color: #cbd5e1;
-      font-size: 0.88rem;
-      background: rgba(15, 23, 42, 0.34);
+    .skill-desc {
+      color: #94a3b8;
+      font-size: 0.84rem;
+      line-height: 1.5;
+      margin: 0;
     }
+
+    .skill-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      align-self: center;
+    }
+
+    a.skill-link {
+      text-decoration: none;
+      color: #cbd5e1;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 0.82rem;
+      background: rgba(15, 23, 42, 0.3);
+      transition: border-color .15s ease, background .15s ease, color .15s ease;
+    }
+
+    a.skill-link:hover {
+      border-color: rgba(125, 211, 252, 0.5);
+      background: rgba(14, 165, 233, 0.1);
+      color: #e2e8f0;
+    }
+
+    /* Footer */
+    .footer {
+      border: 1px dashed rgba(255, 255, 255, 0.16);
+      border-radius: 12px;
+      padding: 11px 16px;
+      color: #64748b;
+      font-size: 0.83rem;
+      background: rgba(15, 23, 42, 0.25);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    a.footer-link {
+      color: #7dd3fc;
+      text-decoration: none;
+      font-size: 0.83rem;
+      white-space: nowrap;
+    }
+
+    a.footer-link:hover { text-decoration: underline; }
 
     code {
       font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      font-size: 0.83em;
-      background: rgba(148, 163, 184, 0.22);
+      font-size: 0.82em;
+      background: rgba(148, 163, 184, 0.2);
       border-radius: 4px;
       padding: 2px 5px;
     }
 
-    @media (max-width: 640px) {
-      .hero { padding: 22px 16px; }
-      .card { padding: 14px; }
+    @media (max-width: 680px) {
+      .hero { padding: 20px 16px; }
+      .steps { grid-template-columns: 1fr; gap: 10px; }
+      .skill-block { flex-direction: column; }
+      .footer { flex-direction: column; align-items: flex-start; }
     }
   </style>
 </head>
 <body>
   <main class="wrap">
+
+    <!-- Hero -->
     <section class="hero">
-      <p class="kicker">GitHub Pages Entry</p>
-      <h1>HTML Skills fuer Lehrpersonen</h1>
-      <p>Diese Seite ist dein Startpunkt, um die Materialien einfach zu nutzen. Alle gezeigten Inhalte wurden mit dem Skill erstellt; als Input dienten die zwei SRF-Video-Transkripte im Ordner <code>examples/pages/transcripts/</code>.</p>
-      <ul>
-        <li><strong>Schritt 1:</strong> Erkunde unten die verschiedenen Seiten-Typen (Type A bis M) als konkrete Unterrichtsbeispiele.</li>
-        <li><strong>Schritt 2:</strong> Nutze die Prompt-Bibliothek, kopiere Prompts und teste sie in anderen LLMs (z. B. ChatGPT oder Claude).</li>
-        <li><strong>Schritt 3 (advanced):</strong> Verwende den Skill, um eigene weitere HTML-Seiten zu generieren.</li>
-      </ul>
+      <p class="kicker">Workshop &middot; Lehrpersonen &amp; HTML</p>
+      <h1>HTML-Seiten fuer den Unterricht</h1>
+      <p class="hero-desc">Mit einem KI-Skill lassen sich vollstaendige, interaktive HTML-Unterrichtsseiten direkt aus einem Transkript oder Thema generieren &mdash; in 11 verschiedenen Formaten, ohne Programmierkenntnisse.</p>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-text">
+            <strong>Inspirieren lassen</strong>
+            <span>Erkunde die 11 Seitentypen als konkrete Beispiele zum Thema Lohn</span>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-text">
+            <strong>Prompts nutzen</strong>
+            <span>Kopiere fertige Vorlagen in ChatGPT, Claude oder ein anderes LLM</span>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-text">
+            <strong>Skill verwenden</strong>
+            <span>Generiere eigene Seiten mit dem edu-html-generator Skill in Claude Code</span>
+          </div>
+        </div>
+      </div>
     </section>
 
-    <h2 class="section-title">Unterrichtsbeispiele</h2>
-    <section class="grid">
-      <article class="card">
-        <h2>Thema: Lohn</h2>
-        <p>Aktuell vorhandene Beispielseiten fuer das Thema <strong>Lohn</strong>.</p>
-        <div class="links">
-          <a class="item" href="examples/pages/lohn/type_A.html">Interaktive Lektion <span class="tag tag-a">Type A</span></a>
-          <a class="item" href="examples/pages/lohn/type_B.html">Druckdokument <span class="tag tag-b">Type B</span></a>
-          <a class="item" href="examples/pages/lohn/type_C.html">Info-Dossier <span class="tag tag-c">Type C</span></a>
-          <a class="item" href="examples/pages/lohn/type-e-adaptive-lernpfad-lohn-budget.html">Adaptive Lernpfad Lohn/Budget <span class="tag tag-d">Type E</span></a>
-          <a class="item" href="examples/pages/lohn/type-f-fallstudie-lohn-budget.html">Fallstudie Lohn/Budget <span class="tag tag-d">Type F</span></a>
-          <a class="item" href="examples/pages/lohn/type-g-vocabulary-trainer-lohn-budget.html">Vocabulary Trainer Lohn/Budget <span class="tag tag-d">Type G</span></a>
-          <a class="item" href="examples/pages/lohn/type-h-concept-map-lohn-budget.html">Concept Map Lohn/Budget <span class="tag tag-d">Type H</span></a>
-          <a class="item" href="examples/pages/lohn/type-i-budget-protokoll-lohn-budget.html">Budget Protokoll Lohn/Budget <span class="tag tag-d">Type I</span></a>
-          <a class="item" href="examples/pages/lohn/type-j-timeline-lohn-budget.html">Timeline Lohn/Budget <span class="tag tag-d">Type J</span></a>
-          <a class="item" href="examples/pages/lohn/type-k-rollenspiel-lohn-budget.html">Rollenspiel Lohn/Budget <span class="tag tag-d">Type K</span></a>
-          <a class="item" href="examples/pages/lohn/type-m-exit-ticket-lohn-budget.html">Exit Ticket Lohn/Budget <span class="tag tag-d">Type M</span></a>
-        </div>
-      </article>
+    <!-- Step 1: Examples -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-num">1</div>
+        <h2 class="section-title">Beispiele: 11 Seitentypen</h2>
+      </div>
+      <p class="section-sub">Alle Beispiele basieren auf dem Thema <strong>Lohn &amp; Budget</strong> &mdash; generiert aus zwei SRF-Video-Transkripten.</p>
 
-      <article class="card">
-        <h2>Prompt-Bibliothek</h2>
-        <p>Vorlagen fuer Lehrpersonen zum direkten Copy/Paste in ChatGPT, Claude usw.</p>
-        <div class="links">
-          <a class="item" href="examples/prompts/prompts.html">Prompt Copy Page (HTML)</a>
-          <a class="item" href="prompts.md">Prompt Sammlung (Markdown)</a>
-        </div>
-      </article>
+      <div class="types-grid">
 
-      <article class="card">
-        <h2>Skill & Dokumentation</h2>
-        <p>Skill-Paket und Anleitungen zur Generierung neuer Seiten.</p>
-        <div class="links">
-          <a class="item" href="README.md">README</a>
-          <a class="item" href="skill/edu-html-generator/SKILL.md">Skill Anleitung</a>
-          <a class="item" href="edu-html-generator.zip">Skill ZIP Download</a>
-        </div>
-      </article>
+        <a class="type-card" href="examples/pages/lohn/type_A.html">
+          <div class="card-top">
+            <span class="type-badge badge-orig">Type A</span>
+            <span class="type-name">Interaktive Lektion</span>
+          </div>
+          <p class="type-desc">Folienbasiert mit Quiz, Drag &amp; Drop, Vokabelkarten und Ergebnisfolie. Dark/Light-Toggle, Tastaturnavigation, Speicherung per localStorage.</p>
+          <span class="card-cta">Beispiel oeffnen &rarr;</span>
+        </a>
 
-      <article class="card">
-        <h2>Transkripte & Skill-Quellen</h2>
-        <p>Direkter Zugriff auf die Eingaben (SRF-Transkripte) und zentrale Skill-Dateien.</p>
-        <div class="links">
-          <a class="item" href="examples/pages/transcripts/video1.md">Transkript Video 1</a>
-          <a class="item" href="examples/pages/transcripts/video2.md">Transkript Video 2</a>
-          <a class="item" href="skill/edu-html-generator/SKILL.md">Skill: Hauptanleitung (SKILL.md)</a>
-          <a class="item" href="skill/edu-html-generator/references/type-a-components.md">Skill Referenz: Type A</a>
-          <a class="item" href="skill/edu-html-generator/references/type-b-components.md">Skill Referenz: Type B</a>
-          <a class="item" href="skill/edu-html-generator/references/type-c-components.md">Skill Referenz: Type C</a>
-          <a class="item" href="skill/edu-html-generator/assets/templates/type-e-adaptive-lernpfad.html">Skill Template: Type E</a>
-          <a class="item" href="skill/edu-html-generator/assets/templates/type-f-fallstudie.html">Skill Template: Type F</a>
-          <a class="item" href="skill/edu-html-generator/assets/templates/type-g-vocabulary-trainer.html">Skill Template: Type G</a>
-          <a class="item" href="skill/edu-html-generator/assets/templates/type-h-concept-map.html">Skill Template: Type H</a>
-          <a class="item" href="skill/edu-html-generator/assets/templates/type-i-experiment-log.html">Skill Template: Type I</a>
-          <a class="item" href="skill/edu-html-generator/assets/templates/type-j-timeline.html">Skill Template: Type J</a>
-          <a class="item" href="skill/edu-html-generator/assets/templates/type-k-rollenspiel.html">Skill Template: Type K</a>
-          <a class="item" href="skill/edu-html-generator/assets/templates/type-m-exit-ticket.html">Skill Template: Type M</a>
-        </div>
-      </article>
+        <a class="type-card" href="examples/pages/lohn/type_B.html">
+          <div class="card-top">
+            <span class="type-badge badge-orig">Type B</span>
+            <span class="type-name">Druckdokument</span>
+          </div>
+          <p class="type-desc">A4-Seiten im HKO/ABU-Brochuerenformat. Mit QR-Codes fuer alle Links. Ideal als ausdruckbare Lernsituation oder Arbeitsblatt.</p>
+          <span class="card-cta">Beispiel oeffnen &rarr;</span>
+        </a>
+
+        <a class="type-card" href="examples/pages/lohn/type_C.html">
+          <div class="card-top">
+            <span class="type-badge badge-orig">Type C</span>
+            <span class="type-name">Info-Dossier</span>
+          </div>
+          <p class="type-desc">Scrollbare Uebersichtsseite mit Fakten, Medienlinks und Zeitleiste. Geeignet als Einstieg, Hintergrundlektuere oder Recherchebasis.</p>
+          <span class="card-cta">Beispiel oeffnen &rarr;</span>
+        </a>
+
+        <a class="type-card" href="examples/pages/lohn/type-e-adaptive-lernpfad-lohn-budget.html">
+          <div class="card-top">
+            <span class="type-badge badge-new">Type E</span>
+            <span class="type-name">Adaptiver Lernpfad</span>
+          </div>
+          <p class="type-desc">Verzweigtes Lernen mit Differenzierung: falsche Antwort &rarr; Erklaerung &rarr; Wiederholung. Fail-safe verhindert, dass Schueler steckenbleiben.</p>
+          <span class="card-cta">Beispiel oeffnen &rarr;</span>
+        </a>
+
+        <a class="type-card" href="examples/pages/lohn/type-f-fallstudie-lohn-budget.html">
+          <div class="card-top">
+            <span class="type-badge badge-new">Type F</span>
+            <span class="type-name">Fallstudie</span>
+          </div>
+          <p class="type-desc">Fuenf Tabs (Situation, Dokumente, Aufgaben, Entscheidung, Reflexion), sequenziell freischaltend. Mit Argumentationsstruktur fuer Entscheide.</p>
+          <span class="card-cta">Beispiel oeffnen &rarr;</span>
+        </a>
+
+        <a class="type-card" href="examples/pages/lohn/type-g-vocabulary-trainer-lohn-budget.html">
+          <div class="card-top">
+            <span class="type-badge badge-new">Type G</span>
+            <span class="type-name">Vokabeltrainer</span>
+          </div>
+          <p class="type-desc">Drei Runden: Karteikarten &rarr; Multiple Choice &rarr; Tippen. Mit Levenshtein-Toleranz fuer Tippfehler und Fisher-Yates-Shuffle pro Session.</p>
+          <span class="card-cta">Beispiel oeffnen &rarr;</span>
+        </a>
+
+        <a class="type-card" href="examples/pages/lohn/type-h-concept-map-lohn-budget.html">
+          <div class="card-top">
+            <span class="type-badge badge-new">Type H</span>
+            <span class="type-name">Concept Map</span>
+          </div>
+          <p class="type-desc">SVG-Leinwand mit Drag &amp; Drop. Begriffe setzen, verbinden, beschriften und drucken. Modi: frei, gefuehrt oder Lehreransicht.</p>
+          <span class="card-cta">Beispiel oeffnen &rarr;</span>
+        </a>
+
+        <a class="type-card" href="examples/pages/lohn/type-i-budget-protokoll-lohn-budget.html">
+          <div class="card-top">
+            <span class="type-badge badge-new">Type I</span>
+            <span class="type-name">Experiment-Protokoll</span>
+          </div>
+          <p class="type-desc">Scrollendes Formular fuer Hypothese, Materialien, Beobachtung und Datentabelle mit Durchschnittsberechnung. Immer hell, druckoptimiert auf A4.</p>
+          <span class="card-cta">Beispiel oeffnen &rarr;</span>
+        </a>
+
+        <a class="type-card" href="examples/pages/lohn/type-j-timeline-lohn-budget.html">
+          <div class="card-top">
+            <span class="type-badge badge-new">Type J</span>
+            <span class="type-name">Timeline</span>
+          </div>
+          <p class="type-desc">Ereignisse per Drag &amp; Drop in die richtige Reihenfolge bringen oder chronologisch anzeigen. Mit Kategoriefilter und Detailansicht.</p>
+          <span class="card-cta">Beispiel oeffnen &rarr;</span>
+        </a>
+
+        <a class="type-card" href="examples/pages/lohn/type-k-rollenspiel-lohn-budget.html">
+          <div class="card-top">
+            <span class="type-badge badge-new">Type K</span>
+            <span class="type-name">Rollenspiel-Karten</span>
+          </div>
+          <p class="type-desc">Persona-Karten mit zufaelligem Ziehen und Countdown-Timer fuer Vorbereitungszeit. Druckbar als 2 Karten pro A4-Seite.</p>
+          <span class="card-cta">Beispiel oeffnen &rarr;</span>
+        </a>
+
+        <a class="type-card" href="examples/pages/lohn/type-m-exit-ticket-lohn-budget.html">
+          <div class="card-top">
+            <span class="type-badge badge-new">Type M</span>
+            <span class="type-name">Exit Ticket</span>
+          </div>
+          <p class="type-desc">3&ndash;5 Fragen mit Ampel-Selbsteinschaetzung am Ende. Anonym und rein formativ &mdash; kein Feedback gezeigt, Auswertung nur fuer die Lehrperson.</p>
+          <span class="card-cta">Beispiel oeffnen &rarr;</span>
+        </a>
+
+      </div>
     </section>
 
-    <section class="footer">
-      Hinweis: Alle aktuellen Beispielinhalte basieren auf den zwei SRF-Video-Transkripten unter <code>examples/pages/transcripts/</code> und wurden mit dem Skill erzeugt. Wenn du neue Beispiele hinzufuegst, verwende am besten dieses Schema: <code>examples/pages/&lt;thema&gt;/type_A.html</code>, <code>type_B.html</code>, <code>type_C.html</code>. Neue Prompt-Seiten koennen unter <code>examples/prompts/</code> abgelegt und hier als eigener Linkblock ergaenzt werden.
+    <!-- Step 2: Prompts -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-num">2</div>
+        <h2 class="section-title">Prompts nutzen</h2>
+      </div>
+      <p class="section-sub">Fertige Vorlagen fuer alle 11 Typen &mdash; direkt kopieren und in ChatGPT, Claude oder ein anderes LLM einfuegen.</p>
+
+      <div class="prompt-cards">
+        <div class="prompt-card">
+          <h3>Prompt-Bibliothek</h3>
+          <p>Strukturierte Prompt-Vorlagen fuer jeden Seitentyp, zum direkten Copy/Paste.</p>
+          <div class="links">
+            <a class="item" href="examples/prompts/prompts.html">Prompt Copy Page (HTML)</a>
+            <a class="item" href="prompts.md">Prompt Sammlung (Markdown)</a>
+          </div>
+        </div>
+      </div>
     </section>
+
+    <!-- Step 3: Skill (advanced, subtle) -->
+    <div class="skill-block">
+      <div class="skill-left">
+        <div class="skill-header">
+          <span class="skill-badge">Schritt 3 &middot; Advanced</span>
+          <h2 class="skill-title">Skill verwenden (Claude Code)</h2>
+        </div>
+        <p class="skill-desc">Mit dem <code>edu-html-generator</code>-Skill in Claude Code laesst sich jeder Seitentyp direkt aus einem Transkript oder Thema generieren &mdash; Interview-gesteuert, ohne manuelles Prompten.</p>
+      </div>
+      <div class="skill-links">
+        <a class="skill-link" href="skill/edu-html-generator/SKILL.md">SKILL.md</a>
+        <a class="skill-link" href="edu-html-generator.zip">ZIP herunterladen</a>
+        <a class="skill-link" href="README.md">README</a>
+        <a class="skill-link" href="sources.html">Quellen &amp; Referenzen &rarr;</a>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <span>Alle Beispiele wurden mit dem <code>edu-html-generator</code>-Skill aus SRF-Transkripten erzeugt.</span>
+      <a class="footer-link" href="sources.html">Transkripte &amp; Skill-Quellen &rarr;</a>
+    </footer>
+
   </main>
 </body>
 </html>

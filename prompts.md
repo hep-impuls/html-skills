@@ -1,7 +1,3 @@
-Here are 8 prompts — one per page type, in plain teacher language, ready to copy and share.
-
----
-
 ## 🎮 Type A — Interactive Lessons
 
 **A1 · News/Current Events Lesson**

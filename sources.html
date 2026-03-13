@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quellen &amp; Referenzen &mdash; HTML Skills</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0b1020;
+      --bg-soft: #111a33;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --line: #dbe4ef;
+      --radius: 16px;
+      --shadow: 0 20px 50px rgba(10, 20, 40, 0.16);
+      --max: 860px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      color: var(--text);
+      font-family: 'Lexend', sans-serif;
+      background:
+        radial-gradient(900px 500px at 0% 0%, rgba(14, 165, 233, 0.15), transparent 58%),
+        linear-gradient(180deg, var(--bg) 0%, var(--bg-soft) 100%);
+      min-height: 100vh;
+    }
+
+    .wrap {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 28px 16px 54px;
+    }
+
+    /* Back link */
+    a.back {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+      color: #7dd3fc;
+      font-size: 0.85rem;
+      margin-bottom: 20px;
+      transition: color .15s ease;
+    }
+
+    a.back:hover { color: #e2e8f0; }
+
+    /* Page header */
+    .page-header {
+      margin-bottom: 28px;
+    }
+
+    .kicker {
+      margin: 0 0 6px;
+      font-size: 0.8rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #7dd3fc;
+      font-weight: 700;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(1.3rem, 3.5vw, 1.9rem);
+      color: #e2e8f0;
+      line-height: 1.2;
+    }
+
+    .page-desc {
+      color: #94a3b8;
+      font-size: 0.88rem;
+      margin: 0;
+      line-height: 1.55;
+    }
+
+    /* Sections */
+    .section { margin-bottom: 28px; }
+
+    h2.group-title {
+      margin: 0 0 10px;
+      color: #e2e8f0;
+      font-size: 0.92rem;
+      font-family: 'Space Grotesk', sans-serif;
+      letter-spacing: 0.01em;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .group-desc {
+      margin: 0 0 10px;
+      color: #64748b;
+      font-size: 0.82rem;
+    }
+
+    /* Link list */
+    .links { display: grid; gap: 7px; }
+
+    a.item {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--text);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 9px 14px;
+      font-size: 0.88rem;
+      background: var(--card);
+      box-shadow: 0 2px 8px rgba(10, 20, 40, 0.07);
+      transition: transform .15s ease, border-color .15s ease, background .15s ease;
+    }
+
+    a.item:hover {
+      transform: translateY(-1px);
+      border-color: #7dd3fc;
+      background: #eff6ff;
+    }
+
+    .item-label {
+      flex: 1;
+    }
+
+    .item-meta {
+      font-size: 0.75rem;
+      color: #94a3b8;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.8em;
+      background: rgba(148, 163, 184, 0.2);
+      border-radius: 4px;
+      padding: 2px 5px;
+      color: var(--muted);
+    }
+
+    @media (max-width: 540px) {
+      .item-meta { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+
+    <a class="back" href="index.html">&larr; Zurueck zur Startseite</a>
+
+    <div class="page-header">
+      <p class="kicker">Skill-Quellen &amp; Eingaben</p>
+      <h1>Transkripte &amp; Referenzdateien</h1>
+      <p class="page-desc">Alle Quelldateien, die als Input fuer den Skill dienten, sowie die Referenz- und Template-Dateien des <code>edu-html-generator</code>-Skills.</p>
+    </div>
+
+    <!-- Transcripts -->
+    <section class="section">
+      <h2 class="group-title">Eingaben: SRF-Transkripte</h2>
+      <p class="group-desc">Diese zwei Transkripte dienten als Input fuer alle Beispielseiten zum Thema Lohn &amp; Budget.</p>
+      <div class="links">
+        <a class="item" href="examples/pages/transcripts/video1.md">
+          <span class="item-label">Transkript Video 1</span>
+          <span class="item-meta">examples/pages/transcripts/video1.md</span>
+        </a>
+        <a class="item" href="examples/pages/transcripts/video2.md">
+          <span class="item-label">Transkript Video 2</span>
+          <span class="item-meta">examples/pages/transcripts/video2.md</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- Skill main files -->
+    <section class="section">
+      <h2 class="group-title">Skill-Anleitung (Typen A &ndash; C)</h2>
+      <p class="group-desc">Hauptanleitung und Komponenten-Referenzen fuer die drei Original-Typen.</p>
+      <div class="links">
+        <a class="item" href="skill/edu-html-generator/SKILL.md">
+          <span class="item-label">SKILL.md &mdash; Hauptanleitung</span>
+          <span class="item-meta">skill/edu-html-generator/SKILL.md</span>
+        </a>
+        <a class="item" href="skill/edu-html-generator/references/type-a-components.md">
+          <span class="item-label">Komponenten-Referenz Type A</span>
+          <span class="item-meta">references/type-a-components.md</span>
+        </a>
+        <a class="item" href="skill/edu-html-generator/references/type-b-components.md">
+          <span class="item-label">Komponenten-Referenz Type B</span>
+          <span class="item-meta">references/type-b-components.md</span>
+        </a>
+        <a class="item" href="skill/edu-html-generator/references/type-c-components.md">
+          <span class="item-label">Komponenten-Referenz Type C</span>
+          <span class="item-meta">references/type-c-components.md</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- Templates E–M -->
+    <section class="section">
+      <h2 class="group-title">Skill-Templates (Typen E &ndash; M)</h2>
+      <p class="group-desc">Vollstaendige HTML-Vorlagen mit <code>[Platzhalter]</code>-Markierungen, die der Skill befuellt.</p>
+      <div class="links">
+        <a class="item" href="skill/edu-html-generator/assets/templates/type-e-adaptive-lernpfad.html">
+          <span class="item-label">Template Type E &mdash; Adaptiver Lernpfad</span>
+          <span class="item-meta">type-e-adaptive-lernpfad.html</span>
+        </a>
+        <a class="item" href="skill/edu-html-generator/assets/templates/type-f-fallstudie.html">
+          <span class="item-label">Template Type F &mdash; Fallstudie</span>
+          <span class="item-meta">type-f-fallstudie.html</span>
+        </a>
+        <a class="item" href="skill/edu-html-generator/assets/templates/type-g-vocabulary-trainer.html">
+          <span class="item-label">Template Type G &mdash; Vokabeltrainer</span>
+          <span class="item-meta">type-g-vocabulary-trainer.html</span>
+        </a>
+        <a class="item" href="skill/edu-html-generator/assets/templates/type-h-concept-map.html">
+          <span class="item-label">Template Type H &mdash; Concept Map</span>
+          <span class="item-meta">type-h-concept-map.html</span>
+        </a>
+        <a class="item" href="skill/edu-html-generator/assets/templates/type-i-experiment-log.html">
+          <span class="item-label">Template Type I &mdash; Experiment-Protokoll</span>
+          <span class="item-meta">type-i-experiment-log.html</span>
+        </a>
+        <a class="item" href="skill/edu-html-generator/assets/templates/type-j-timeline.html">
+          <span class="item-label">Template Type J &mdash; Timeline</span>
+          <span class="item-meta">type-j-timeline.html</span>
+        </a>
+        <a class="item" href="skill/edu-html-generator/assets/templates/type-k-rollenspiel.html">
+          <span class="item-label">Template Type K &mdash; Rollenspiel-Karten</span>
+          <span class="item-meta">type-k-rollenspiel.html</span>
+        </a>
+        <a class="item" href="skill/edu-html-generator/assets/templates/type-m-exit-ticket.html">
+          <span class="item-label">Template Type M &mdash; Exit Ticket</span>
+          <span class="item-meta">type-m-exit-ticket.html</span>
+        </a>
+      </div>
+    </section>
+
+  </main>
+</body>
+</html>
