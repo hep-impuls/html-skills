@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🔀 Adaptiver Lernpfad — Lohn & Budget</title>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root[data-theme="dark"]{--bg-primary:#0f172a;--bg-secondary:#1e293b;--bg-card:#334155;--text-primary:#f1f5f9;--text-secondary:#94a3b8;--border:#475569;}
+  :root[data-theme="light"]{--bg-primary:#f8fafc;--bg-secondary:#ffffff;--bg-card:#f1f5f9;--text-primary:#1e293b;--text-secondary:#64748b;--border:#e2e8f0;}
+  :root{--accent:#6366f1;--accent-2:#8b5cf6;--green:#4ade80;--red:#f87171;--yellow:#fbbf24;--radius:12px;--radius-lg:20px;--transition:0.2s ease;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Lexend',sans-serif;background:var(--bg-primary);color:var(--text-primary);min-height:100vh;}
+  .header{background:var(--bg-secondary);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+  .header-title{font-size:1rem;font-weight:700;}
+  .header-sub{font-size:0.75rem;color:var(--text-secondary);margin-top:2px;}
+  .header-right{display:flex;align-items:center;gap:10px;}
+  .btn-print-header,.theme-toggle{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:6px 14px;font-size:0.82rem;font-weight:600;color:var(--text-primary);cursor:pointer;font-family:inherit;transition:all var(--transition);}
+  .btn-print-header:hover,.theme-toggle:hover{border-color:var(--accent);color:var(--accent);}
+  .progress-bar-wrap{background:var(--bg-secondary);padding:10px 20px;border-bottom:1px solid var(--border);}
+  .progress-label{font-size:0.75rem;color:var(--text-secondary);margin-bottom:6px;}
+  .progress-track{height:6px;background:var(--border);border-radius:99px;overflow:hidden;}
+  .progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2));border-radius:99px;transition:width 0.4s ease;width:0%;}
+  .main-container{max-width:680px;margin:0 auto;padding:32px 20px 60px;}
+  .node-card{background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius-lg);padding:32px;animation:fadeIn 0.35s ease;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+  .node-badge{display:inline-flex;align-items:center;gap:6px;font-size:0.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:4px 12px;border-radius:99px;margin-bottom:16px;}
+  .badge-intro{background:color-mix(in srgb,var(--accent) 15%,transparent);color:var(--accent);}
+  .badge-question{background:color-mix(in srgb,var(--yellow) 15%,transparent);color:var(--yellow);}
+  .badge-explanation{background:color-mix(in srgb,var(--green) 15%,transparent);color:var(--green);}
+  .badge-checkpoint{background:color-mix(in srgb,#60a5fa 15%,transparent);color:#60a5fa;}
+  .badge-results{background:color-mix(in srgb,var(--accent-2) 15%,transparent);color:var(--accent-2);}
+  .node-title{font-size:1.35rem;font-weight:700;margin-bottom:12px;line-height:1.3;}
+  .node-text{color:var(--text-secondary);line-height:1.7;font-size:0.95rem;margin-bottom:24px;}
+  .node-visual{background:var(--bg-card);border-radius:var(--radius);padding:16px;margin-bottom:20px;font-size:0.9rem;line-height:1.6;border-left:4px solid var(--accent);}
+  .video-embed{margin-bottom:20px;border-radius:var(--radius);overflow:hidden;}
+  .video-embed iframe{width:100%;border:none;border-radius:var(--radius);}
+  .question-text{font-size:1.05rem;font-weight:600;margin-bottom:18px;line-height:1.4;}
+  .choices{display:flex;flex-direction:column;gap:10px;margin-bottom:20px;}
+  .choice-btn{background:var(--bg-card);border:2px solid var(--border);border-radius:var(--radius);padding:12px 16px;text-align:left;font-family:inherit;font-size:0.9rem;color:var(--text-primary);cursor:pointer;transition:all var(--transition);}
+  .choice-btn:hover:not(:disabled){border-color:var(--accent);background:color-mix(in srgb,var(--accent) 8%,var(--bg-card));}
+  .choice-btn.correct{border-color:var(--green);background:color-mix(in srgb,var(--green) 12%,transparent);color:var(--green);}
+  .choice-btn.wrong{border-color:var(--red);background:color-mix(in srgb,var(--red) 12%,transparent);color:var(--red);}
+  .choice-btn:disabled{cursor:not-allowed;}
+  .feedback{display:none;padding:14px 16px;border-radius:var(--radius);margin-bottom:18px;font-size:0.9rem;font-weight:500;}
+  .feedback.correct{display:block;background:color-mix(in srgb,var(--green) 12%,transparent);border:1px solid var(--green);color:var(--green);}
+  .feedback.wrong{display:block;background:color-mix(in srgb,var(--red) 12%,transparent);border:1px solid var(--red);color:var(--red);}
+  .reflection-prompt{font-size:0.95rem;font-weight:600;margin-bottom:10px;}
+  textarea{width:100%;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px;color:var(--text-primary);font-family:inherit;font-size:0.9rem;resize:vertical;min-height:100px;transition:border-color var(--transition);}
+  textarea:focus{outline:none;border-color:var(--accent);}
+  .btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent-2));border:none;border-radius:var(--radius);padding:12px 28px;font-size:0.95rem;font-weight:700;color:white;cursor:pointer;font-family:inherit;transition:all var(--transition);margin-top:10px;}
+  .btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 14px color-mix(in srgb,var(--accent) 35%,transparent);}
+  .btn-secondary{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:11px 22px;font-size:0.9rem;font-weight:600;color:var(--text-primary);cursor:pointer;font-family:inherit;transition:all var(--transition);margin-top:10px;margin-right:8px;}
+  .btn-secondary:hover{border-color:var(--accent);color:var(--accent);}
+  .branch-hint{display:flex;align-items:center;gap:8px;font-size:0.78rem;color:var(--text-secondary);margin-top:16px;padding:10px 14px;background:var(--bg-card);border-radius:var(--radius);}
+  .results-stars{font-size:2.5rem;text-align:center;margin-bottom:12px;}
+  .results-score{text-align:center;font-size:1.1rem;font-weight:700;margin-bottom:8px;}
+  .path-trace{margin-top:20px;}
+  .path-node{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:var(--radius);margin-bottom:6px;font-size:0.85rem;}
+  .path-node.success{background:color-mix(in srgb,var(--green) 10%,transparent);border:1px solid color-mix(in srgb,var(--green) 30%,transparent);}
+  .path-node.retry{background:color-mix(in srgb,var(--yellow) 10%,transparent);border:1px solid color-mix(in srgb,var(--yellow) 30%,transparent);}
+  #printContent{display:none;}
+  @media print{body>*:not(#printContent){display:none!important;}#printContent{display:block!important;}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="header-title">🔀 Lohn & Budget — Adaptiver Lernpfad</div>
+    <div class="header-sub">ABU · Wirtschaft & Gesellschaft · Lehrjahr 1–2</div>
+  </div>
+  <div class="header-right">
+    <button class="btn-print-header" onclick="printLesson()">🖨️ Ausdruck</button>
+    <button class="theme-toggle" onclick="toggleTheme()"><span id="themeIcon">🌙</span></button>
+  </div>
+</div>
+
+<div class="progress-bar-wrap">
+  <div class="progress-label" id="progressLabel">Knoten 0 abgeschlossen</div>
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+</div>
+
+<div class="main-container"><div id="nodeContainer"></div></div>
+<div id="printContent"></div>
+
+<script>
+const NODES = [
+  {
+    id:'start', type:'intro', badge:'🚀 Start',
+    title:'Willkommen: Lohn & Budget',
+    text:'In diesem Lernpfad erforschst du zwei wichtige Fragen: Warum verdienen Menschen unterschiedliche Löhne? Und warum geraten manche Jugendliche in die Schuldenfalle? Schau dir die zwei SRF-Videos an und beantworte die Fragen — der Pfad passt sich deinen Antworten an.',
+    video:'<iframe width="100%" height="230" src="https://www.srf.ch/play/embed?urn=urn:srf:video:8e78f8da-c345-4817-87cc-6cf7a4ce7cc5&subdivisions=false" allowfullscreen allow="geolocation *; autoplay; encrypted-media"></iframe>',
+    videoLabel:'📺 Video 1: Lohnunterschiede in der Schweiz (ca. 12 Min.)',
+    next:'q1'
+  },
+  {
+    id:'q1', type:'question', emoji:'❓',
+    question:'Was bestimmt den Lohn hauptsächlich laut dem ersten Video?',
+    choices:['Die Beliebtheit des Berufs in der Gesellschaft','Angebot & Nachfrage auf dem Arbeitsmarkt','Die Körpergrösse der Arbeitnehmenden','Die Farbe des Büros'],
+    correct:1, onCorrect:'q2', onWrong:'help1'
+  },
+  {
+    id:'help1', type:'explanation', badge:'💡 Erklärung',
+    title:'Angebot & Nachfrage bestimmen den Lohn',
+    text:'Je weniger Arbeitskräfte es für einen Beruf gibt (tiefes Angebot), desto höher der Lohn — weil Arbeitgeber mehr zahlen müssen, um jemanden zu finden. Beispiel: Zur Zeit der Beulenpest starb jeder Dritte — wer überlebte, erhielt höhere Löhne, weil weniger Arbeitskräfte verfügbar waren.',
+    visual:'📊 Wenig Fachkräfte → hohe Nachfrage nach ihnen → höherer Lohn\n📉 Viele Arbeitskräfte → Angebot übersteigt Nachfrage → tieferer Lohn',
+    next:'q1retry'
+  },
+  {
+    id:'q1retry', type:'question', emoji:'🔄',
+    question:'Welches Prinzip erklärt: «Je weniger Arbeiter, desto höher der Lohn»?',
+    choices:['Das Prinzip der Produktivitätsleistung','Das Prinzip von Angebot und Nachfrage','Das Prinzip des Mindestlohns','Das Prinzip der Weiterbildung'],
+    correct:1, onCorrect:'q2', onWrong:'q2'
+  },
+  {
+    id:'q2', type:'question', emoji:'❓',
+    question:'Verdient ein Maurer mehr oder weniger als ein Landschaftsgärtner bei gleicher Lehrzeit?',
+    choices:['Weniger — Maurer ist körperlich leichter','Gleich viel — beide 3 Jahre Lehre','Mehr — ca. CHF 1\'000 pro Monat mehr','Weniger — Gärtner hat mehr Pflanzenkenntnis'],
+    correct:2, onCorrect:'q3', onWrong:'help2'
+  },
+  {
+    id:'help2', type:'explanation', badge:'💡 Erklärung',
+    title:'Branchenunterschiede beim Lohn',
+    text:'Beide Berufe dauern 3 Jahre Lehre, aber der Maurer verdient rund 1\'000 Franken mehr im Monat. Das liegt an verschiedenen Gesamtarbeitsverträgen (GAV) und dem unterschiedlichen wirtschaftlichen Gewicht der Branchen. Stefan Ebnerter erklärt: «Da haben sie einfach mehr Lohn — das sind zwei verschiedene Branchen.»',
+    visual:'🌿 Landschaftsgärtner nach Lehre: CHF 4\'300 / Monat\n🏗️ Maurer nach Lehre: ca. CHF 5\'300 / Monat\nUnterschiede entstehen durch Branche, GAV und Verhandlungsmacht.',
+    next:'q2retry'
+  },
+  {
+    id:'q2retry', type:'question', emoji:'🔄',
+    question:'Was erklärt Lohnunterschiede zwischen Branchen mit gleich langer Lehre?',
+    choices:['Zufällige Entscheidungen der Chefs','Gesamtarbeitsverträge (GAV) und Branchenstärke','Die Anzahl der Lehrstellen schweizweit','Das Alter der Lernenden'],
+    correct:1, onCorrect:'q3', onWrong:'q3'
+  },
+  {
+    id:'q3', type:'question', emoji:'❓',
+    question:'Was sagt der Soziologe Prof. Mäder über das Marktprinzip beim Lohn?',
+    choices:['Es funktioniert immer perfekt und fair','Es erklärt Löhne vollständig — Angebot & Nachfrage reichen aus','Es reicht nicht immer — Gewerkschaften und Verhandlungen sind auch entscheidend','Es sollte abgeschafft werden'],
+    correct:2, onCorrect:'video2', onWrong:'help3'
+  },
+  {
+    id:'help3', type:'explanation', badge:'💡 Erklärung',
+    title:'Grenzen des Marktprinzips',
+    text:'Im Baubereich gibt es viele Arbeitskräfte — nach dem Marktprinzip müssten die Löhne tief sein. Aber Gewerkschaften haben trotzdem höhere Löhne erkämpft. Das zeigt: Verhandlungsmacht und Solidarität können das reine Marktprinzip überwinden.',
+    visual:'Markt sagt: viele Arbeitskräfte → tiefer Lohn\nGewerkschaft sagt: kollektive Stärke → höherer Lohn\n→ Tatsächlich sind Löhne im Bau gestiegen!',
+    next:'q3retry'
+  },
+  {
+    id:'q3retry', type:'question', emoji:'🔄',
+    question:'Warum stiegen Löhne im Bau, obwohl es viele Arbeitskräfte gibt?',
+    choices:['Weil der Staat es befohlen hat','Weil Gewerkschaften verhandelt haben','Weil Baufirmen sehr grosszügig sind','Weil die Produktivität sank'],
+    correct:1, onCorrect:'video2', onWrong:'video2'
+  },
+  {
+    id:'video2', type:'intro', badge:'📺 Video 2',
+    title:'Video 2: Jugendliche und Schulden',
+    text:'Schau nun das zweite Video. Es behandelt die Frage: Gehen Jugendliche leichtsinnig mit Geld um — oder stecken komplexere Gründe hinter der Verschuldung?',
+    video:'<iframe width="100%" height="230" src="https://www.srf.ch/play/embed?urn=urn:srf:video:c264309b-4f69-4ca3-9287-7be4957b3ccf&subdivisions=false" allowfullscreen allow="geolocation *; autoplay; encrypted-media"></iframe>',
+    videoLabel:'📺 Video 2: Jugendliche und Schulden (ca. 7 Min.)',
+    next:'q4'
+  },
+  {
+    id:'q4', type:'question', emoji:'❓',
+    question:'Was sagt Sozialwissenschaftler Christoph Mattes über Jugendliche und Geld?',
+    choices:['Jugendliche sind grundsätzlich leichtsinnig mit Geld','Der Umgang mit Geld von Jugendlichen ist erstaunlich rational — pauschale Kritik ist falsch','Jugendliche sollten kein eigenes Konto haben','Nur reiche Jugendliche können mit Geld umgehen'],
+    correct:1, onCorrect:'q5', onWrong:'help4'
+  },
+  {
+    id:'help4', type:'explanation', badge:'💡 Erklärung',
+    title:'Vorurteile über Jugendliche und Geld',
+    text:'Studien zeigen: Die meisten Jugendlichen gehen durchaus rational mit Geld um. Probleme entstehen vor allem bei Jugendlichen, die in sozial benachteiligten Familien aufwachsen — nicht wegen persönlicher Schwäche, sondern wegen fehlender Unterstützung und vorgegebener Muster aus der Familie.',
+    visual:'❌ Mythos: «Jugendliche sind alle leichtsinnig»\n✅ Realität: Überschuldung betrifft vor allem sozial benachteiligte Jugendliche\n💡 Lösung: Nicht Konsumverhalten kritisieren, sondern Familien stärken',
+    next:'q4retry'
+  },
+  {
+    id:'q4retry', type:'question', emoji:'🔄',
+    question:'Wer ist laut Mattes am stärksten von Überschuldung betroffen?',
+    choices:['Jugendliche, die zu viel shoppen','Jugendliche aus sozial benachteiligten Familien mit wenig Unterstützung','Jugendliche mit zu vielen Freunden','Jugendliche ohne Smartphone'],
+    correct:1, onCorrect:'q5', onWrong:'q5'
+  },
+  {
+    id:'q5', type:'question', emoji:'❓',
+    question:'Wie hat Claudias Mutter unbeabsichtigt zu ihrer Verschuldung beigetragen?',
+    choices:['Sie hat ihr zu viel Taschengeld gegeben','Sie liess Claudia einen Krankenkassenvertrag unterschreiben, ohne ihr zu erklären, dass Schulden bestanden','Sie kaufte ihr zu viele Kleider','Sie erlaubte ihr nicht, zu arbeiten'],
+    correct:1, onCorrect:'checkpoint', onWrong:'help5'
+  },
+  {
+    id:'help5', type:'explanation', badge:'💡 Erklärung',
+    title:'Geld als Tabuthema in Familien',
+    text:'Als Geld in Familien knapp wird, wird es zum Schweigethema — Scham und Schuldgefühle verhindern offene Gespräche. Claudias Mutter schwieg über die offenen Schulden bei der alten Krankenkasse. Claudia unterschrieb gutgläubig und wurde damit plötzlich für Schulden verantwortlich, die sie nicht verursacht hatte.',
+    visual:'Tabuthema Geld in Familien:\n→ Eltern schweigen über Schulden\n→ Kinder lernen nicht, damit umzugehen\n→ Muster wiederholt sich in der nächsten Generation',
+    next:'q5retry'
+  },
+  {
+    id:'q5retry', type:'question', emoji:'🔄',
+    question:'Warum werden Geldprobleme in Familien oft nicht besprochen?',
+    choices:['Weil Geld kein wichtiges Thema ist','Weil Scham und Schuldgefühle es zum Tabuthema machen','Weil Kinder kein Interesse haben','Weil Schulen alles erklären'],
+    correct:1, onCorrect:'checkpoint', onWrong:'checkpoint'
+  },
+  {
+    id:'checkpoint', type:'checkpoint', badge:'✍️ Reflexion',
+    title:'Deine Überlegung zum fairen Lohn',
+    reflection:'Was ist für dich ein fairer Lohn? Nenne zwei Kriterien, die dir wichtig sind, und begründe kurz.',
+    placeholder:'z.B. «Ein fairer Lohn muss die Existenz sichern und...»',
+    next:'results'
+  },
+  {
+    id:'results', type:'results'
+  }
+];
+
+const STORAGE_KEY = 'lernpfad_lohn_budget';
+let completedNodes = [], retryCount = {}, reflectionText = '', questionAnswers = {}, currentNodeId = 'start';
+
+function saveState() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify({completedNodes,retryCount,reflectionText,questionAnswers,currentNodeId,theme:document.documentElement.getAttribute('data-theme')})); } catch(e){}
+}
+function loadState() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch(e){ return {}; }
+}
+function clearState() { try { localStorage.removeItem(STORAGE_KEY); } catch(e){} completedNodes=[]; retryCount={}; reflectionText=''; questionAnswers={}; renderNode('start'); }
+
+function updateProgress() {
+  const mainNodes = NODES.filter(n => !n.id.includes('retry') && n.type !== 'explanation');
+  const done = completedNodes.filter(id => !id.includes('retry')).length;
+  const pct = Math.min(100, Math.round((done / mainNodes.length) * 100));
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = `${done} von ${mainNodes.length} Abschnitten abgeschlossen`;
+}
+
+function renderNode(nodeId) {
+  currentNodeId = nodeId;
+  saveState();
+  updateProgress();
+  const node = NODES.find(n => n.id === nodeId);
+  if (!node) return;
+  const container = document.getElementById('nodeContainer');
+
+  if (node.type === 'intro') {
+    container.innerHTML = `<div class="node-card">
+      <span class="node-badge badge-intro">${node.badge || '🚀 Intro'}</span>
+      <div class="node-title">${node.title}</div>
+      <div class="node-text">${node.text}</div>
+      ${node.video ? `<div style="font-size:0.78rem;color:var(--text-secondary);margin-bottom:8px;">${node.videoLabel||''}</div><div class="video-embed">${node.video}</div>` : ''}
+      <button class="btn-primary" onclick="advance('${node.next}')">Weiter →</button>
+    </div>`;
+    if (!completedNodes.includes(nodeId)) { completedNodes.push(nodeId); saveState(); }
+  }
+  else if (node.type === 'question') {
+    const alreadyAnswered = questionAnswers[nodeId] !== undefined;
+    const isCorrect = alreadyAnswered && questionAnswers[nodeId] === node.correct;
+    container.innerHTML = `<div class="node-card">
+      <span class="node-badge badge-question">${node.emoji || '❓'} Frage</span>
+      <div class="question-text">${node.question}</div>
+      <div class="choices">${node.choices.map((c,i) => `
+        <button class="choice-btn ${alreadyAnswered ? (i===node.correct?'correct':(i===questionAnswers[nodeId]?'wrong':'')) : ''}"
+          ${alreadyAnswered ? 'disabled' : `onclick="answerQuestion('${nodeId}',${i})"`}>${c}</button>`).join('')}</div>
+      <div class="feedback ${alreadyAnswered ? (isCorrect?'correct':'wrong') : ''}">
+        ${alreadyAnswered ? (isCorrect ? '✅ Richtig! Weiter so.' : '❌ Nicht ganz — schau dir die Erklärung an.') : ''}
+      </div>
+      ${alreadyAnswered && isCorrect ? `<button class="btn-primary" onclick="advance('${node.onCorrect}')">Weiter →</button>` : ''}
+      ${alreadyAnswered && !isCorrect ? `<button class="btn-primary" onclick="advance('${node.onWrong}')">💡 Erklärung ansehen →</button>` : ''}
+      <div class="branch-hint">🔀 Der Pfad passt sich deiner Antwort an</div>
+    </div>`;
+  }
+  else if (node.type === 'explanation') {
+    container.innerHTML = `<div class="node-card">
+      <span class="node-badge badge-explanation">${node.badge || '💡 Erklärung'}</span>
+      <div class="node-title">${node.title}</div>
+      <div class="node-text">${node.text}</div>
+      ${node.visual ? `<div class="node-visual"><pre style="white-space:pre-wrap;font-family:inherit">${node.visual}</pre></div>` : ''}
+      <button class="btn-primary" onclick="advance('${node.next}')">Verstanden — nochmals versuchen →</button>
+    </div>`;
+    if (!completedNodes.includes(nodeId)) { completedNodes.push(nodeId); saveState(); }
+  }
+  else if (node.type === 'checkpoint') {
+    container.innerHTML = `<div class="node-card">
+      <span class="node-badge badge-checkpoint">${node.badge || '✍️ Reflexion'}</span>
+      <div class="node-title">${node.title}</div>
+      <p class="reflection-prompt">${node.reflection}</p>
+      <textarea id="reflText" placeholder="${node.placeholder}">${reflectionText}</textarea>
+      <button class="btn-primary" onclick="submitCheckpoint('${node.next}')">Abschliessen →</button>
+    </div>`;
+    document.getElementById('reflText').addEventListener('input', e => { reflectionText = e.target.value; saveState(); });
+    if (!completedNodes.includes(nodeId)) { completedNodes.push(nodeId); saveState(); }
+  }
+  else if (node.type === 'results') {
+    const qNodes = NODES.filter(n => n.type === 'question' && !n.id.includes('retry'));
+    const correct = qNodes.filter(n => questionAnswers[n.id] === n.correct).length;
+    const retries = Object.values(retryCount).reduce((a,b) => a+b, 0);
+    container.innerHTML = `<div class="node-card">
+      <span class="node-badge badge-results">🏁 Abschluss</span>
+      <div class="results-stars">${correct >= qNodes.length ? '🌟🌟🌟' : correct >= qNodes.length/2 ? '⭐⭐' : '⭐'}</div>
+      <div class="results-score">${correct} von ${qNodes.length} Fragen richtig beim ersten Versuch</div>
+      <p class="node-text" style="text-align:center;margin-bottom:24px;">
+        ${retries > 0 ? `Du hast ${retries} Erklärungen genutzt — das ist klug!` : 'Hervorragend — keine Erklärungen nötig!'}
+      </p>
+      ${reflectionText ? `<div class="node-visual"><strong>Deine Reflexion:</strong><br><br>${reflectionText}</div>` : ''}
+      <button class="btn-primary" style="margin-top:20px" onclick="printLesson()">🖨️ Ausdruck</button>
+      <button class="btn-secondary" onclick="if(confirm('Lernpfad neu starten?')) clearState()">🔄 Neu starten</button>
+    </div>`;
+    if (!completedNodes.includes('results')) { completedNodes.push('results'); saveState(); }
+  }
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function answerQuestion(nodeId, chosenIndex) {
+  const node = NODES.find(n => n.id === nodeId);
+  if (!node || questionAnswers[nodeId] !== undefined) return;
+  questionAnswers[nodeId] = chosenIndex;
+  if (chosenIndex !== node.correct) retryCount[nodeId] = (retryCount[nodeId] || 0) + 1;
+  if (!completedNodes.includes(nodeId)) completedNodes.push(nodeId);
+  saveState();
+  renderNode(nodeId);
+}
+function advance(nextId) { renderNode(nextId); }
+function submitCheckpoint(nextId) { const ta = document.getElementById('reflText'); reflectionText = ta ? ta.value : reflectionText; saveState(); advance(nextId); }
+
+function toggleTheme() {
+  const h = document.documentElement; const d = h.getAttribute('data-theme')==='dark';
+  h.setAttribute('data-theme', d?'light':'dark');
+  document.getElementById('themeIcon').textContent = d?'☀️':'🌙';
+  saveState();
+}
+
+function printLesson() {
+  const now = new Date().toLocaleDateString('de-CH');
+  const qNodes = NODES.filter(n => n.type === 'question' && !n.id.includes('retry'));
+  const correct = qNodes.filter(n => questionAnswers[n.id] === n.correct).length;
+  const qSummary = qNodes.map(n => {
+    const ci = questionAnswers[n.id];
+    const answered = ci !== undefined;
+    const isC = answered && ci === n.correct;
+    return `<div style="border-left:4px solid ${!answered?'#ccc':isC?'#4ade80':'#f87171'};padding:10px 14px;margin-bottom:10px;background:#f8fafc;">
+      <p style="font-weight:600;">${isC?'✅':answered?'❌':'⬜'} ${n.question}</p>
+      <p style="font-size:0.85rem;margin-top:4px;">Antwort: ${answered ? n.choices[ci] : '<em>nicht beantwortet</em>'}</p>
+      ${!isC && answered ? `<p style="font-size:0.85rem;color:#059669;">Richtig: ${n.choices[n.correct]}</p>` : ''}
+    </div>`;
+  }).join('');
+  document.getElementById('printContent').innerHTML = `
+    <div style="font-family:Georgia,serif;max-width:680px;margin:0 auto;padding:40px 30px;color:#111;">
+      <h1 style="font-size:1.4rem;margin-bottom:4px;">🔀 Adaptiver Lernpfad — Lohn & Budget</h1>
+      <p style="font-size:0.85rem;color:#666;margin-bottom:24px;">Datum: ${now} | Fragen: ${correct}/${qNodes.length} richtig</p>
+      <h2 style="font-size:1rem;margin-bottom:12px;border-bottom:2px solid #eee;padding-bottom:6px;">Fragen & Antworten</h2>
+      ${qSummary}
+      ${reflectionText ? `<h2 style="font-size:1rem;margin:20px 0 12px;border-bottom:2px solid #eee;padding-bottom:6px;">✍️ Reflexion — Fairer Lohn</h2>
+      <div style="background:#fffbeb;border-left:4px solid #f59e0b;padding:12px 16px;white-space:pre-wrap;">${reflectionText}</div>` : ''}
+    </div>`;
+  window.print();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const s = loadState();
+  if (s.theme) document.documentElement.setAttribute('data-theme', s.theme);
+  if (s.theme === 'light') document.getElementById('themeIcon').textContent = '☀️';
+  if (s.completedNodes) completedNodes = s.completedNodes;
+  if (s.retryCount) retryCount = s.retryCount;
+  if (s.reflectionText) reflectionText = s.reflectionText;
+  if (s.questionAnswers) questionAnswers = s.questionAnswers;
+  renderNode(s.currentNodeId || 'start');
+});
+</script>
+</body>
+</html>

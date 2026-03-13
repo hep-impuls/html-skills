@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📋 Protokoll — Mein Monatsbudget</title>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--accent:#0ea5e9;--accent-2:#6366f1;--green:#16a34a;--red:#dc2626;--yellow:#ca8a04;--radius:10px;--border:#e2e8f0;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Lexend',sans-serif;background:#f8fafc;color:#1e293b;min-height:100vh;}
+  .header{background:#fff;border-bottom:1px solid var(--border);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
+  .header-title{font-size:1rem;font-weight:700;}
+  .header-sub{font-size:0.73rem;color:#64748b;margin-top:1px;}
+  .header-right{display:flex;gap:8px;}
+  .btn-sm{background:#f1f5f9;border:1px solid var(--border);border-radius:8px;padding:5px 14px;font-size:0.8rem;font-weight:600;color:#1e293b;cursor:pointer;font-family:inherit;transition:all 0.2s;}
+  .btn-sm:hover{border-color:var(--accent);color:var(--accent);}
+  .main{max-width:780px;margin:0 auto;padding:28px 20px 60px;}
+  .section{background:#fff;border:1px solid var(--border);border-radius:var(--radius);margin-bottom:20px;overflow:hidden;}
+  .section-header{background:#f8fafc;border-bottom:1px solid var(--border);padding:12px 18px;display:flex;align-items:center;gap:10px;}
+  .section-icon{font-size:1.2rem;}
+  .section-title{font-size:0.95rem;font-weight:700;}
+  .section-body{padding:18px;}
+  label{display:block;font-size:0.75rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px;}
+  input[type=text],input[type=number],textarea,select{width:100%;background:#f8fafc;border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:#1e293b;font-family:inherit;font-size:0.9rem;transition:border-color 0.2s;margin-bottom:2px;}
+  input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent);}
+  textarea{resize:vertical;min-height:80px;}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+  @media(max-width:600px){.grid-2{grid-template-columns:1fr;}.grid-3{grid-template-columns:1fr 1fr;}}
+  .field{margin-bottom:12px;}
+  /* Budget table */
+  .budget-table{width:100%;border-collapse:collapse;font-size:0.85rem;}
+  .budget-table th{background:#f1f5f9;padding:8px 12px;text-align:left;font-size:0.72rem;text-transform:uppercase;letter-spacing:.04em;color:#64748b;font-weight:700;}
+  .budget-table td{padding:8px 12px;border-top:1px solid #f1f5f9;vertical-align:middle;}
+  .budget-table input{padding:6px 8px;font-size:0.85rem;margin-bottom:0;}
+  .budget-table .amount{text-align:right;font-weight:700;}
+  .budget-table tr.total-row td{background:#f8fafc;font-weight:700;border-top:2px solid var(--border);}
+  .budget-table .cat-header td{background:color-mix(in srgb,var(--accent) 8%,#fff);font-weight:700;font-size:0.78rem;color:var(--accent);}
+  .add-row-btn{font-size:0.78rem;color:var(--accent);background:none;border:none;cursor:pointer;font-family:inherit;padding:4px 0;font-weight:600;}
+  .add-row-btn:hover{text-decoration:underline;}
+  /* Result box */
+  .result-box{background:#f8fafc;border-radius:8px;padding:14px;margin-top:14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+  .result-label{font-size:0.78rem;color:#64748b;font-weight:600;}
+  .result-value{font-size:1.4rem;font-weight:700;}
+  .result-value.positive{color:var(--green);}
+  .result-value.negative{color:var(--red);}
+  .result-value.zero{color:var(--yellow);}
+  /* Checklist */
+  .checklist{list-style:none;}
+  .checklist li{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid #f1f5f9;font-size:0.88rem;}
+  .checklist input[type=checkbox]{width:16px;height:16px;accent-color:var(--accent);flex-shrink:0;}
+  /* Word count */
+  .wc-hint{font-size:0.7rem;color:#94a3b8;margin-top:3px;}
+  /* Progress bar */
+  .prog-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+  .prog-label{font-size:0.78rem;min-width:120px;color:#64748b;}
+  .prog-bar-wrap{flex:1;background:var(--border);border-radius:99px;height:8px;overflow:hidden;}
+  .prog-bar{height:100%;border-radius:99px;background:var(--accent);transition:width 0.3s;}
+  .prog-val{font-size:0.78rem;font-weight:700;min-width:70px;text-align:right;}
+  /* Print */
+  @media print{
+    .header .header-right{display:none!important;}
+    body{font-size:10pt;}
+    .section{page-break-inside:avoid;}
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="header-title">📋 Budget-Protokoll — Mein Monatsbudget</div>
+    <div class="header-sub">ABU · Wirtschaft & Gesellschaft · Lernprotokoll</div>
+  </div>
+  <div class="header-right">
+    <button class="btn-sm" onclick="calcAll()">⟳ Berechnen</button>
+    <button class="btn-sm" onclick="saveData()">💾 Speichern</button>
+    <button class="btn-sm" onclick="window.print()">🖨️ Drucken</button>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- Angaben zur Person -->
+  <div class="section">
+    <div class="section-header"><span class="section-icon">👤</span><span class="section-title">Persönliche Angaben</span></div>
+    <div class="section-body">
+      <div class="grid-3">
+        <div class="field"><label>Name</label><input type="text" id="pName" placeholder="Vorname Nachname"></div>
+        <div class="field"><label>Beruf / Lehrberuf</label><input type="text" id="pBeruf" placeholder="z.B. KV, Informatik…"></div>
+        <div class="field"><label>Lehrjahr</label><select id="pLehrjahr"><option>1. Lehrjahr</option><option>2. Lehrjahr</option><option>3. Lehrjahr</option><option>Kein Lehrling</option></select></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hypothese -->
+  <div class="section">
+    <div class="section-header"><span class="section-icon">💡</span><span class="section-title">Hypothese — Bevor du rechnest</span></div>
+    <div class="section-body">
+      <div class="field">
+        <label>Was glaubst du: Wie viel bleibt dir am Ende des Monats übrig?</label>
+        <div class="grid-2">
+          <input type="number" id="hHypothese" placeholder="CHF" min="0">
+          <textarea id="hBegruendung" placeholder="Begründe deine Schätzung..."></textarea>
+        </div>
+        <div class="wc-hint" id="wcHyp">0 Wörter</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Einnahmen -->
+  <div class="section">
+    <div class="section-header"><span class="section-icon">💰</span><span class="section-title">Einnahmen</span></div>
+    <div class="section-body">
+      <table class="budget-table" id="tableEinnahmen">
+        <thead><tr><th>Einnahmenquelle</th><th style="text-align:right">Betrag (CHF)</th></tr></thead>
+        <tbody id="tbodyEin">
+          <tr><td><input type="text" value="Lehrlingslohn (Netto)" placeholder="Quelle"></td><td class="amount"><input type="number" class="ein-amount" min="0" placeholder="0" oninput="calcAll()"></td></tr>
+          <tr><td><input type="text" value="Nebenjob / Babysitting" placeholder="Quelle"></td><td class="amount"><input type="number" class="ein-amount" min="0" placeholder="0" oninput="calcAll()"></td></tr>
+          <tr><td><input type="text" value="Taschengeld Eltern" placeholder="Quelle"></td><td class="amount"><input type="number" class="ein-amount" min="0" placeholder="0" oninput="calcAll()"></td></tr>
+        </tbody>
+        <tfoot><tr class="total-row"><td>Total Einnahmen</td><td class="amount" id="totalEin">CHF 0</td></tr></tfoot>
+      </table>
+      <button class="add-row-btn" onclick="addRow('tbodyEin','ein-amount')">+ Zeile hinzufügen</button>
+    </div>
+  </div>
+
+  <!-- Ausgaben -->
+  <div class="section">
+    <div class="section-header"><span class="section-icon">📤</span><span class="section-title">Ausgaben</span></div>
+    <div class="section-body">
+      <table class="budget-table" id="tableAusgaben">
+        <thead><tr><th>Ausgabe</th><th style="text-align:right">Betrag (CHF)</th></tr></thead>
+        <tbody id="tbodyAus">
+          <tr class="cat-header"><td colspan="2">🏠 Wohnen</td></tr>
+          <tr><td><input type="text" value="Kostgeld / Miete" placeholder="Ausgabe"></td><td class="amount"><input type="number" class="aus-amount" min="0" placeholder="0" oninput="calcAll()"></td></tr>
+          <tr class="cat-header"><td colspan="2">🚌 Mobilität</td></tr>
+          <tr><td><input type="text" value="ÖV Monatsabo" placeholder="Ausgabe"></td><td class="amount"><input type="number" class="aus-amount" min="0" placeholder="0" oninput="calcAll()"></td></tr>
+          <tr class="cat-header"><td colspan="2">📱 Kommunikation</td></tr>
+          <tr><td><input type="text" value="Handyvertrag" placeholder="Ausgabe"></td><td class="amount"><input type="number" class="aus-amount" min="0" placeholder="0" oninput="calcAll()"></td></tr>
+          <tr class="cat-header"><td colspan="2">🍔 Essen / Freizeit</td></tr>
+          <tr><td><input type="text" value="Mittagessen Schule/Betrieb" placeholder="Ausgabe"></td><td class="amount"><input type="number" class="aus-amount" min="0" placeholder="0" oninput="calcAll()"></td></tr>
+          <tr><td><input type="text" value="Ausgang / Hobbys" placeholder="Ausgabe"></td><td class="amount"><input type="number" class="aus-amount" min="0" placeholder="0" oninput="calcAll()"></td></tr>
+          <tr class="cat-header"><td colspan="2">👕 Kleidung</td></tr>
+          <tr><td><input type="text" value="Kleider / Schuhe" placeholder="Ausgabe"></td><td class="amount"><input type="number" class="aus-amount" min="0" placeholder="0" oninput="calcAll()"></td></tr>
+          <tr class="cat-header"><td colspan="2">💊 Gesundheit</td></tr>
+          <tr><td><input type="text" value="Krankenkasse (Prämie)" placeholder="Ausgabe"></td><td class="amount"><input type="number" class="aus-amount" min="0" placeholder="0" oninput="calcAll()"></td></tr>
+          <tr class="cat-header"><td colspan="2">🐷 Sparen</td></tr>
+          <tr><td><input type="text" value="Monatliches Sparen" placeholder="Ausgabe"></td><td class="amount"><input type="number" class="aus-amount" min="0" placeholder="0" oninput="calcAll()"></td></tr>
+        </tbody>
+        <tfoot><tr class="total-row"><td>Total Ausgaben</td><td class="amount" id="totalAus">CHF 0</td></tr></tfoot>
+      </table>
+      <button class="add-row-btn" onclick="addRow('tbodyAus','aus-amount')">+ Zeile hinzufügen</button>
+
+      <div class="result-box">
+        <div><div class="result-label">Einnahmen − Ausgaben = Saldo</div></div>
+        <div id="saldoDisplay" class="result-value zero">CHF 0</div>
+      </div>
+
+      <!-- Visualisierung -->
+      <div style="margin-top:20px;">
+        <p style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#64748b;margin-bottom:12px;">Ausgabenverteilung (% des Einkommens)</p>
+        <div id="progBars"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Beobachtungen -->
+  <div class="section">
+    <div class="section-header"><span class="section-icon">🔍</span><span class="section-title">Beobachtungen & Erkenntnisse</span></div>
+    <div class="section-body">
+      <div class="field">
+        <label>Was überrascht dich an deinem Budget? Wo gibt es Handlungsbedarf?</label>
+        <textarea id="obs1" placeholder="z.B. Ich habe nicht gewusst, dass ich so viel für... ausgebe..." oninput="wcCount('obs1','wcObs1')"></textarea>
+        <div class="wc-hint" id="wcObs1">0 Wörter</div>
+      </div>
+      <div class="field">
+        <label>Wie hängt dein Lohn (laut Video 1) von deiner Berufswahl ab?</label>
+        <textarea id="obs2" placeholder="Laut Video verdient ein Landschaftsgärtner CHF 4'300 und ein Maurer..." oninput="wcCount('obs2','wcObs2')"></textarea>
+        <div class="wc-hint" id="wcObs2">0 Wörter</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Checkliste Schuldenprävention -->
+  <div class="section">
+    <div class="section-header"><span class="section-icon">✅</span><span class="section-title">Checkliste — Bin ich schuldenfit?</span></div>
+    <div class="section-body">
+      <p style="font-size:0.85rem;color:#64748b;margin-bottom:14px;">Basierend auf Video 2 (Jugendliche und Schulden). Hake an, was auf dich zutrifft:</p>
+      <ul class="checklist" id="checkList"></ul>
+      <div class="result-box" style="margin-top:14px">
+        <div class="result-label">Schuldenfit-Score</div>
+        <div id="checkScore" class="result-value">0 / 8</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Schlussfolgerung -->
+  <div class="section">
+    <div class="section-header"><span class="section-icon">📝</span><span class="section-title">Schlussfolgerung</span></div>
+    <div class="section-body">
+      <div class="field">
+        <label>Vergleiche deine Hypothese mit dem Ergebnis. Was nimmst du mit?</label>
+        <textarea id="conc" placeholder="Meine Hypothese war CHF ... — tatsächlich beträgt mein Saldo... Das bedeutet für mich..." rows="5" oninput="wcCount('conc','wcConc')"></textarea>
+        <div class="wc-hint" id="wcConc">0 Wörter</div>
+      </div>
+      <div class="field">
+        <label>Fehleranalyse — Was würde meinen Lohn oder mein Budget verbessern?</label>
+        <textarea id="fehler" placeholder="Um mehr zu verdienen, könnte ich... Um weniger auszugeben, könnte ich..." rows="4" oninput="wcCount('fehler','wcFehler')"></textarea>
+        <div class="wc-hint" id="wcFehler">0 Wörter</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const CHECKS = [
+  'Ich führe ein monatliches Budget',
+  'Ich kenne meinen genauen Nettolohn',
+  'Ich zahle Rechnungen immer rechtzeitig',
+  'Ich habe eine Notfallreserve (mind. 1 Monatslohn gespart)',
+  'Ich bespreche Geldprobleme offen mit vertrauten Personen',
+  'Ich kaufe nur auf Kredit/Rechnung, was ich sicher bezahlen kann',
+  'Ich kenne den Begriff «Zahlungsbefehl» und was er bedeutet',
+  'Ich weiss, wo ich Hilfe bei Schuldenproblemen finde',
+];
+
+function initChecklist() {
+  const ul = document.getElementById('checkList');
+  ul.innerHTML = CHECKS.map((c,i) => `
+    <li>
+      <input type="checkbox" id="ck${i}" onchange="updateCheckScore()">
+      <label for="ck${i}" style="font-size:0.85rem;cursor:pointer;">${c}</label>
+    </li>`).join('');
+}
+
+function updateCheckScore() {
+  const total = CHECKS.length;
+  const checked = document.querySelectorAll('#checkList input:checked').length;
+  const el = document.getElementById('checkScore');
+  el.textContent = `${checked} / ${total}`;
+  el.className = 'result-value ' + (checked >= 6 ? 'positive' : checked >= 3 ? 'zero' : 'negative');
+}
+
+function calcAll() {
+  const einPuts = document.querySelectorAll('.ein-amount');
+  const ausPuts = document.querySelectorAll('.aus-amount');
+  let totalIn = 0, totalOut = 0;
+  einPuts.forEach(i => { totalIn += parseFloat(i.value)||0; });
+  ausPuts.forEach(i => { totalOut += parseFloat(i.value)||0; });
+  document.getElementById('totalEin').textContent = 'CHF ' + totalIn.toFixed(2);
+  document.getElementById('totalAus').textContent = 'CHF ' + totalOut.toFixed(2);
+  const saldo = totalIn - totalOut;
+  const sEl = document.getElementById('saldoDisplay');
+  sEl.textContent = 'CHF ' + saldo.toFixed(2);
+  sEl.className = 'result-value ' + (saldo > 0 ? 'positive' : saldo < 0 ? 'negative' : 'zero');
+  // Progress bars
+  if (totalIn > 0) {
+    const cats = {};
+    document.querySelectorAll('#tbodyAus tr:not(.cat-header)').forEach(row => {
+      const labelEl = row.querySelector('input[type=text]');
+      const amountEl = row.querySelector('.aus-amount');
+      if (labelEl && amountEl) {
+        const label = labelEl.value || 'Sonstiges';
+        const amount = parseFloat(amountEl.value)||0;
+        if (amount > 0) cats[label] = amount;
+      }
+    });
+    const pbDiv = document.getElementById('progBars');
+    pbDiv.innerHTML = Object.entries(cats).map(([label, amount]) => {
+      const pct = Math.min(100, Math.round((amount / totalIn) * 100));
+      return `<div class="prog-row">
+        <span class="prog-label">${label}</span>
+        <div class="prog-bar-wrap"><div class="prog-bar" style="width:${pct}%"></div></div>
+        <span class="prog-val">${pct}% (${amount})</span>
+      </div>`;
+    }).join('') || '<p style="color:#94a3b8;font-size:0.8rem">Noch keine Ausgaben eingegeben</p>';
+  }
+}
+
+function addRow(tbodyId, cls) {
+  const tb = document.getElementById(tbodyId);
+  const tr = document.createElement('tr');
+  tr.innerHTML = `<td><input type="text" placeholder="Beschreibung"></td>
+    <td class="amount"><input type="number" class="${cls}" min="0" placeholder="0" oninput="calcAll()"></td>`;
+  tb.appendChild(tr);
+}
+
+function wcCount(textareaId, hintId) {
+  const val = document.getElementById(textareaId).value.trim();
+  const wc = val ? val.split(/\s+/).length : 0;
+  document.getElementById(hintId).textContent = wc + ' Wörter';
+}
+
+function saveData() {
+  const data = {};
+  ['pName','pBeruf','pLehrjahr','hHypothese','hBegruendung','obs1','obs2','conc','fehler'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) data[id] = el.value;
+  });
+  try { localStorage.setItem('budget_protokoll', JSON.stringify(data)); alert('Gespeichert ✓'); } catch(e) {}
+}
+function loadData() {
+  try {
+    const d = JSON.parse(localStorage.getItem('budget_protokoll')||'{}');
+    ['pName','pBeruf','pLehrjahr','hHypothese','hBegruendung','obs1','obs2','conc','fehler'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el && d[id] !== undefined) el.value = d[id];
+    });
+    ['hBegruendung','obs1','obs2','conc','fehler'].forEach(id => {
+      const hintId = 'wc' + id.charAt(0).toUpperCase() + id.slice(1);
+      if (document.getElementById(hintId)) wcCount(id, hintId);
+    });
+  } catch(e){}
+}
+
+document.getElementById('hBegruendung').addEventListener('input', () => wcCount('hBegruendung','wcHyp'));
+
+document.addEventListener('DOMContentLoaded', () => {
+  initChecklist();
+  loadData();
+  calcAll();
+});
+</script>
+</body>
+</html>

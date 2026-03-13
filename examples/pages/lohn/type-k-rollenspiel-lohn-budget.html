@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎭 Rollenspiel — Lohnverhandlung</title>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root[data-theme="dark"]{--bg-primary:#0f172a;--bg-secondary:#1e293b;--bg-card:#334155;--text-primary:#f1f5f9;--text-secondary:#94a3b8;--border:#475569;}
+  :root[data-theme="light"]{--bg-primary:#f8fafc;--bg-secondary:#ffffff;--bg-card:#f1f5f9;--text-primary:#1e293b;--text-secondary:#64748b;--border:#e2e8f0;}
+  :root{--accent:#8b5cf6;--accent-2:#ec4899;--radius:14px;--transition:0.2s ease;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Lexend',sans-serif;background:var(--bg-primary);color:var(--text-primary);min-height:100vh;}
+  .header{background:var(--bg-secondary);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+  .header-title{font-size:1rem;font-weight:700;}
+  .header-sub{font-size:0.75rem;color:var(--text-secondary);margin-top:2px;}
+  .header-right{display:flex;align-items:center;gap:8px;}
+  .btn-sm{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:6px 14px;font-size:0.82rem;font-weight:600;color:var(--text-primary);cursor:pointer;font-family:inherit;transition:all var(--transition);white-space:nowrap;}
+  .btn-sm:hover{border-color:var(--accent);color:var(--accent);}
+  .main-container{max-width:860px;margin:0 auto;padding:28px 20px 60px;}
+  .scenario-box{background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius);padding:22px;margin-bottom:28px;}
+  .scenario-label{font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-secondary);margin-bottom:8px;}
+  .scenario-title{font-size:1.15rem;font-weight:700;margin-bottom:10px;}
+  .scenario-text{font-size:0.9rem;color:var(--text-secondary);line-height:1.7;margin-bottom:14px;}
+  .task-badge{display:inline-flex;align-items:center;gap:6px;background:color-mix(in srgb,var(--accent) 15%,transparent);border:1px solid color-mix(in srgb,var(--accent) 30%,transparent);border-radius:99px;padding:5px 14px;font-size:0.8rem;font-weight:600;color:var(--accent);}
+  .view-toggle{display:flex;gap:10px;margin-bottom:24px;}
+  .view-btn{flex:1;padding:10px;font-family:inherit;font-size:0.85rem;font-weight:600;border-radius:var(--radius);cursor:pointer;transition:all var(--transition);border:2px solid var(--border);background:var(--bg-card);color:var(--text-secondary);}
+  .view-btn.active{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,transparent);color:var(--accent);}
+  /* DECK VIEW */
+  .deck-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px;}
+  .role-card{border-radius:20px;overflow:hidden;border:2px solid;transition:transform var(--transition),box-shadow var(--transition);cursor:pointer;}
+  .role-card:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(0,0,0,0.3);}
+  .role-header{padding:22px 20px 16px;display:flex;flex-direction:column;align-items:center;gap:10px;}
+  .role-emoji{font-size:2.8rem;}
+  .role-name{font-size:1.05rem;font-weight:700;text-align:center;}
+  .role-job{font-size:0.78rem;font-weight:600;text-align:center;opacity:0.8;}
+  .role-body{background:rgba(0,0,0,0.25);padding:18px 20px;}
+  .role-position{font-size:0.82rem;font-weight:600;margin-bottom:8px;line-height:1.5;}
+  .role-args{list-style:none;margin-bottom:10px;}
+  .role-args li{font-size:0.78rem;line-height:1.6;padding:3px 0;opacity:0.9;}
+  .role-args li::before{content:"• ";opacity:0.6;}
+  .role-goal{font-size:0.75rem;font-style:italic;opacity:0.75;line-height:1.5;border-top:1px solid rgba(255,255,255,0.15);padding-top:8px;margin-top:8px;}
+  .role-secret{font-size:0.72rem;background:rgba(255,255,255,0.08);border-radius:8px;padding:8px 10px;margin-top:8px;border-left:3px solid rgba(255,255,255,0.3);}
+  /* DRAW VIEW */
+  .draw-view{text-align:center;}
+  .draw-box{background:var(--bg-secondary);border:2px dashed var(--border);border-radius:20px;padding:48px 32px;margin-bottom:24px;transition:all var(--transition);}
+  .draw-prompt{font-size:1rem;font-weight:600;color:var(--text-secondary);margin-bottom:20px;}
+  .btn-draw{background:linear-gradient(135deg,var(--accent),var(--accent-2));border:none;border-radius:var(--radius);padding:14px 36px;font-size:1rem;font-weight:700;color:white;cursor:pointer;font-family:inherit;transition:all var(--transition);}
+  .btn-draw:hover{transform:scale(1.04);}
+  .drawn-card{display:none;}
+  .drawn-card.visible{display:block;animation:flipIn 0.6s ease;}
+  @keyframes flipIn{from{transform:rotateY(90deg);opacity:0}to{transform:rotateY(0deg);opacity:1}}
+  /* TIMER */
+  .timer-box{background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius);padding:18px 24px;margin-top:20px;display:flex;align-items:center;justify-content:space-between;}
+  .timer-display{font-size:2rem;font-weight:700;font-variant-numeric:tabular-nums;font-feature-settings:"tnum";}
+  .timer-display.running{color:var(--accent);}
+  .timer-display.urgent{color:#f87171;}
+  .timer-controls{display:flex;gap:10px;}
+  #printContent{display:none;}
+  @media print{
+    body>*:not(#printContent){display:none!important;}
+    #printContent{display:block!important;}
+    .print-card{page-break-inside:avoid;border:2px solid #333;border-radius:12px;padding:20px;margin-bottom:16px;max-width:340px;display:inline-block;vertical-align:top;margin-right:16px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="header-title">🎭 Rollenspiel — Lohnverhandlung & Fairlohn-Debatte</div>
+    <div class="header-sub">ABU · Wirtschaft & Gesellschaft</div>
+  </div>
+  <div class="header-right">
+    <button class="btn-sm" onclick="printCards()">🖨️ Karten drucken</button>
+    <button class="btn-sm" onclick="toggleTheme()"><span id="themeIcon">🌙</span></button>
+  </div>
+</div>
+
+<div class="main-container">
+
+  <div class="scenario-box">
+    <div class="scenario-label">📋 Szenario</div>
+    <div class="scenario-title">Runder Tisch: «Was ist ein fairer Lohn?»</div>
+    <div class="scenario-text">Im Betrieb «GrünWelt AG» — eine mittelgrosse Gartenbaufirma — findet ein runder Tisch statt. Vertreterinnen und Vertreter verschiedener Gruppen diskutieren darüber, ob die aktuellen Löhne gerecht sind und was ein «fairer Lohn» bedeutet. Jede Person bringt ihre eigene Perspektive ein und versucht, die anderen zu überzeugen.</div>
+    <span class="task-badge">🎯 Aufgabe: Diskutiert während 10 Minuten. Findet am Ende eine gemeinsame Aussage zu «fairem Lohn».</span>
+  </div>
+
+  <div class="view-toggle">
+    <button class="view-btn active" id="vbDeck" onclick="switchView('deck')">📋 Alle Karten</button>
+    <button class="view-btn" id="vbDraw" onclick="switchView('draw')">🎲 Karte ziehen</button>
+  </div>
+
+  <!-- DECK VIEW -->
+  <div id="deckView">
+    <div class="deck-grid" id="deckGrid"></div>
+  </div>
+
+  <!-- DRAW VIEW -->
+  <div id="drawView" style="display:none">
+    <div class="draw-view">
+      <div class="draw-box">
+        <div class="draw-prompt">Klicke auf «Karte ziehen» um zufällig eine Rolle zu erhalten</div>
+        <button class="btn-draw" onclick="drawCard()">🎲 Karte ziehen</button>
+        <div class="drawn-card" id="drawnCard"></div>
+      </div>
+      <div class="timer-box">
+        <div>
+          <div style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:4px;">⏱️ Vorbereitungszeit</div>
+          <div class="timer-display" id="timerDisplay">2:00</div>
+        </div>
+        <div class="timer-controls">
+          <button class="btn-sm" onclick="startTimer()">▶️ Start</button>
+          <button class="btn-sm" onclick="resetTimer()">⏹️ Reset</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div id="printContent"></div>
+
+<script>
+const ROLEPLAY = {
+  prepTime: 120,
+  roles: [
+    {
+      id:'r1', name:'Mauro Chaniel', emoji:'🌿', job:'Eidg. Landschaftsgärtner, 1. Jahr',
+      color:'#4ade80',
+      position:'Ich verdiene 4\'300 Franken — laut Lohnregulativ korrekt, aber im Vergleich zum Maurer 1\'000 Franken weniger.',
+      arguments:['Handarbeit im Freien ist körperlich fordernd', 'Abwechslung und Natur als Ausgleich für den tieferen Lohn', 'Mindestlöhne sollten branchenübergreifend angeglichen werden'],
+      goal:'Bewirbt sich für einen fairen Lohn, der körperliche Arbeit im Freien besser honoriert.',
+      secret:'Überlegt, ob er zu einem Bauunternehmen wechseln soll, schweigt darüber aber.',
+      color2:'rgba(74,222,128,0.12)'
+    },
+    {
+      id:'r2', name:'Valentin Vogt', emoji:'💼', job:'Arbeitgebervertreter / Chef',
+      color:'#60a5fa',
+      position:'Löhne im Detailhandel und Gartenbau sind angemessen — wer besser sein will, kann aufsteigen.',
+      arguments:['Marktprinzip: Löhne entstehen durch Angebot & Nachfrage', 'Einstieglöhne von 3\'500–4\'000 Fr. sind marktgerecht', 'Stellenwechsel ist eine legitime Option bei Unzufriedenheit'],
+      goal:'Verhindert staatliche Mindestlohnvorgaben — will Lohnfindung dem Markt überlassen.',
+      secret:'Weiss, dass der Unternehmen hohe Gewinne macht — erwähnt dies aber nicht.',
+      color2:'rgba(96,165,250,0.12)'
+    },
+    {
+      id:'r3', name:'Prof. Ueli Mäder', emoji:'🎓', job:'Soziologe & Lohnexperte',
+      color:'#f59e0b',
+      position:'Angebot & Nachfrage erklärt Löhne nicht vollständig — Verhandlungsmacht und Gewerkschaften sind entscheidend.',
+      arguments:['Gewerkschaften haben im Bau Löhne erhöht, obwohl viele Arbeitnehmende verfügbar sind', 'Ein fairer Lohn muss die Existenz sichern und Leistung berücksichtigen', 'Gesellschaft geht es gut, wenn es möglichst allen gut geht'],
+      goal:'Plädiert für einen sozial definierten Mindestlohn, der über das Marktprinzip hinausgeht.',
+      secret:'Kennt Studien, die zeigen, dass Lohnungleichheit die Gesundheit schädigt — zieht diese als Trumpfkarte.',
+      color2:'rgba(245,158,11,0.12)'
+    },
+    {
+      id:'r4', name:'Claudia B.', emoji:'👩', job:'Junge Erwachsene, 22J., überschuldet',
+      color:'#f87171',
+      position:'Ich hatte nie gelernt, mit Geld umzugehen — das war kein Leichtsinn, sondern fehlende Unterstützung.',
+      arguments:['Schulden begannen mit der Krankenkasse meiner Mutter — ich unterschrieb unwissend', 'Peer-Druck: Mithalten mit Kolleginnen, obwohl das Geld fehlte', 'Schuldenprävention muss bei Familien ansetzen — nicht beim Konsum der Jugend'],
+      goal:'Fordert bessere Finanzbildung in Schulen und Unterstützung für gefährdete Familien.',
+      secret:'Hat mittlerweile Schuldensanierung beantragt — will zeigen, dass es einen Ausweg gibt.',
+      color2:'rgba(248,113,113,0.12)'
+    },
+    {
+      id:'r5', name:'Coiffeuse (anonym)', emoji:'✂️', job:'Coiffeuse, Basislohn CHF 3\'700',
+      color:'#c084fc',
+      position:'Mein Lohn deckt kaum die Lebenskosten in der Stadt — aber mein Arbeitgeber macht gute Gewinne.',
+      arguments:['Im Detailhandel und Servicesektor fliessen hohe Gewinne nicht in die Löhne', 'Platon hatte recht: Der Richste darf nicht 50× mehr verdienen als der Ärmste', '1:12-Initiative wäre ein Schritt in die richtige Richtung gewesen'],
+      goal:'Unterstützt eine Lohnobergrenze für Chefs und eine Untergrenze für alle.',
+      secret:'Überlegt, ob sie umschulen soll — ist frustriert, traut sich aber nicht, das offen zu sagen.',
+      color2:'rgba(192,132,252,0.12)'
+    },
+    {
+      id:'r6', name:'Stefan Ebnerter', emoji:'🌳', job:'Leiter Gartenpflege & Lehrlingsbetreuer',
+      color:'#34d399',
+      position:'Mein Lohn passt zu meiner Verantwortung. Wer sich weiterbildet und Einsatz zeigt, verdient mehr.',
+      arguments:['Weiterbildung bringt Lohnerhöhung — das ist fair und motivierend', 'Nicht nur Geld zählt: Abwechslung, Freiheit und Naturkontakt haben Wert', 'Der Lohn muss zur Branche, Ausbildung und Verantwortung passen'],
+      goal:'Verteidigt das bestehende System der brancheninternen Lohnentwicklung.',
+      secret:'Verdient 5\'200 Franken — erwähnt die genaue Zahl nur, wenn er muss.',
+      color2:'rgba(52,211,153,0.12)'
+    }
+  ]
+};
+
+let timerInterval = null, timerSeconds = ROLEPLAY.prepTime, timerRunning = false;
+
+function renderDeck() {
+  document.getElementById('deckGrid').innerHTML = ROLEPLAY.roles.map(r => `
+    <div class="role-card" style="border-color:${r.color}">
+      <div class="role-header" style="background:linear-gradient(135deg,${r.color}33,${r.color}55)">
+        <div class="role-emoji">${r.emoji}</div>
+        <div class="role-name" style="color:${r.color}">${r.name}</div>
+        <div class="role-job">${r.job}</div>
+      </div>
+      <div class="role-body">
+        <div class="role-position">💬 ${r.position}</div>
+        <ul class="role-args">${r.arguments.map(a => `<li>${a}</li>`).join('')}</ul>
+        <div class="role-goal">🎯 Ziel: ${r.goal}</div>
+        <div class="role-secret">🤫 Geheimnis: ${r.secret}</div>
+      </div>
+    </div>`).join('');
+}
+
+function drawCard() {
+  const r = ROLEPLAY.roles[Math.floor(Math.random() * ROLEPLAY.roles.length)];
+  const dc = document.getElementById('drawnCard');
+  dc.innerHTML = `
+    <div style="margin-top:24px;">
+      <div class="role-card" style="border-color:${r.color};max-width:340px;margin:0 auto;">
+        <div class="role-header" style="background:linear-gradient(135deg,${r.color}33,${r.color}55)">
+          <div class="role-emoji">${r.emoji}</div>
+          <div class="role-name" style="color:${r.color}">${r.name}</div>
+          <div class="role-job">${r.job}</div>
+        </div>
+        <div class="role-body">
+          <div class="role-position">💬 ${r.position}</div>
+          <ul class="role-args">${r.arguments.map(a => `<li>${a}</li>`).join('')}</ul>
+          <div class="role-goal">🎯 Ziel: ${r.goal}</div>
+          <div class="role-secret">🤫 Geheimnis: ${r.secret}</div>
+        </div>
+      </div>
+    </div>`;
+  dc.className = 'drawn-card visible';
+  resetTimer();
+}
+
+function startTimer() {
+  if (timerRunning) return;
+  timerRunning = true;
+  timerInterval = setInterval(() => {
+    timerSeconds--;
+    updateTimerDisplay();
+    if (timerSeconds <= 0) { clearInterval(timerInterval); timerRunning = false; document.getElementById('timerDisplay').textContent = '⏰ Zeit!'; }
+  }, 1000);
+}
+function resetTimer() {
+  clearInterval(timerInterval); timerRunning = false; timerSeconds = ROLEPLAY.prepTime; updateTimerDisplay();
+}
+function updateTimerDisplay() {
+  const m = Math.floor(timerSeconds / 60), s = timerSeconds % 60;
+  const el = document.getElementById('timerDisplay');
+  el.textContent = m + ':' + String(s).padStart(2,'0');
+  el.className = 'timer-display' + (timerSeconds <= 30 && timerSeconds > 0 ? ' urgent' : timerSeconds > 30 ? ' running' : '');
+}
+
+function switchView(v) {
+  document.getElementById('deckView').style.display = v === 'deck' ? 'block' : 'none';
+  document.getElementById('drawView').style.display = v === 'draw' ? 'block' : 'none';
+  document.getElementById('vbDeck').className = 'view-btn' + (v === 'deck' ? ' active' : '');
+  document.getElementById('vbDraw').className = 'view-btn' + (v === 'draw' ? ' active' : '');
+}
+
+function toggleTheme() {
+  const h = document.documentElement; const d = h.getAttribute('data-theme')==='dark';
+  h.setAttribute('data-theme', d?'light':'dark');
+  document.getElementById('themeIcon').textContent = d?'☀️':'🌙';
+}
+
+function printCards() {
+  document.getElementById('printContent').innerHTML = `
+    <div style="font-family:Arial,sans-serif;padding:20px;color:#111;">
+      <h2 style="margin-bottom:16px;">🎭 Rollenspiel — Lohnverhandlung</h2>
+      <p style="margin-bottom:20px;font-size:0.85rem;color:#555;">Szenario: Runder Tisch «Was ist ein fairer Lohn?» bei der GrünWelt AG</p>
+      ${ROLEPLAY.roles.map(r => `
+        <div class="print-card" style="border:2px solid ${r.color};border-radius:12px;padding:16px;margin-bottom:12px;margin-right:12px;max-width:320px;display:inline-block;vertical-align:top;">
+          <div style="font-size:1.6rem;margin-bottom:6px;">${r.emoji}</div>
+          <div style="font-weight:700;color:${r.color};font-size:0.95rem;">${r.name}</div>
+          <div style="font-size:0.75rem;color:#666;margin-bottom:10px;">${r.job}</div>
+          <div style="font-size:0.8rem;font-weight:600;margin-bottom:8px;">💬 ${r.position}</div>
+          <ul style="font-size:0.75rem;padding-left:14px;margin-bottom:8px;">${r.arguments.map(a=>`<li style="margin-bottom:3px;">${a}</li>`).join('')}</ul>
+          <div style="font-size:0.72rem;color:#555;border-top:1px solid #eee;padding-top:8px;">🎯 ${r.goal}</div>
+          <div style="font-size:0.7rem;background:#f8f8f8;border-radius:6px;padding:6px 8px;margin-top:6px;">🤫 ${r.secret}</div>
+        </div>`).join('')}
+    </div>`;
+  window.print();
+}
+
+renderDeck();
+</script>
+</body>
+</html>

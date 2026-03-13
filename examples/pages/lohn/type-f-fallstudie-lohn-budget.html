@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📁 Fallstudie — Lenas Lohn & Budget</title>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root[data-theme="dark"]{--bg-primary:#0f172a;--bg-secondary:#1e293b;--bg-card:#334155;--text-primary:#f1f5f9;--text-secondary:#94a3b8;--border:#475569;}
+  :root[data-theme="light"]{--bg-primary:#f8fafc;--bg-secondary:#ffffff;--bg-card:#f1f5f9;--text-primary:#1e293b;--text-secondary:#64748b;--border:#e2e8f0;}
+  :root{--accent:#0ea5e9;--accent-2:#6366f1;--green:#4ade80;--red:#f87171;--yellow:#fbbf24;--radius:12px;--radius-lg:18px;--transition:0.2s ease;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Lexend',sans-serif;background:var(--bg-primary);color:var(--text-primary);min-height:100vh;}
+  .header{background:var(--bg-secondary);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;}
+  .header-title{font-size:1rem;font-weight:700;}
+  .header-sub{font-size:0.75rem;color:var(--text-secondary);margin-top:2px;}
+  .header-right{display:flex;align-items:center;gap:10px;}
+  .btn-small{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:6px 14px;font-size:0.82rem;font-weight:600;color:var(--text-primary);cursor:pointer;font-family:inherit;transition:all var(--transition);}
+  .btn-small:hover{border-color:var(--accent);color:var(--accent);}
+  .tab-bar{background:var(--bg-secondary);border-bottom:1px solid var(--border);padding:0 20px;display:flex;gap:0;position:sticky;top:57px;z-index:100;overflow-x:auto;}
+  .tab-btn{padding:12px 18px;font-size:0.82rem;font-weight:600;font-family:inherit;border:none;background:transparent;color:var(--text-secondary);cursor:pointer;border-bottom:3px solid transparent;transition:all var(--transition);white-space:nowrap;display:flex;align-items:center;gap:6px;}
+  .tab-btn.active{color:var(--accent);border-bottom-color:var(--accent);}
+  .tab-btn.locked{opacity:0.45;cursor:not-allowed;}
+  .tab-btn:hover:not(.locked):not(.active){color:var(--text-primary);}
+  .main-container{max-width:820px;margin:0 auto;padding:28px 20px 60px;}
+  .tab-panel{display:none;}
+  .tab-panel.active{display:block;animation:fadeIn 0.3s ease;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+  .section-title{font-size:1.3rem;font-weight:700;margin-bottom:6px;}
+  .section-sub{font-size:0.88rem;color:var(--text-secondary);margin-bottom:24px;line-height:1.6;}
+  .keyfacts-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:24px;}
+  .keyfact-card{background:var(--bg-card);border-radius:var(--radius);padding:16px;border-left:4px solid var(--accent);}
+  .keyfact-label{font-size:0.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--text-secondary);margin-bottom:4px;}
+  .keyfact-value{font-size:1rem;font-weight:700;}
+  .situation-text{background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;line-height:1.8;font-size:0.95rem;}
+  .situation-text p{margin-bottom:14px;}
+  .situation-text p:last-child{margin-bottom:0;}
+  .role-badge{display:inline-flex;align-items:center;gap:8px;background:color-mix(in srgb,var(--accent-2) 15%,transparent);border:1px solid color-mix(in srgb,var(--accent-2) 30%,transparent);border-radius:99px;padding:6px 14px;font-size:0.8rem;font-weight:600;color:var(--accent-2);margin-bottom:20px;}
+  .docs-grid{display:grid;gap:20px;}
+  .doc-card{border-radius:var(--radius-lg);overflow:hidden;border:1px solid var(--border);}
+  .doc-header{background:var(--bg-card);padding:12px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);}
+  .doc-title{font-size:0.9rem;font-weight:700;}
+  .doc-source{font-size:0.75rem;color:var(--text-secondary);}
+  .doc-body{padding:20px;}
+  .doc-body.letter{font-family:'Georgia',serif;line-height:1.8;font-size:0.92rem;background:var(--bg-secondary);}
+  .doc-body.stat{background:var(--bg-secondary);}
+  .doc-body.contract{font-family:'Courier New',monospace;font-size:0.85rem;line-height:1.7;background:var(--bg-card);color:var(--text-secondary);}
+  .stat-row{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
+  .stat-label{font-size:0.82rem;min-width:160px;color:var(--text-secondary);}
+  .stat-bar-wrap{flex:1;background:var(--border);border-radius:99px;height:10px;overflow:hidden;}
+  .stat-bar{height:100%;border-radius:99px;background:var(--accent);}
+  .stat-value{font-size:0.82rem;font-weight:700;min-width:80px;text-align:right;}
+  .aufgaben-list{display:flex;flex-direction:column;gap:16px;}
+  .aufgabe-card{background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;}
+  .aufgabe-nr{font-size:0.72rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;}
+  .aufgabe-title{font-size:0.95rem;font-weight:700;margin-bottom:8px;}
+  .aufgabe-text{font-size:0.88rem;color:var(--text-secondary);line-height:1.7;margin-bottom:12px;}
+  textarea{width:100%;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px;color:var(--text-primary);font-family:inherit;font-size:0.9rem;resize:vertical;min-height:90px;transition:border-color var(--transition);}
+  textarea:focus{outline:none;border-color:var(--accent);}
+  .arg-builder{display:flex;flex-direction:column;gap:12px;}
+  .arg-field label{font-size:0.75rem;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px;}
+  .btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent-2));border:none;border-radius:var(--radius);padding:11px 26px;font-size:0.92rem;font-weight:700;color:white;cursor:pointer;font-family:inherit;transition:all var(--transition);margin-top:8px;}
+  .btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 12px color-mix(in srgb,var(--accent) 30%,transparent);}
+  .btn-secondary{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:10px 22px;font-size:0.88rem;font-weight:600;color:var(--text-primary);cursor:pointer;font-family:inherit;transition:all var(--transition);margin-top:8px;margin-right:8px;}
+  .btn-secondary:hover{border-color:var(--accent);color:var(--accent);}
+  .reflexion-prompts{display:flex;flex-direction:column;gap:14px;}
+  .refl-card{background:var(--bg-card);border-radius:var(--radius);padding:16px;}
+  .refl-q{font-size:0.88rem;font-weight:600;margin-bottom:8px;}
+  .video-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px;}
+  @media(max-width:600px){.video-row{grid-template-columns:1fr;}}
+  .video-box iframe{width:100%;border:none;border-radius:var(--radius);}
+  .video-label{font-size:0.75rem;color:var(--text-secondary);margin-top:6px;}
+  .unlock-banner{background:color-mix(in srgb,var(--accent) 10%,transparent);border:1px solid color-mix(in srgb,var(--accent) 30%,transparent);border-radius:var(--radius);padding:14px 16px;font-size:0.88rem;color:var(--accent);font-weight:600;margin-bottom:20px;display:flex;align-items:center;gap:8px;}
+  #printContent{display:none;}
+  @media print{body>*:not(#printContent){display:none!important;}#printContent{display:block!important;}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="header-title">📁 Fallstudie — Lenas Lohn & Budget</div>
+    <div class="header-sub">ABU · Wirtschaft & Gesellschaft</div>
+  </div>
+  <div class="header-right">
+    <button class="btn-small" onclick="printAll()">🖨️ Ausdruck</button>
+    <button class="btn-small" onclick="toggleTheme()"><span id="themeIcon">🌙</span></button>
+  </div>
+</div>
+<div class="tab-bar">
+  <button class="tab-btn active" id="tb0" onclick="openTab(0)">📋 Situation</button>
+  <button class="tab-btn locked" id="tb1" onclick="openTab(1)">📄 Dokumente</button>
+  <button class="tab-btn locked" id="tb2" onclick="openTab(2)">📝 Aufgaben</button>
+  <button class="tab-btn locked" id="tb3" onclick="openTab(3)">⚖️ Entscheidung</button>
+  <button class="tab-btn locked" id="tb4" onclick="openTab(4)">🔄 Reflexion</button>
+</div>
+
+<div class="main-container">
+
+  <!-- TAB 0: SITUATION -->
+  <div class="tab-panel active" id="tp0">
+    <div class="section-title">Die Situation</div>
+    <div class="section-sub">Lies die Situation sorgfältig. Dann kannst du die Dokumente anschauen.</div>
+    <div class="role-badge">👤 Deine Rolle: Lena, 17 Jahre, KV-Lernende 1. Lehrjahr</div>
+    <div class="keyfacts-grid">
+      <div class="keyfact-card"><div class="keyfact-label">Monatlicher Lehrlingslohn</div><div class="keyfact-value">CHF 800</div></div>
+      <div class="keyfact-card"><div class="keyfact-label">Wohnsituation</div><div class="keyfact-value">Bei Eltern (zahlt CHF 150 Kostgeld)</div></div>
+      <div class="keyfact-card"><div class="keyfact-label">Aktuelle Schulden</div><div class="keyfact-value">CHF 0 (noch keine)</div></div>
+      <div class="keyfact-card" style="border-left-color:#f87171"><div class="keyfact-label">Offene Rechnung</div><div class="keyfact-value">CHF 340 (Handy)</div></div>
+    </div>
+    <div class="situation-text">
+      <p>Lena ist 17 Jahre alt und befindet sich im ersten Lehrjahr als Kaufmännische Angestellte (KV). Sie wohnt noch bei ihren Eltern und zahlt CHF 150 Kostgeld im Monat. Ihr Lohn beträgt CHF 800 brutto — netto erhält sie CHF 720.</p>
+      <p>Letzte Woche war sie mit Kolleginnen shoppen und hat spontan ein neues Smartphone-Zubehör für CHF 180 gekauft — auf Rechnung. Jetzt liegt auch noch die Rechnung für den Handyvertrag (CHF 65/Monat) auf dem Tisch. Zudem möchte sie in den Sommerferien mit ihrer besten Freundin nach Barcelona — die Reise würde CHF 1\'200 kosten.</p>
+      <p>Lena weiss nicht genau, wie sie ihre Finanzen im Griff behalten soll. Ihre Mutter hat ihr geraten: «Mach ein Budget!» Aber Lena fragt sich: Reicht mein Lohn überhaupt — und was kann ich mir leisten, ohne in eine Schuldenfalle zu tappen?</p>
+      <p>Du übernimmst Lenas Perspektive und hilfst ihr, die richtigen Entscheidungen zu treffen. Lies zuerst alle Dokumente, dann löse die Aufgaben.</p>
+    </div>
+    <div class="video-row">
+      <div class="video-box">
+        <iframe height="180" src="https://www.srf.ch/play/embed?urn=urn:srf:video:8e78f8da-c345-4817-87cc-6cf7a4ce7cc5&subdivisions=false" allowfullscreen allow="geolocation *; autoplay; encrypted-media"></iframe>
+        <div class="video-label">📺 Video 1: Was bestimmt den Lohn?</div>
+      </div>
+      <div class="video-box">
+        <iframe height="180" src="https://www.srf.ch/play/embed?urn=urn:srf:video:c264309b-4f69-4ca3-9287-7be4957b3ccf&subdivisions=false" allowfullscreen allow="geolocation *; autoplay; encrypted-media"></iframe>
+        <div class="video-label">📺 Video 2: Jugendliche und Schulden</div>
+      </div>
+    </div>
+    <div style="margin-top:24px"><button class="btn-primary" onclick="unlockAndOpen(1)">Dokumente ansehen →</button></div>
+  </div>
+
+  <!-- TAB 1: DOKUMENTE -->
+  <div class="tab-panel" id="tp1">
+    <div class="section-title">Dokumente</div>
+    <div class="section-sub">Lies alle Dokumente sorgfältig. Sie enthalten wichtige Informationen für deine Aufgaben.</div>
+    <div class="docs-grid">
+
+      <div class="doc-card">
+        <div class="doc-header"><span style="font-size:1.1rem">💰</span><div><div class="doc-title">Lenas Monatsbudget (Übersicht)</div><div class="doc-source">Selbst erstellt</div></div></div>
+        <div class="doc-body stat">
+          <div class="stat-row"><span class="stat-label">Nettolohn</span><div class="stat-bar-wrap"><div class="stat-bar" style="width:100%;background:#4ade80"></div></div><span class="stat-value">+CHF 720</span></div>
+          <div class="stat-row"><span class="stat-label">Kostgeld Eltern</span><div class="stat-bar-wrap"><div class="stat-bar" style="width:21%;background:#f87171"></div></div><span class="stat-value">−CHF 150</span></div>
+          <div class="stat-row"><span class="stat-label">Handyvertrag</span><div class="stat-bar-wrap"><div class="stat-bar" style="width:9%;background:#f87171"></div></div><span class="stat-value">−CHF 65</span></div>
+          <div class="stat-row"><span class="stat-label">ÖV Monatsabo</span><div class="stat-bar-wrap"><div class="stat-bar" style="width:12%;background:#f87171"></div></div><span class="stat-value">−CHF 84</span></div>
+          <div class="stat-row"><span class="stat-label">Kleidung/Freizeit</span><div class="stat-bar-wrap"><div class="stat-bar" style="width:18%;background:#fbbf24"></div></div><span class="stat-value">−CHF 130</span></div>
+          <div class="stat-row" style="border-top:2px solid var(--border);padding-top:10px;margin-top:4px;"><span class="stat-label"><strong>Verbleibend</strong></span><div class="stat-bar-wrap"><div class="stat-bar" style="width:40%;background:#60a5fa"></div></div><span class="stat-value"><strong>CHF 291</strong></span></div>
+        </div>
+      </div>
+
+      <div class="doc-card">
+        <div class="doc-header"><span style="font-size:1.1rem">📨</span><div><div class="doc-title">Rechnung — Handy-Zubehör</div><div class="doc-source">Shop Now GmbH, Rechnung Nr. 2024-8821</div></div></div>
+        <div class="doc-body contract">RECHNUNG
+Datum: 15. Oktober 2024
+Fälligkeit: 30 Tage ab Rechnungsdatum
+
+An: Lena Brunner, 17 Jahre
+
+Pos. 1: Smartphone-Hülle Premium    CHF  45.00
+Pos. 2: Wireless Earbuds X3        CHF 135.00
+───────────────────────────────────────────────
+Total (inkl. MwSt 8.1%)            CHF 180.00
+
+Bitte überweisen Sie den Betrag bis zum
+14. November 2024. Bei Nichtzahlung
+wird ein Betreibungsverfahren eingeleitet.
+
+IBAN: CH00 0000 0000 0000 0000 0</div>
+      </div>
+
+      <div class="doc-card">
+        <div class="doc-header"><span style="font-size:1.1rem">📰</span><div><div class="doc-title">SRF-Beitrag: Jugendliche und Schulden</div><div class="doc-source">SRF, Kurzfassung</div></div></div>
+        <div class="doc-body letter">
+          <p>Sozialwissenschaftler Christoph Mattes von der FHNW warnt: Verschuldung trifft besonders jene Jugendliche, die in schwierigen familiären Verhältnissen aufwachsen. «Wenn Geld in der Familie zum Tabuthema wird, haben Kinder keine Chance, den richtigen Umgang damit zu lernen.»</p>
+          <p>Claudia, 22, war mit CHF 30'000 verschuldet — begonnen mit einem Krankenkassenvertrag, den sie gutgläubig für ihre Mutter unterschrieb. Peer-Druck und das Gefühl, nicht auffallen zu wollen, liessen die Schulden wachsen.</p>
+          <p>Mattes plädiert für Prävention in Familien: nicht Kritik am Konsumverhalten, sondern Aufklärung und offene Gespräche über Geld.</p>
+        </div>
+      </div>
+
+      <div class="doc-card">
+        <div class="doc-header"><span style="font-size:1.1rem">✉️</span><div><div class="doc-title">Nachricht von der besten Freundin</div><div class="doc-source">WhatsApp, 18. Oktober 2024</div></div></div>
+        <div class="doc-body letter">
+          <p>Hey Lena!! 🌴 Ich hab die Flüge gegoogelt — Barcelona im Juli wäre sooo cool! Flug + Hotel 4 Nächte kostet ca. CHF 1'200 pro Person. Ich zahle meinen Teil, aber du musst halt deinen Teil sparen. Wenn wir jeden Monat CHF 200 zurücklegen, haben wir in 6 Monaten CHF 1'200. Schaffst du das? Schreib mir schnell!! ❤️</p>
+          <p><em>— Sofia</em></p>
+        </div>
+      </div>
+
+    </div>
+    <div style="margin-top:24px"><button class="btn-primary" onclick="unlockAndOpen(2)">Aufgaben lösen →</button></div>
+  </div>
+
+  <!-- TAB 2: AUFGABEN -->
+  <div class="tab-panel" id="tp2">
+    <div class="section-title">Aufgaben</div>
+    <div class="section-sub">Bearbeite alle Aufgaben. Danach kannst du die Entscheidung treffen.</div>
+    <div class="aufgaben-list">
+
+      <div class="aufgabe-card">
+        <div class="aufgabe-nr">Aufgabe 1</div>
+        <div class="aufgabe-title">Budget analysieren</div>
+        <div class="aufgabe-text">Lena hat nach fixen Ausgaben noch CHF 291 verfügbar. Sie muss die CHF 180 Handyrechnung zahlen. Wie viel verbleibt ihr dann? Kann sie gleichzeitig CHF 200/Monat für Barcelona sparen?</div>
+        <textarea id="a1" placeholder="Rechne und schreib deine Antwort hier..." oninput="saveAnswers()"></textarea>
+      </div>
+
+      <div class="aufgabe-card">
+        <div class="aufgabe-nr">Aufgabe 2</div>
+        <div class="aufgabe-title">Risiken erkennen</div>
+        <div class="aufgabe-text">Was könnte passieren, wenn Lena die CHF 180 Rechnung nicht rechtzeitig zahlt? Welche Begriffe aus den Videos/Dokumenten sind hier relevant?</div>
+        <textarea id="a2" placeholder="Nenne mindestens 2 mögliche Folgen und verwende Fachbegriffe..." oninput="saveAnswers()"></textarea>
+      </div>
+
+      <div class="aufgabe-card">
+        <div class="aufgabe-nr">Aufgabe 3</div>
+        <div class="aufgabe-title">Lohnfaktoren verstehen</div>
+        <div class="aufgabe-text">Lena ist im 1. Lehrjahr und verdient CHF 800. Was bestimmt laut dem ersten Video, wie viel sie nach der Lehre verdienen wird? Nenne drei Faktoren.</div>
+        <textarea id="a3" placeholder="1. ...\n2. ...\n3. ..." oninput="saveAnswers()"></textarea>
+      </div>
+
+    </div>
+    <div style="margin-top:24px"><button class="btn-primary" onclick="unlockAndOpen(3)">Zur Entscheidung →</button></div>
+  </div>
+
+  <!-- TAB 3: ENTSCHEIDUNG -->
+  <div class="tab-panel" id="tp3">
+    <div class="section-title">Lenas Entscheidung</div>
+    <div class="section-sub">Lena steht vor einer Entscheidung: Soll sie die Barcelona-Reise mitmachen — oder nicht? Baue dein Argument strukturiert auf.</div>
+    <div class="arg-builder">
+      <div class="arg-field"><label>Meine Position (Ja/Nein/Unter Bedingungen)</label>
+        <textarea id="dPos" placeholder="Ich finde, Lena sollte..." rows="2" oninput="saveAnswers()"></textarea></div>
+      <div class="arg-field"><label>Argument 1 — Zahlen & Fakten</label>
+        <textarea id="dArg1" placeholder="Laut Budget hat Lena nach Bezahlung der Rechnung noch..." rows="2" oninput="saveAnswers()"></textarea></div>
+      <div class="arg-field"><label>Argument 2 — Risiko</label>
+        <textarea id="dArg2" placeholder="Wenn sie zu wenig spart, riskiert sie..." rows="2" oninput="saveAnswers()"></textarea></div>
+      <div class="arg-field"><label>Gegenargument (andere Sicht)</label>
+        <textarea id="dGegen" placeholder="Jemand anderes könnte argumentieren, dass..." rows="2" oninput="saveAnswers()"></textarea></div>
+      <div class="arg-field"><label>Fazit & Empfehlung</label>
+        <textarea id="dFazit" placeholder="Meine Empfehlung an Lena: ..." rows="3" oninput="saveAnswers()"></textarea></div>
+    </div>
+    <div style="margin-top:16px"><button class="btn-primary" onclick="unlockAndOpen(4)">Zur Reflexion →</button></div>
+  </div>
+
+  <!-- TAB 4: REFLEXION -->
+  <div class="tab-panel" id="tp4">
+    <div class="section-title">Reflexion</div>
+    <div class="section-sub">Denke über das Gelernte nach — und über dich selbst.</div>
+    <div class="reflexion-prompts">
+      <div class="refl-card">
+        <div class="refl-q">💬 Was nimmst du aus den zwei Videos mit? Eine wichtige Erkenntnis, die dich persönlich berührt hat.</div>
+        <textarea id="r1" placeholder="Was mich am meisten überrascht hat..." oninput="saveAnswers()"></textarea>
+      </div>
+      <div class="refl-card">
+        <div class="refl-q">💬 Wer bestimmt, wie viel du nach deiner Lehre verdienen wirst? Was kannst du selbst beeinflussen?</div>
+        <textarea id="r2" placeholder="Ich kann z.B. durch Weiterbildung..." oninput="saveAnswers()"></textarea>
+      </div>
+      <div class="refl-card">
+        <div class="refl-q">💬 Was würdest du tun, um eine Schuldenfalle zu vermeiden? Nenne eine konkrete Massnahme.</div>
+        <textarea id="r3" placeholder="Eine Massnahme wäre..." oninput="saveAnswers()"></textarea>
+      </div>
+    </div>
+    <div style="margin-top:24px">
+      <button class="btn-primary" onclick="printAll()">🖨️ Alles drucken</button>
+      <button class="btn-secondary" onclick="if(confirm('Alle Antworten löschen?')) clearAll()">🔄 Neu starten</button>
+    </div>
+  </div>
+
+</div>
+
+<div id="printContent"></div>
+
+<script>
+const STORAGE_KEY = 'fallstudie_lohn_budget';
+let unlockedTabs = [true, false, false, false, false];
+let currentTab = 0;
+
+function saveAnswers() {
+  const data = {};
+  ['a1','a2','a3','dPos','dArg1','dArg2','dGegen','dFazit','r1','r2','r3'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) data[id] = el.value;
+  });
+  data.unlockedTabs = unlockedTabs;
+  data.currentTab = currentTab;
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e) {}
+}
+
+function loadAnswers() {
+  try {
+    const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    ['a1','a2','a3','dPos','dArg1','dArg2','dGegen','dFazit','r1','r2','r3'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el && data[id]) el.value = data[id];
+    });
+    if (data.unlockedTabs) unlockedTabs = data.unlockedTabs;
+    if (data.currentTab !== undefined) openTab(data.currentTab, true);
+  } catch(e) {}
+}
+
+function openTab(idx, force) {
+  if (!force && !unlockedTabs[idx]) return;
+  currentTab = idx;
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tp' + idx).classList.add('active');
+  document.getElementById('tb' + idx).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function unlockAndOpen(idx) {
+  unlockedTabs[idx] = true;
+  document.getElementById('tb' + idx).classList.remove('locked');
+  saveAnswers();
+  openTab(idx);
+}
+
+function toggleTheme() {
+  const h = document.documentElement; const d = h.getAttribute('data-theme')==='dark';
+  h.setAttribute('data-theme', d?'light':'dark');
+  document.getElementById('themeIcon').textContent = d?'☀️':'🌙';
+}
+
+function clearAll() {
+  try { localStorage.removeItem(STORAGE_KEY); } catch(e) {}
+  unlockedTabs = [true, false, false, false, false];
+  ['a1','a2','a3','dPos','dArg1','dArg2','dGegen','dFazit','r1','r2','r3'].forEach(id => { const el = document.getElementById(id); if(el) el.value=''; });
+  document.querySelectorAll('.tab-btn').forEach((b,i) => { b.className = 'tab-btn' + (i===0?'':(unlockedTabs[i]?'':' locked')); });
+  openTab(0);
+}
+
+function printAll() {
+  const getVal = id => { const el = document.getElementById(id); return el ? el.value || '—' : '—'; };
+  const now = new Date().toLocaleDateString('de-CH');
+  document.getElementById('printContent').innerHTML = `
+    <div style="font-family:Arial,sans-serif;max-width:680px;margin:0 auto;padding:30px;color:#111;">
+      <h2>📁 Fallstudie — Lenas Lohn & Budget</h2>
+      <p style="font-size:0.82rem;color:#666;margin-bottom:20px;">Datum: ${now}</p>
+      <h3>Aufgabe 1 — Budget analysieren</h3><div style="background:#f8fafc;padding:12px;border-left:4px solid #0ea5e9;margin-bottom:14px;white-space:pre-wrap">${getVal('a1')}</div>
+      <h3>Aufgabe 2 — Risiken erkennen</h3><div style="background:#f8fafc;padding:12px;border-left:4px solid #0ea5e9;margin-bottom:14px;white-space:pre-wrap">${getVal('a2')}</div>
+      <h3>Aufgabe 3 — Lohnfaktoren</h3><div style="background:#f8fafc;padding:12px;border-left:4px solid #0ea5e9;margin-bottom:14px;white-space:pre-wrap">${getVal('a3')}</div>
+      <h3>Entscheidung</h3>
+      <p><strong>Position:</strong> ${getVal('dPos')}</p>
+      <p><strong>Arg. 1:</strong> ${getVal('dArg1')}</p>
+      <p><strong>Arg. 2:</strong> ${getVal('dArg2')}</p>
+      <p><strong>Gegenargument:</strong> ${getVal('dGegen')}</p>
+      <p><strong>Fazit:</strong> ${getVal('dFazit')}</p>
+      <h3>Reflexion</h3>
+      <p><strong>Erkenntnis:</strong> ${getVal('r1')}</p>
+      <p><strong>Lohnfaktoren:</strong> ${getVal('r2')}</p>
+      <p><strong>Massnahme:</strong> ${getVal('r3')}</p>
+    </div>`;
+  window.print();
+}
+
+// Init
+document.addEventListener('DOMContentLoaded', () => {
+  loadAnswers();
+  unlockedTabs.forEach((u, i) => {
+    if (u && i > 0) document.getElementById('tb' + i).classList.remove('locked');
+  });
+});
+</script>
+</body>
+</html>

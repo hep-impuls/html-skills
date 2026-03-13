@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎫 Exit Ticket — Lohn und Budget</title>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root[data-theme="dark"]{--bg-primary:#0f172a;--bg-secondary:#1e293b;--bg-card:#334155;--text-primary:#f1f5f9;--text-secondary:#94a3b8;--border:#475569;}
+  :root[data-theme="light"]{--bg-primary:#f8fafc;--bg-secondary:#ffffff;--bg-card:#f1f5f9;--text-primary:#1e293b;--text-secondary:#64748b;--border:#e2e8f0;}
+  :root{--accent:#06b6d4;--accent-2:#6366f1;--green:#4ade80;--red:#f87171;--yellow:#fbbf24;--radius:12px;--radius-lg:20px;--transition:0.2s ease;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Lexend',sans-serif;background:var(--bg-primary);color:var(--text-primary);min-height:100vh;}
+  .header{background:var(--bg-secondary);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;}
+  .header-title{font-size:0.95rem;font-weight:700;}
+  .header-sub{font-size:0.72rem;color:var(--text-secondary);margin-top:1px;}
+  .header-right{display:flex;align-items:center;gap:8px;}
+  .btn-sm{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:5px 12px;font-size:0.78rem;font-weight:600;color:var(--text-primary);cursor:pointer;font-family:inherit;transition:all var(--transition);}
+  .btn-sm:hover{border-color:var(--accent);color:var(--accent);}
+  .progress-bar-wrap{height:4px;background:var(--border);}
+  .progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2));transition:width 0.4s ease;}
+  .slide-container{max-width:600px;margin:0 auto;padding:28px 20px 100px;}
+  .slide{display:none;}
+  .slide.active{display:block;animation:fadeIn 0.3s ease;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+  .slide-card{background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius-lg);padding:28px 28px 24px;}
+  .slide-icon{font-size:2.5rem;text-align:center;display:block;margin-bottom:12px;}
+  .slide-title{font-size:1.2rem;font-weight:700;text-align:center;margin-bottom:8px;}
+  .slide-sub{font-size:0.88rem;color:var(--text-secondary);text-align:center;line-height:1.6;margin-bottom:24px;}
+  .name-input{width:100%;background:var(--bg-card);border:2px solid var(--border);border-radius:var(--radius);padding:14px 16px;color:var(--text-primary);font-family:inherit;font-size:1rem;text-align:center;font-weight:600;transition:border-color var(--transition);margin-bottom:6px;}
+  .name-input:focus{outline:none;border-color:var(--accent);}
+  .question-text{font-size:1rem;font-weight:600;margin-bottom:16px;line-height:1.4;text-align:center;}
+  .choices{display:flex;flex-direction:column;gap:10px;margin-bottom:8px;}
+  .choice-btn{background:var(--bg-card);border:2px solid var(--border);border-radius:var(--radius);padding:12px 16px;text-align:left;font-family:inherit;font-size:0.9rem;color:var(--text-primary);cursor:pointer;transition:all var(--transition);}
+  .choice-btn:hover:not(:disabled){border-color:var(--accent);background:color-mix(in srgb,var(--accent) 8%,var(--bg-card));}
+  .choice-btn.selected{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,var(--bg-card));}
+  .choice-btn:disabled{cursor:not-allowed;}
+  .no-feedback{font-size:0.75rem;color:var(--text-secondary);text-align:center;margin-top:6px;font-style:italic;}
+  textarea{width:100%;background:var(--bg-card);border:2px solid var(--border);border-radius:var(--radius);padding:12px 14px;color:var(--text-primary);font-family:inherit;font-size:0.9rem;resize:vertical;min-height:120px;transition:border-color var(--transition);}
+  textarea:focus{outline:none;border-color:var(--accent);}
+  .yn-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:8px;}
+  .yn-btn{padding:18px;font-family:inherit;font-size:1.5rem;font-weight:700;border-radius:var(--radius-lg);border:2px solid var(--border);background:var(--bg-card);cursor:pointer;transition:all var(--transition);display:flex;flex-direction:column;align-items:center;gap:6px;}
+  .yn-btn span{font-size:0.82rem;font-weight:600;color:var(--text-secondary);}
+  .yn-btn:hover:not(:disabled){transform:scale(1.03);}
+  .yn-btn.selected-ja{border-color:var(--green);background:color-mix(in srgb,var(--green) 12%,var(--bg-card));}
+  .yn-btn.selected-nein{border-color:var(--red);background:color-mix(in srgb,var(--red) 12%,var(--bg-card));}
+  .ampel-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:8px;}
+  .ampel-btn{padding:20px 12px;font-family:inherit;font-size:2rem;border-radius:var(--radius-lg);border:2px solid var(--border);background:var(--bg-card);cursor:pointer;transition:all var(--transition);display:flex;flex-direction:column;align-items:center;gap:8px;}
+  .ampel-label{font-size:0.75rem;font-weight:600;color:var(--text-secondary);text-align:center;line-height:1.3;}
+  .ampel-btn:hover{transform:scale(1.04);}
+  .ampel-btn.selected-rot{border-color:var(--red);background:color-mix(in srgb,var(--red) 15%,var(--bg-card));}
+  .ampel-btn.selected-gelb{border-color:var(--yellow);background:color-mix(in srgb,var(--yellow) 15%,var(--bg-card));}
+  .ampel-btn.selected-gruen{border-color:var(--green);background:color-mix(in srgb,var(--green) 15%,var(--bg-card));}
+  .nav-bar{position:fixed;bottom:0;left:0;right:0;background:var(--bg-secondary);border-top:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;z-index:200;}
+  .btn-nav{background:linear-gradient(135deg,var(--accent),var(--accent-2));border:none;border-radius:var(--radius);padding:11px 28px;font-size:0.9rem;font-weight:700;color:white;cursor:pointer;font-family:inherit;transition:all var(--transition);}
+  .btn-nav:hover{transform:translateY(-1px);}
+  .btn-nav:disabled{opacity:0.4;cursor:not-allowed;transform:none;}
+  .slide-counter{font-size:0.8rem;color:var(--text-secondary);}
+  .thanks-box{text-align:center;padding:20px 0;}
+  .thanks-icon{font-size:3.5rem;display:block;margin-bottom:16px;}
+  .btn-print{background:var(--bg-card);border:2px solid var(--border);border-radius:var(--radius);padding:12px 24px;font-family:inherit;font-size:0.9rem;font-weight:600;color:var(--text-primary);cursor:pointer;transition:all var(--transition);display:inline-block;margin-top:16px;}
+  .btn-print:hover{border-color:var(--accent);color:var(--accent);}
+  .video-link{display:flex;align-items:center;gap:10px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px;text-decoration:none;color:var(--text-primary);font-size:0.85rem;font-weight:600;margin-bottom:12px;transition:all var(--transition);}
+  .video-link:hover{border-color:var(--accent);color:var(--accent);}
+  #printContent{display:none;}
+  @media print{body>*:not(#printContent){display:none!important;}#printContent{display:block!important;font-family:Arial,sans-serif;padding:20px;}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="header-title">🎫 Exit Ticket — Lohn und Budget</div>
+    <div class="header-sub">ABU · Lernstandscheck</div>
+  </div>
+  <div class="header-right">
+    <button class="btn-sm" onclick="printTicket()">🖨️ Ausdruck</button>
+    <button class="btn-sm" onclick="toggleTheme()"><span id="themeIcon">🌙</span></button>
+  </div>
+</div>
+<div class="progress-bar-wrap"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+
+<div class="slide-container">
+
+  <!-- Slide 0: Willkommen -->
+  <div class="slide active" id="slide-0">
+    <div class="slide-card">
+      <span class="slide-icon">💼</span>
+      <div class="slide-title">Lohn und Budget — Lerncheck</div>
+      <div class="slide-sub">Du hast heute zwei Videos angeschaut: eines über Lohnunterschiede in der Schweiz und eines über Jugendliche und Schulden. Dieser kurze Check dauert ca. 3 Minuten.</div>
+      <input class="name-input" id="nameInput" type="text" placeholder="Dein Name (optional)" autocomplete="off">
+    </div>
+  </div>
+
+  <!-- Slide 1: MC -->
+  <div class="slide" id="slide-1">
+    <div class="slide-card">
+      <span class="slide-icon">❓</span>
+      <div class="question-text">Welche zwei Hauptfaktoren bestimmen den Lohn laut dem ersten Video?</div>
+      <div class="choices">
+        <button class="choice-btn" onclick="selectMC(this,0)">A&nbsp; Nationalität und Alter der Arbeitnehmenden</button>
+        <button class="choice-btn" onclick="selectMC(this,1)">B&nbsp; Angebot & Nachfrage sowie Produktivität</button>
+        <button class="choice-btn" onclick="selectMC(this,2)">C&nbsp; Schulgrösse und Firmengrösse</button>
+        <button class="choice-btn" onclick="selectMC(this,3)">D&nbsp; Wohnort und Familienstand</button>
+      </div>
+      <p class="no-feedback">🔒 Keine Auswertung — der Lehrperson werden alle Antworten gezeigt.</p>
+    </div>
+  </div>
+
+  <!-- Slide 2: Offene Frage -->
+  <div class="slide" id="slide-2">
+    <div class="slide-card">
+      <span class="slide-icon">✍️</span>
+      <div class="question-text">Was hast du aus dem Video über Jugendverschuldung mitgenommen? Nenne eine wichtige Erkenntnis.</div>
+      <textarea id="openAnswer" placeholder="Schreib hier deine Antwort..." oninput="saveOpen()"></textarea>
+    </div>
+  </div>
+
+  <!-- Slide 3: Ja/Nein -->
+  <div class="slide" id="slide-3">
+    <div class="slide-card">
+      <span class="slide-icon">⚖️</span>
+      <div class="question-text">Stimmt die Aussage: «Jugendliche gehen grundsätzlich leichtsinniger mit Geld um als Erwachsene»?</div>
+      <div class="yn-row">
+        <button class="yn-btn" id="yn-ja" onclick="selectYN('ja')">✅<span>Ja, stimmt</span></button>
+        <button class="yn-btn" id="yn-nein" onclick="selectYN('nein')">❌<span>Nein, stimmt nicht</span></button>
+      </div>
+      <p class="no-feedback">🔒 Deine Antwort wird für die Lehrperson festgehalten, aber nicht bewertet.</p>
+    </div>
+  </div>
+
+  <!-- Slide 4: Ampel -->
+  <div class="slide" id="slide-4">
+    <div class="slide-card">
+      <span class="slide-icon">🚦</span>
+      <div class="slide-title">Wie gut hast du's verstanden?</div>
+      <div class="slide-sub">Bewerte ehrlich deinen Lernstand zum Thema Lohn und Budget.</div>
+      <div class="ampel-grid">
+        <button class="ampel-btn" id="ampel-rot" onclick="selectAmpel('rot')">🔴<span class="ampel-label">Ich brauche Hilfe</span></button>
+        <button class="ampel-btn" id="ampel-gelb" onclick="selectAmpel('gelb')">🟡<span class="ampel-label">Ich bin unsicher</span></button>
+        <button class="ampel-btn" id="ampel-gruen" onclick="selectAmpel('gruen')">🟢<span class="ampel-label">Ich hab's verstanden</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 5: Danke -->
+  <div class="slide" id="slide-5">
+    <div class="slide-card">
+      <div class="thanks-box">
+        <span class="thanks-icon">🙌</span>
+        <div class="slide-title">Danke für deine Antworten!</div>
+        <div class="slide-sub" style="margin-bottom:16px;">Die Lehrperson sieht deine Rückmeldung. Du kannst das Ticket ausdrucken oder das Fenster schliessen.</div>
+        <a class="video-link" href="https://www.srf.ch/play/embed?urn=urn:srf:video:8e78f8da-c345-4817-87cc-6cf7a4ce7cc5" target="_blank">▶️ Nochmals ansehen: Video 1 — Lohnunterschiede in der Schweiz</a>
+        <a class="video-link" href="https://www.srf.ch/play/embed?urn=urn:srf:video:c264309b-4f69-4ca3-9287-7be4957b3ccf" target="_blank">▶️ Nochmals ansehen: Video 2 — Jugendliche und Schulden</a>
+        <button class="btn-print" onclick="printTicket()">🖨️ Ticket ausdrucken</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end slide-container -->
+
+<div class="nav-bar">
+  <button class="btn-sm" onclick="prevSlide()" id="btnBack" disabled>← Zurück</button>
+  <span class="slide-counter" id="slideCounter">1 / 6</span>
+  <button class="btn-nav" onclick="nextSlide()" id="btnNext">Weiter →</button>
+</div>
+
+<div id="printContent"></div>
+
+<script>
+const TOTAL = 6;
+let current = 0;
+let mcAnswer = null;
+let openAnswerVal = '';
+let ynAnswer = null;
+let ampelAnswer = null;
+let studentName = '';
+
+function selectMC(btn, idx) {
+  document.querySelectorAll('#slide-1 .choice-btn').forEach(b => { b.classList.remove('selected'); b.disabled = false; });
+  btn.classList.add('selected');
+  mcAnswer = idx;
+}
+function saveOpen() { openAnswerVal = document.getElementById('openAnswer').value; }
+function selectYN(v) {
+  document.getElementById('yn-ja').className = 'yn-btn';
+  document.getElementById('yn-nein').className = 'yn-btn';
+  document.getElementById('yn-' + v).classList.add('selected-' + v);
+  ynAnswer = v;
+}
+function selectAmpel(v) {
+  ['rot','gelb','gruen'].forEach(x => document.getElementById('ampel-' + x).className = 'ampel-btn');
+  document.getElementById('ampel-' + v).classList.add('selected-' + v);
+  ampelAnswer = v;
+}
+function showSlide(n) {
+  document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+  document.getElementById('slide-' + n).classList.add('active');
+  document.getElementById('progressFill').style.width = ((n / (TOTAL - 1)) * 100) + '%';
+  document.getElementById('slideCounter').textContent = (n + 1) + ' / ' + TOTAL;
+  document.getElementById('btnBack').disabled = n === 0;
+  document.getElementById('btnNext').textContent = n === TOTAL - 1 ? '✓ Abschliessen' : 'Weiter →';
+}
+function nextSlide() {
+  if (current === 0) studentName = document.getElementById('nameInput').value;
+  if (current < TOTAL - 1) { current++; showSlide(current); window.scrollTo({top:0,behavior:'smooth'}); }
+}
+function prevSlide() { if (current > 0) { current--; showSlide(current); window.scrollTo({top:0,behavior:'smooth'}); } }
+function toggleTheme() {
+  const h = document.documentElement;
+  const d = h.getAttribute('data-theme') === 'dark';
+  h.setAttribute('data-theme', d ? 'light' : 'dark');
+  document.getElementById('themeIcon').textContent = d ? '☀️' : '🌙';
+}
+function printTicket() {
+  const now = new Date().toLocaleDateString('de-CH');
+  const mcLabels = ['A: Nationalität und Alter','B: Angebot & Nachfrage + Produktivität','C: Schulgrösse/Firmengrösse','D: Wohnort und Familienstand'];
+  const ampelMap = {rot:'🔴 Ich brauche Hilfe', gelb:'🟡 Ich bin unsicher', gruen:'🟢 Ich hab\'s verstanden', null:'—'};
+  document.getElementById('printContent').innerHTML = `
+    <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;padding:30px;color:#111;">
+      <h2 style="font-size:1.1rem;margin-bottom:4px;">🎫 Exit Ticket — Lohn und Budget</h2>
+      <p style="font-size:0.8rem;color:#666;margin-bottom:20px;">Datum: ${now}${studentName ? ' | Name: ' + studentName : ''}</p>
+      <hr style="margin-bottom:16px;">
+      <p><strong>Frage 1 (MC):</strong> ${mcAnswer !== null ? mcLabels[mcAnswer] : '—'}</p>
+      <p style="margin-top:12px;"><strong>Frage 2 (Offen):</strong></p>
+      <div style="background:#f8fafc;border-left:4px solid #06b6d4;padding:10px 14px;margin-top:6px;white-space:pre-wrap;">${openAnswerVal || '—'}</div>
+      <p style="margin-top:12px;"><strong>Frage 3 (Ja/Nein):</strong> ${ynAnswer === 'ja' ? 'Ja, stimmt' : ynAnswer === 'nein' ? 'Nein, stimmt nicht' : '—'}</p>
+      <p style="margin-top:12px;"><strong>Ampel:</strong> ${ampelMap[ampelAnswer]}</p>
+    </div>`;
+  window.print();
+}
+showSlide(0);
+</script>
+</body>
+</html>

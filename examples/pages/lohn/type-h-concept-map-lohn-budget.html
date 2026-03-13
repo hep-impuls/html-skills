@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🗺️ Concept Map — Was bestimmt den Lohn?</title>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root[data-theme="dark"]{--bg-primary:#0f172a;--bg-secondary:#1e293b;--bg-card:#334155;--text-primary:#f1f5f9;--text-secondary:#94a3b8;--border:#475569;}
+  :root[data-theme="light"]{--bg-primary:#f8fafc;--bg-secondary:#ffffff;--bg-card:#f1f5f9;--text-primary:#1e293b;--text-secondary:#64748b;--border:#e2e8f0;}
+  :root{--accent:#f59e0b;--accent-2:#ef4444;--green:#4ade80;--radius:12px;--transition:0.2s ease;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Lexend',sans-serif;background:var(--bg-primary);color:var(--text-primary);min-height:100vh;overflow:hidden;}
+  .header{background:var(--bg-secondary);border-bottom:1px solid var(--border);padding:8px 16px;display:flex;align-items:center;justify-content:space-between;z-index:300;position:relative;}
+  .header-title{font-size:0.92rem;font-weight:700;}
+  .header-sub{font-size:0.7rem;color:var(--text-secondary);}
+  .header-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .btn-sm{background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:5px 12px;font-size:0.78rem;font-weight:600;color:var(--text-primary);cursor:pointer;font-family:inherit;transition:all var(--transition);}
+  .btn-sm:hover{border-color:var(--accent);color:var(--accent);}
+  .btn-accent{background:linear-gradient(135deg,var(--accent),var(--accent-2));border:none;border-radius:8px;padding:5px 14px;font-size:0.78rem;font-weight:700;color:white;cursor:pointer;font-family:inherit;}
+  .mode-badge{background:color-mix(in srgb,var(--accent) 15%,transparent);border:1px solid color-mix(in srgb,var(--accent) 30%,transparent);border-radius:99px;padding:3px 10px;font-size:0.72rem;font-weight:700;color:var(--accent);}
+  /* SIDEBAR */
+  .sidebar{position:fixed;left:0;top:57px;width:220px;height:calc(100vh - 57px);background:var(--bg-secondary);border-right:1px solid var(--border);padding:14px;overflow-y:auto;z-index:200;}
+  .sidebar-title{font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-secondary);margin-bottom:10px;}
+  .concept-chip{background:var(--bg-card);border:2px solid var(--border);border-radius:8px;padding:8px 12px;font-size:0.78rem;font-weight:600;cursor:grab;margin-bottom:8px;user-select:none;transition:all var(--transition);display:flex;align-items:center;gap:6px;}
+  .concept-chip:hover{border-color:var(--accent);transform:translateX(2px);}
+  .concept-chip.used{opacity:0.4;cursor:default;}
+  .sidebar-hint{font-size:0.7rem;color:var(--text-secondary);line-height:1.5;margin-bottom:10px;background:var(--bg-card);border-radius:8px;padding:10px;}
+  .sidebar-mode-info{font-size:0.72rem;color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,transparent);border-radius:8px;padding:8px 10px;margin-bottom:12px;}
+  /* CANVAS */
+  .canvas-area{position:fixed;left:220px;top:57px;right:0;bottom:0;overflow:hidden;}
+  svg.arrows-layer{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:10;}
+  .canvas-nodes{position:absolute;inset:0;z-index:20;}
+  .map-node{position:absolute;background:var(--bg-secondary);border:2px solid var(--border);border-radius:12px;padding:10px 14px;font-size:0.82rem;font-weight:700;cursor:move;user-select:none;min-width:120px;text-align:center;transition:box-shadow 0.2s,border-color 0.2s;box-shadow:0 2px 8px rgba(0,0,0,0.15);}
+  .map-node.center-node{background:color-mix(in srgb,var(--accent) 20%,var(--bg-secondary));border-color:var(--accent);font-size:0.9rem;font-weight:700;color:var(--accent);}
+  .map-node:hover{box-shadow:0 4px 16px rgba(0,0,0,0.25);}
+  .map-node.connect-source{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,var(--bg-secondary));}
+  .map-node.connect-ready{border-color:var(--green);cursor:crosshair;}
+  .node-delete{position:absolute;top:-8px;right:-8px;width:18px;height:18px;border-radius:50%;background:#f87171;border:none;color:white;font-size:0.65rem;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.2s;}
+  .map-node:hover .node-delete{opacity:1;}
+  .edge-label{font-size:0.68rem;fill:var(--text-secondary);pointer-events:auto;cursor:pointer;}
+  .edge-label:hover{fill:var(--accent);}
+  /* CONN MODE */
+  .conn-overlay{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:color-mix(in srgb,var(--accent) 90%,transparent);color:white;border-radius:99px;padding:8px 20px;font-size:0.82rem;font-weight:700;z-index:400;display:none;}
+  .conn-overlay.visible{display:block;}
+  /* TOOLBAR */
+  .canvas-toolbar{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);display:flex;gap:10px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:99px;padding:8px 16px;z-index:300;}
+  .tool-btn{background:transparent;border:none;font-size:1.1rem;cursor:pointer;padding:4px 8px;border-radius:8px;transition:background 0.2s;}
+  .tool-btn:hover{background:var(--bg-card);}
+  .tool-btn.active{background:color-mix(in srgb,var(--accent) 20%,transparent);}
+  #printContent{display:none;}
+  @media print{body>*:not(#printContent){display:none!important;}#printContent{display:block!important;}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="header-title">🗺️ Concept Map — Was bestimmt den Lohn?</div>
+    <div class="header-sub">ABU · Wirtschaft & Gesellschaft</div>
+  </div>
+  <div class="header-right">
+    <span class="mode-badge" id="modeBadge">Bewegen</span>
+    <button class="btn-sm" onclick="toggleMode()">🔗 Verbinden</button>
+    <button class="btn-sm" onclick="resetMap()">↩️ Zurücksetzen</button>
+    <button class="btn-sm" onclick="printMap()">🖨️ Drucken</button>
+    <button class="btn-sm" onclick="toggleTheme()"><span id="themeIcon">🌙</span></button>
+  </div>
+</div>
+
+<div class="sidebar">
+  <div class="sidebar-mode-info" id="sideHint">Ziehe Begriffe auf die Karte. Klicke dann «Verbinden» um Pfeile zu zeichnen.</div>
+  <div class="sidebar-title">Verfügbare Begriffe</div>
+  <div id="chipList"></div>
+</div>
+
+<div class="canvas-area" id="canvasArea">
+  <svg class="arrows-layer" id="svgLayer"></svg>
+  <div class="canvas-nodes" id="nodesLayer"></div>
+</div>
+
+<div class="conn-overlay" id="connOverlay">🔗 Verbindungsmodus: Klicke Quell-Knoten, dann Ziel-Knoten</div>
+
+<div class="canvas-toolbar">
+  <button class="tool-btn" title="Alle verbinden zeigen" onclick="toggleLabels()">🏷️</button>
+  <button class="tool-btn" title="Zoom rein" onclick="zoomCanvas(0.1)">🔍+</button>
+  <button class="tool-btn" title="Zoom raus" onclick="zoomCanvas(-0.1)">🔍−</button>
+  <button class="tool-btn" title="Rückgängig" onclick="undoLast()" id="btnUndo">↩️</button>
+  <button class="tool-btn" title="Legende" onclick="toggleLegend()">ℹ️</button>
+</div>
+
+<div id="printContent"></div>
+
+<!-- Edge label prompt -->
+<div id="labelPrompt" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--bg-secondary);border:2px solid var(--accent);border-radius:16px;padding:24px;z-index:500;min-width:280px;">
+  <p style="font-weight:700;margin-bottom:12px;">🏷️ Beschrifte die Verbindung:</p>
+  <input id="labelInput" type="text" placeholder="z.B. «beeinflusst», «steigert»..." style="width:100%;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:10px;color:var(--text-primary);font-family:inherit;font-size:0.9rem;margin-bottom:12px;">
+  <div style="display:flex;gap:8px">
+    <button onclick="confirmEdge()" style="flex:1;background:linear-gradient(135deg,var(--accent),var(--accent-2));border:none;border-radius:8px;padding:9px;font-weight:700;color:white;cursor:pointer;font-family:inherit;">Bestätigen</button>
+    <button onclick="cancelEdge()" style="flex:1;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:9px;font-weight:600;color:var(--text-primary);cursor:pointer;font-family:inherit;">Abbrechen</button>
+  </div>
+</div>
+<div id="overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:490;" onclick="cancelEdge()"></div>
+
+<div id="legendBox" style="display:none;position:fixed;bottom:80px;right:20px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:12px;padding:16px;z-index:300;font-size:0.8rem;max-width:240px;">
+  <p style="font-weight:700;margin-bottom:10px;">ℹ️ Anleitung</p>
+  <p style="color:var(--text-secondary);margin-bottom:6px;">1. Ziehe Begriffe von der Sidebar auf die Karte</p>
+  <p style="color:var(--text-secondary);margin-bottom:6px;">2. Klicke «Verbinden» um Pfeile zu zeichnen</p>
+  <p style="color:var(--text-secondary);margin-bottom:6px;">3. Klicke einen Knoten (Quelle), dann einen anderen (Ziel)</p>
+  <p style="color:var(--text-secondary);margin-bottom:6px;">4. Beschrifte den Pfeil</p>
+  <p style="color:var(--text-secondary);">5. Klicke auf einen Pfeiltext um ihn zu bearbeiten</p>
+</div>
+
+<script>
+const CONCEPTS = [
+  { id:'c1', label:'💰 Lohn', color:'#f59e0b', isCenter:true },
+  { id:'c2', label:'📊 Angebot & Nachfrage', color:'#6366f1' },
+  { id:'c3', label:'⚙️ Produktivität', color:'#0ea5e9' },
+  { id:'c4', label:'✊ Gewerkschaft', color:'#ef4444' },
+  { id:'c5', label:'🎓 Weiterbildung', color:'#10b981' },
+  { id:'c6', label:'🌍 Region / Wohnort', color:'#8b5cf6' },
+  { id:'c7', label:'🏢 Branche', color:'#f97316' },
+  { id:'c8', label:'📜 Verantwortung', color:'#14b8a6' },
+  { id:'c9', label:'🤝 Verhandlung', color:'#ec4899' },
+  { id:'c10', label:'🌿 Beruf wählen', color:'#84cc16' },
+  { id:'c11', label:'💸 Schulden', color:'#f87171' },
+  { id:'c12', label:'👨‍👩‍👧 Familie', color:'#a78bfa' },
+  { id:'c13', label:'📋 Mindestlohn', color:'#38bdf8' },
+  { id:'c14', label:'🏗️ Konjunktur', color:'#fb923c' },
+];
+
+let nodes = [], edges = [], history = [];
+let connectMode = false, connectSource = null, pendingEdge = null;
+let nodeIdCounter = 100;
+let zoom = 1, showLabels = true;
+
+const canvasArea = document.getElementById('canvasArea');
+const nodesLayer = document.getElementById('nodesLayer');
+const svgLayer = document.getElementById('svgLayer');
+
+function init() {
+  // Place center node automatically
+  const centerConcept = CONCEPTS.find(c => c.isCenter);
+  placeNode(centerConcept, 420, 300, true);
+  renderChips();
+  loadState();
+}
+
+function renderChips() {
+  const usedIds = nodes.map(n => n.conceptId);
+  document.getElementById('chipList').innerHTML = CONCEPTS.filter(c => !c.isCenter).map(c => `
+    <div class="concept-chip ${usedIds.includes(c.id)?'used':''}" id="chip-${c.id}" draggable="${!usedIds.includes(c.id)}"
+      style="border-color:${c.color}33;color:${c.color}"
+      ondragstart="startChipDrag(event,'${c.id}')">
+      ${c.label}
+    </div>`).join('');
+}
+
+function startChipDrag(e, conceptId) {
+  e.dataTransfer.setData('conceptId', conceptId);
+}
+
+canvasArea.addEventListener('dragover', e => e.preventDefault());
+canvasArea.addEventListener('drop', e => {
+  e.preventDefault();
+  const conceptId = e.dataTransfer.getData('conceptId');
+  if (!conceptId) return;
+  const rect = canvasArea.getBoundingClientRect();
+  const x = (e.clientX - rect.left) / zoom;
+  const y = (e.clientY - rect.top) / zoom;
+  const concept = CONCEPTS.find(c => c.id === conceptId);
+  if (!concept || nodes.find(n => n.conceptId === conceptId)) return;
+  history.push({type:'addNode', id:'n'+nodeIdCounter});
+  placeNode(concept, x, y);
+  renderChips();
+  saveState();
+});
+
+function placeNode(concept, x, y, isCenter) {
+  const id = 'n' + (nodeIdCounter++);
+  nodes.push({ id, conceptId:concept.id, x, y, label:concept.label, color:concept.color, isCenter });
+  renderNodes();
+  return id;
+}
+
+function renderNodes() {
+  nodesLayer.innerHTML = '';
+  nodes.forEach(n => {
+    const el = document.createElement('div');
+    el.className = 'map-node' + (n.isCenter ? ' center-node' : '');
+    el.id = n.id;
+    el.style.left = n.x + 'px';
+    el.style.top = n.y + 'px';
+    el.style.borderColor = n.color;
+    el.innerHTML = `${n.label}<button class="node-delete" onclick="deleteNode('${n.id}')" title="Löschen">×</button>`;
+    if (!n.isCenter) {
+      makeDraggable(el, n);
+    }
+    el.addEventListener('click', e => {
+      if (e.target.classList.contains('node-delete')) return;
+      if (connectMode) handleConnectClick(n.id);
+    });
+    nodesLayer.appendChild(el);
+  });
+  redrawEdges();
+}
+
+function makeDraggable(el, nodeData) {
+  let startX, startY, startLeft, startTop;
+  el.addEventListener('mousedown', e => {
+    if (e.target.classList.contains('node-delete')) return;
+    if (connectMode) return;
+    startX = e.clientX; startY = e.clientY;
+    startLeft = nodeData.x; startTop = nodeData.y;
+    const onMove = ev => {
+      nodeData.x = startLeft + (ev.clientX - startX) / zoom;
+      nodeData.y = startTop + (ev.clientY - startY) / zoom;
+      el.style.left = nodeData.x + 'px';
+      el.style.top = nodeData.y + 'px';
+      redrawEdges();
+    };
+    const onUp = () => { document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); saveState(); };
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  });
+}
+
+function redrawEdges() {
+  svgLayer.innerHTML = '';
+  const defs = document.createElementNS('http://www.w3.org/2000/svg','defs');
+  const marker = document.createElementNS('http://www.w3.org/2000/svg','marker');
+  marker.setAttribute('id','arrow');marker.setAttribute('markerWidth','8');marker.setAttribute('markerHeight','8');
+  marker.setAttribute('refX','6');marker.setAttribute('refY','3');marker.setAttribute('orient','auto');
+  const poly = document.createElementNS('http://www.w3.org/2000/svg','polygon');
+  poly.setAttribute('points','0 0, 6 3, 0 6');poly.setAttribute('fill','#94a3b8');
+  marker.appendChild(poly);defs.appendChild(marker);svgLayer.appendChild(defs);
+
+  edges.forEach(edge => {
+    const src = nodes.find(n => n.id === edge.from);
+    const tgt = nodes.find(n => n.id === edge.to);
+    if (!src || !tgt) return;
+    const srcEl = document.getElementById(src.id);
+    const tgtEl = document.getElementById(tgt.id);
+    if (!srcEl || !tgtEl) return;
+    const sx = src.x + srcEl.offsetWidth/2, sy = src.y + srcEl.offsetHeight/2;
+    const tx = tgt.x + tgtEl.offsetWidth/2, ty = tgt.y + tgtEl.offsetHeight/2;
+    const dx = tx - sx, dy = ty - sy;
+    const dist = Math.sqrt(dx*dx+dy*dy);
+    const r = 40;
+    const ax = sx + (dx/dist)*r, ay = sy + (dy/dist)*r;
+    const bx = tx - (dx/dist)*r, by = ty - (dy/dist)*r;
+    const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1',ax);line.setAttribute('y1',ay);line.setAttribute('x2',bx);line.setAttribute('y2',by);
+    line.setAttribute('stroke','#475569');line.setAttribute('stroke-width','2');line.setAttribute('marker-end','url(#arrow)');
+    svgLayer.appendChild(line);
+    if (showLabels && edge.label) {
+      const mx = (ax+bx)/2, my = (ay+by)/2;
+      const text = document.createElementNS('http://www.w3.org/2000/svg','text');
+      text.setAttribute('x',mx);text.setAttribute('y',my-6);text.setAttribute('text-anchor','middle');
+      text.setAttribute('class','edge-label');text.textContent = edge.label;
+      text.addEventListener('click', () => editEdgeLabel(edge));
+      svgLayer.appendChild(text);
+    }
+  });
+}
+
+function handleConnectClick(nodeId) {
+  if (!connectSource) {
+    connectSource = nodeId;
+    document.getElementById(nodeId).classList.add('connect-source');
+    document.getElementById('connOverlay').classList.add('visible');
+    document.getElementById('connOverlay').textContent = '🔗 Quelle gewählt — klicke jetzt den Zielknoten';
+    nodes.forEach(n => { if (n.id !== nodeId) document.getElementById(n.id)?.classList.add('connect-ready'); });
+  } else if (nodeId !== connectSource) {
+    pendingEdge = { from:connectSource, to:nodeId };
+    nodes.forEach(n => { document.getElementById(n.id)?.classList.remove('connect-source','connect-ready'); });
+    document.getElementById('connOverlay').classList.remove('visible');
+    openLabelPrompt();
+  }
+}
+
+function openLabelPrompt() {
+  document.getElementById('labelInput').value = '';
+  document.getElementById('labelPrompt').style.display = 'block';
+  document.getElementById('overlay').style.display = 'block';
+  setTimeout(() => document.getElementById('labelInput').focus(), 50);
+}
+document.getElementById('labelInput').addEventListener('keydown', e => { if(e.key==='Enter') confirmEdge(); });
+
+function confirmEdge() {
+  if (!pendingEdge) return;
+  const label = document.getElementById('labelInput').value.trim() || '';
+  const edge = { ...pendingEdge, label, id:'e'+(Date.now()) };
+  history.push({type:'addEdge', id:edge.id});
+  edges.push(edge);
+  pendingEdge = null; connectSource = null;
+  document.getElementById('labelPrompt').style.display = 'none';
+  document.getElementById('overlay').style.display = 'none';
+  redrawEdges();
+  saveState();
+}
+
+function cancelEdge() {
+  pendingEdge = null; connectSource = null;
+  document.getElementById('labelPrompt').style.display = 'none';
+  document.getElementById('overlay').style.display = 'none';
+  document.getElementById('connOverlay').classList.remove('visible');
+  nodes.forEach(n => { document.getElementById(n.id)?.classList.remove('connect-source','connect-ready'); });
+}
+
+function editEdgeLabel(edge) {
+  const newLabel = prompt('Verbindung umbenennen:', edge.label);
+  if (newLabel !== null) { edge.label = newLabel; redrawEdges(); saveState(); }
+}
+
+function toggleMode() {
+  connectMode = !connectMode;
+  document.getElementById('modeBadge').textContent = connectMode ? 'Verbinden' : 'Bewegen';
+  document.getElementById('connOverlay').classList.toggle('visible', connectMode);
+  if (!connectMode) {
+    connectSource = null;
+    document.getElementById('connOverlay').classList.remove('visible');
+    nodes.forEach(n => { document.getElementById(n.id)?.classList.remove('connect-source','connect-ready'); });
+  }
+}
+
+function deleteNode(id) {
+  if (nodes.find(n => n.id === id)?.isCenter) return;
+  const concept = nodes.find(n => n.id === id)?.conceptId;
+  history.push({type:'deleteNode', id});
+  nodes = nodes.filter(n => n.id !== id);
+  edges = edges.filter(e => e.from !== id && e.to !== id);
+  renderNodes();
+  renderChips();
+  saveState();
+}
+
+function undoLast() {
+  const last = history.pop();
+  if (!last) return;
+  if (last.type === 'addNode') { const idx = nodes.findIndex(n => n.id === last.id); if(idx>=0) nodes.splice(idx,1); }
+  if (last.type === 'addEdge') { edges = edges.filter(e => e.id !== last.id); }
+  renderNodes();
+  renderChips();
+  saveState();
+}
+
+function toggleLabels() { showLabels = !showLabels; redrawEdges(); }
+function toggleLegend() { const lb = document.getElementById('legendBox'); lb.style.display = lb.style.display==='none'?'block':'none'; }
+function zoomCanvas(delta) { zoom = Math.max(0.5, Math.min(2, zoom+delta)); nodesLayer.style.transform=`scale(${zoom})`; nodesLayer.style.transformOrigin='0 0'; redrawEdges(); }
+
+function resetMap() {
+  if (!confirm('Concept Map zurücksetzen?')) return;
+  nodes = []; edges = []; history = []; nodeIdCounter = 100;
+  try { localStorage.removeItem('concept_map_lohn'); } catch(e){}
+  init();
+}
+
+function saveState() {
+  try { localStorage.setItem('concept_map_lohn', JSON.stringify({nodes, edges, nodeIdCounter})); } catch(e){}
+}
+function loadState() {
+  try {
+    const d = JSON.parse(localStorage.getItem('concept_map_lohn')||'{}');
+    if (d.nodes && d.nodes.length > 0) {
+      nodes = d.nodes; edges = d.edges||[]; nodeIdCounter = d.nodeIdCounter||200;
+      renderNodes(); renderChips();
+    }
+  } catch(e){}
+}
+
+function toggleTheme() {
+  const h = document.documentElement; const d = h.getAttribute('data-theme')==='dark';
+  h.setAttribute('data-theme', d?'light':'dark');
+  document.getElementById('themeIcon').textContent = d?'☀️':'🌙';
+}
+
+function printMap() {
+  const nodeList = nodes.map(n => `<li><strong>${n.label}</strong></li>`).join('');
+  const edgeList = edges.map(e => {
+    const src = nodes.find(n=>n.id===e.from)?.label||'?';
+    const tgt = nodes.find(n=>n.id===e.to)?.label||'?';
+    return `<li>${src} → <em>${e.label||'…'}</em> → ${tgt}</li>`;
+  }).join('');
+  document.getElementById('printContent').innerHTML = `
+    <div style="font-family:Arial,sans-serif;max-width:680px;margin:0 auto;padding:30px;color:#111;">
+      <h2>🗺️ Concept Map — Was bestimmt den Lohn?</h2>
+      <p style="color:#666;font-size:0.82rem;margin-bottom:16px;">Datum: ${new Date().toLocaleDateString('de-CH')}</p>
+      <h3>Platzierte Begriffe</h3><ul style="margin-bottom:16px;line-height:1.8">${nodeList}</ul>
+      <h3>Verbindungen</h3><ul style="line-height:1.8">${edgeList||'<li>Noch keine Verbindungen</li>'}</ul>
+    </div>`;
+  window.print();
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

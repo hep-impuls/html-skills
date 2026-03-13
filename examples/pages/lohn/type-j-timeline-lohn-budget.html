@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📅 Zeitleiste — Lohn & Soziales in der Schweiz</title>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root[data-theme="dark"]{--bg-primary:#0f172a;--bg-secondary:#1e293b;--bg-card:#334155;--text-primary:#f1f5f9;--text-secondary:#94a3b8;--border:#475569;}
+  :root[data-theme="light"]{--bg-primary:#f8fafc;--bg-secondary:#ffffff;--bg-card:#f1f5f9;--text-primary:#1e293b;--text-secondary:#64748b;--border:#e2e8f0;}
+  :root{--accent:#f59e0b;--accent-2:#ef4444;--green:#4ade80;--red:#f87171;--yellow:#fbbf24;--radius:12px;--transition:0.2s ease;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Lexend',sans-serif;background:var(--bg-primary);color:var(--text-primary);min-height:100vh;}
+  .header{background:var(--bg-secondary);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;}
+  .header-title{font-size:1rem;font-weight:700;}
+  .header-sub{font-size:0.75rem;color:var(--text-secondary);margin-top:2px;}
+  .header-right{display:flex;align-items:center;gap:10px;}
+  .btn-sm{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:6px 14px;font-size:0.82rem;font-weight:600;color:var(--text-primary);cursor:pointer;font-family:inherit;transition:all var(--transition);}
+  .btn-sm:hover{border-color:var(--accent);color:var(--accent);}
+  .mode-badge{background:color-mix(in srgb,var(--accent) 15%,transparent);border:1px solid color-mix(in srgb,var(--accent) 30%,transparent);border-radius:99px;padding:4px 12px;font-size:0.75rem;font-weight:700;color:var(--accent);}
+  .tab-bar{background:var(--bg-secondary);border-bottom:1px solid var(--border);padding:0 20px;display:flex;position:sticky;top:57px;z-index:100;}
+  .tab-btn{padding:10px 16px;font-size:0.82rem;font-weight:600;font-family:inherit;border:none;background:transparent;color:var(--text-secondary);cursor:pointer;border-bottom:3px solid transparent;transition:all var(--transition);}
+  .tab-btn.active{color:var(--accent);border-bottom-color:var(--accent);}
+  .main-container{max-width:900px;margin:0 auto;padding:28px 20px 60px;}
+  .panel{display:none;} .panel.active{display:block;animation:fadeIn 0.3s ease;}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  /* ORDER MODE */
+  .order-instructions{background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:20px;font-size:0.88rem;color:var(--text-secondary);}
+  .cards-pool{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:24px;min-height:80px;padding:14px;background:color-mix(in srgb,var(--accent) 5%,var(--bg-secondary));border:2px dashed var(--border);border-radius:var(--radius);}
+  .event-card{background:var(--bg-card);border:2px solid var(--border);border-radius:var(--radius);padding:10px 14px;cursor:grab;font-size:0.82rem;font-weight:600;display:flex;align-items:center;gap:8px;user-select:none;transition:all var(--transition);}
+  .event-card:hover{border-color:var(--accent);transform:translateY(-2px);}
+  .event-card.dragging{opacity:0.5;transform:scale(0.95);}
+  .event-card.placed{cursor:grab;}
+  .timeline-slots{display:flex;flex-direction:column;gap:10px;margin-bottom:24px;}
+  .timeline-slot{display:flex;align-items:center;gap:14px;padding:12px 16px;background:var(--bg-secondary);border:2px dashed var(--border);border-radius:var(--radius);min-height:56px;transition:all var(--transition);}
+  .timeline-slot.drag-over{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 8%,var(--bg-secondary));}
+  .timeline-slot.correct{border-color:var(--green);border-style:solid;}
+  .timeline-slot.wrong{border-color:var(--red);border-style:solid;}
+  .slot-number{font-size:0.75rem;font-weight:700;color:var(--text-secondary);min-width:24px;}
+  .slot-content{flex:1;}
+  .btn-check{background:linear-gradient(135deg,var(--accent),var(--accent-2));border:none;border-radius:var(--radius);padding:12px 28px;font-size:0.95rem;font-weight:700;color:white;cursor:pointer;font-family:inherit;transition:all var(--transition);}
+  .btn-check:hover{transform:translateY(-1px);}
+  .score-box{background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;font-size:0.9rem;font-weight:600;text-align:center;margin-bottom:16px;}
+  /* DISPLAY MODE */
+  .filter-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px;}
+  .filter-btn{background:var(--bg-card);border:2px solid var(--border);border-radius:99px;padding:6px 16px;font-size:0.78rem;font-weight:600;font-family:inherit;color:var(--text-secondary);cursor:pointer;transition:all var(--transition);}
+  .filter-btn.active{background:color-mix(in srgb,var(--accent) 15%,transparent);border-color:var(--accent);color:var(--accent);}
+  .timeline-display{position:relative;padding-left:36px;}
+  .timeline-line{position:absolute;left:14px;top:0;bottom:0;width:3px;background:linear-gradient(180deg,var(--accent),var(--accent-2));border-radius:99px;}
+  .timeline-item{position:relative;margin-bottom:20px;cursor:pointer;}
+  .timeline-dot{position:absolute;left:-29px;top:10px;width:16px;height:16px;border-radius:50%;border:3px solid var(--bg-primary);transition:transform 0.2s;}
+  .timeline-item:hover .timeline-dot{transform:scale(1.3);}
+  .timeline-content{background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius);padding:16px;transition:border-color var(--transition);}
+  .timeline-item:hover .timeline-content{border-color:var(--accent);}
+  .timeline-date{font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-secondary);margin-bottom:4px;}
+  .timeline-event{font-size:0.92rem;font-weight:700;margin-bottom:4px;}
+  .timeline-detail{font-size:0.82rem;color:var(--text-secondary);line-height:1.6;display:none;}
+  .timeline-item.open .timeline-detail{display:block;margin-top:8px;}
+  .category-badge{display:inline-block;border-radius:99px;padding:2px 10px;font-size:0.68rem;font-weight:700;margin-bottom:6px;}
+  #printContent{display:none;}
+  @media print{body>*:not(#printContent){display:none!important;}#printContent{display:block!important;}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="header-title">📅 Zeitleiste — Lohn & Soziales in der Schweiz</div>
+    <div class="header-sub">ABU · Wirtschaft & Recht</div>
+  </div>
+  <div class="header-right">
+    <span class="mode-badge" id="modeBadge">Ordnen</span>
+    <button class="btn-sm" onclick="printTimeline()">🖨️ Ausdruck</button>
+    <button class="btn-sm" onclick="toggleTheme()"><span id="themeIcon">🌙</span></button>
+  </div>
+</div>
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('order')">📋 Ordnen</button>
+  <button class="tab-btn" onclick="switchTab('display')">🗓️ Erkunden</button>
+</div>
+
+<div class="main-container">
+
+  <!-- ORDER PANEL -->
+  <div class="panel active" id="panel-order">
+    <div class="order-instructions">📌 Bringe die Ereignisse zur Schweizer Lohn- und Sozialpolitik in die richtige chronologische Reihenfolge. Ziehe die Karten in die Zeitschlitze.</div>
+    <div class="cards-pool" id="cardsPool"></div>
+    <div class="timeline-slots" id="timelineSlots"></div>
+    <div class="score-box" id="orderScore" style="display:none"></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <button class="btn-check" onclick="checkOrder()">✅ Reihenfolge prüfen</button>
+      <button class="btn-sm" onclick="resetOrder()">🔄 Zurücksetzen</button>
+      <button class="btn-sm" id="btnSolution" style="display:none" onclick="showSolution()">💡 Lösung zeigen</button>
+    </div>
+  </div>
+
+  <!-- DISPLAY PANEL -->
+  <div class="panel" id="panel-display">
+    <div class="filter-row" id="filterRow"></div>
+    <div class="timeline-display">
+      <div class="timeline-line"></div>
+      <div id="timelineItems"></div>
+    </div>
+  </div>
+
+</div>
+
+<div id="printContent"></div>
+
+<script>
+const EVENTS = [
+  { id:'e1', year:1877, label:'1877', emoji:'🏭', event:'Fabrikgesetz', detail:'Das erste Fabrikgesetz der Schweiz schützt Arbeitnehmende: Sonntagsruhe, Nachtarbeitsverbot für Frauen, max. 11 Stunden Arbeitstag.', category:'Recht', catColor:'#6366f1', catBg:'color-mix(in srgb,#6366f1 15%,transparent)' },
+  { id:'e2', year:1912, label:'1912', emoji:'🤝', event:'AHV-Vorläufer: erste Gewerkschaften', detail:'Erste Gesamtarbeitsverträge (GAV) werden abgeschlossen. Gewerkschaften erkämpfen branchenweite Lohnmindestvorgaben.', category:'Löhne', catColor:'#f59e0b', catBg:'color-mix(in srgb,#f59e0b 15%,transparent)' },
+  { id:'e3', year:1947, label:'1947', emoji:'👴', event:'Einführung der AHV', detail:'Die AHV (Alters- und Hinterlassenenversicherung) wird eingeführt. Rentenbeiträge werden direkt vom Lohn abgezogen — Geburt der modernen Sozialabzüge.', category:'Sozial', catColor:'#10b981', catBg:'color-mix(in srgb,#10b981 15%,transparent)' },
+  { id:'e4', year:1985, label:'1985', emoji:'👩‍💼', event:'Gleichstellungsgesetz vorbereitet', detail:'Erste Debatten über Lohngleichheit zwischen Mann und Frau. Das Gleichstellungsgesetz folgt 1995 und verbietet Lohndiskriminierung.', category:'Recht', catColor:'#6366f1', catBg:'color-mix(in srgb,#6366f1 15%,transparent)' },
+  { id:'e5', year:2012, label:'2012', emoji:'💰', event:'Mittlerer Lohn: CHF 6\'118/Monat', detail:'Der monatliche Medianlohn in der Schweiz beträgt 2012 genau 6\'118 Franken — laut dem Video eine wichtige Referenzzahl.', category:'Löhne', catColor:'#f59e0b', catBg:'color-mix(in srgb,#f59e0b 15%,transparent)' },
+  { id:'e6', year:2013, label:'Nov 2013', emoji:'🗳️', event:'1:12-Initiative abgelehnt', detail:'Das Schweizer Volk lehnt die Initiative ab, die den Höchstlohn auf das Zwölffache des tiefsten Lohns im Unternehmen beschränken wollte.', category:'Abstimmung', catColor:'#ef4444', catBg:'color-mix(in srgb,#ef4444 15%,transparent)' },
+  { id:'e7', year:2014, label:'2014', emoji:'🛡️', event:'Mindestlohn-Initiative abgelehnt', detail:'Kurz nach der 1:12-Initiative scheitert auch die Initiative für einen nationalen Mindestlohn von 4\'000 Franken brutto im Monat.', category:'Abstimmung', catColor:'#ef4444', catBg:'color-mix(in srgb,#ef4444 15%,transparent)' },
+  { id:'e8', year:2020, label:'2020', emoji:'🌍', event:'Kantone führen Mindestlöhne ein', detail:'Mehrere Kantone (z.B. Genf, Neuenburg) führen eigene Mindestlöhne ein. Genf setzt die Limite auf über 23 CHF/Stunde — einer der höchsten der Welt.', category:'Löhne', catColor:'#f59e0b', catBg:'color-mix(in srgb,#f59e0b 15%,transparent)' },
+];
+
+const CORRECT_ORDER = ['e1','e2','e3','e4','e5','e6','e7','e8'];
+let dragCard = null, checkCount = 0, currentFilter = 'Alle';
+
+function shuffle(arr) { let a=[...arr]; for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+
+function initOrder() {
+  const pool = document.getElementById('cardsPool');
+  const slots = document.getElementById('timelineSlots');
+  pool.innerHTML = ''; slots.innerHTML = '';
+  document.getElementById('orderScore').style.display = 'none';
+  document.getElementById('btnSolution').style.display = 'none';
+  const shuffled = shuffle(EVENTS);
+  shuffled.forEach(ev => {
+    const card = document.createElement('div');
+    card.className = 'event-card'; card.draggable = true; card.dataset.id = ev.id;
+    card.innerHTML = `${ev.emoji} ${ev.event}`;
+    card.addEventListener('dragstart', e => { dragCard = ev.id; card.classList.add('dragging'); });
+    card.addEventListener('dragend', () => { card.classList.remove('dragging'); dragCard = null; });
+    pool.appendChild(card);
+  });
+  EVENTS.forEach((ev, i) => {
+    const slot = document.createElement('div');
+    slot.className = 'timeline-slot'; slot.dataset.pos = i;
+    slot.innerHTML = `<div class="slot-number">${i+1}.</div><div class="slot-content" style="color:var(--text-secondary);font-size:0.82rem;">— hierher ziehen —</div>`;
+    slot.addEventListener('dragover', e => { e.preventDefault(); slot.classList.add('drag-over'); });
+    slot.addEventListener('dragleave', () => slot.classList.remove('drag-over'));
+    slot.addEventListener('drop', e => { e.preventDefault(); slot.classList.remove('drag-over'); dropOnSlot(slot, ev.id); });
+    slots.appendChild(slot);
+  });
+  // also allow drop back to pool
+  pool.addEventListener('dragover', e => e.preventDefault());
+  pool.addEventListener('drop', e => { e.preventDefault(); if(dragCard) { moveCardToPool(dragCard); } });
+}
+
+function dropOnSlot(slot, targetId) {
+  if (!dragCard) return;
+  const content = slot.querySelector('.slot-content');
+  const existingId = slot.dataset.occupied;
+  if (existingId) moveCardToPool(existingId);
+  const card = document.querySelector(`[data-id="${dragCard}"]`);
+  const ev = EVENTS.find(e => e.id === dragCard);
+  content.innerHTML = `<div class="event-card placed" draggable="true" data-id="${dragCard}" style="border:none;background:transparent;padding:0;">${ev.emoji} ${ev.event}</div>`;
+  content.querySelector('.event-card').addEventListener('dragstart', () => { dragCard = ev.id; });
+  if (card && card.parentElement.id === 'cardsPool') card.remove();
+  slot.dataset.occupied = dragCard;
+  dragCard = null;
+}
+function moveCardToPool(id) {
+  const pool = document.getElementById('cardsPool');
+  const ev = EVENTS.find(e => e.id === id);
+  const oldCard = document.createElement('div');
+  oldCard.className = 'event-card'; oldCard.draggable = true; oldCard.dataset.id = id;
+  oldCard.innerHTML = `${ev.emoji} ${ev.event}`;
+  oldCard.addEventListener('dragstart', e => { dragCard = id; oldCard.classList.add('dragging'); });
+  oldCard.addEventListener('dragend', () => { oldCard.classList.remove('dragging'); dragCard = null; });
+  pool.appendChild(oldCard);
+  // clear slot
+  document.querySelectorAll('.timeline-slot').forEach(s => {
+    if (s.dataset.occupied === id) { s.dataset.occupied = ''; s.querySelector('.slot-content').innerHTML = `<span style="color:var(--text-secondary);font-size:0.82rem;">— hierher ziehen —</span>`; }
+  });
+}
+
+function checkOrder() {
+  const slots = document.querySelectorAll('.timeline-slot');
+  let correct = 0;
+  slots.forEach((slot, i) => {
+    const occ = slot.dataset.occupied;
+    slot.classList.remove('correct','wrong');
+    if (occ) { if (occ === CORRECT_ORDER[i]) { slot.classList.add('correct'); correct++; } else { slot.classList.add('wrong'); } }
+  });
+  checkCount++;
+  const scoreBox = document.getElementById('orderScore');
+  scoreBox.style.display = 'block';
+  scoreBox.innerHTML = `<span style="color:${correct===EVENTS.length?'var(--green)':'var(--yellow)'}">✅ ${correct} von ${EVENTS.length} richtig</span>${correct < EVENTS.length ? ' — versuch es nochmals!' : ' — perfekt! 🎉'}`;
+  if (checkCount >= 2 && correct < EVENTS.length) document.getElementById('btnSolution').style.display = 'inline-block';
+}
+
+function showSolution() {
+  const slots = document.querySelectorAll('.timeline-slot');
+  CORRECT_ORDER.forEach((id, i) => {
+    const ev = EVENTS.find(e => e.id === id);
+    const slot = slots[i];
+    slot.querySelector('.slot-content').innerHTML = `<div class="event-card placed" style="border:none;background:transparent;padding:0;">${ev.emoji} ${ev.event} <small>(${ev.label})</small></div>`;
+    slot.dataset.occupied = id;
+    slot.classList.remove('wrong'); slot.classList.add('correct');
+  });
+  document.getElementById('cardsPool').innerHTML = '';
+  document.getElementById('orderScore').innerHTML = '💡 Lösung eingeblendet';
+}
+
+function resetOrder() { checkCount = 0; initOrder(); }
+
+function initDisplay() {
+  const cats = ['Alle', ...new Set(EVENTS.map(e => e.category))];
+  document.getElementById('filterRow').innerHTML = cats.map(c =>
+    `<button class="filter-btn${c==='Alle'?' active':''}" onclick="filterTimeline('${c}',this)">${c}</button>`).join('');
+  renderDisplay();
+}
+
+function filterTimeline(cat, btn) {
+  currentFilter = cat;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderDisplay();
+}
+
+function renderDisplay() {
+  const filtered = currentFilter === 'Alle' ? EVENTS : EVENTS.filter(e => e.category === currentFilter);
+  document.getElementById('timelineItems').innerHTML = filtered.map(ev => `
+    <div class="timeline-item" id="di-${ev.id}" onclick="toggleDetail('${ev.id}')">
+      <div class="timeline-dot" style="background:${ev.catColor}"></div>
+      <div class="timeline-content">
+        <span class="category-badge" style="background:${ev.catBg};color:${ev.catColor}">${ev.category}</span>
+        <div class="timeline-date">${ev.label}</div>
+        <div class="timeline-event">${ev.emoji} ${ev.event}</div>
+        <div class="timeline-detail">${ev.detail}</div>
+      </div>
+    </div>`).join('');
+}
+
+function toggleDetail(id) {
+  document.getElementById('di-' + id).classList.toggle('open');
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + tab).classList.add('active');
+  document.querySelectorAll('.tab-btn')[tab === 'order' ? 0 : 1].classList.add('active');
+  document.getElementById('modeBadge').textContent = tab === 'order' ? 'Ordnen' : 'Erkunden';
+}
+
+function toggleTheme() {
+  const h = document.documentElement; const d = h.getAttribute('data-theme')==='dark';
+  h.setAttribute('data-theme', d?'light':'dark');
+  document.getElementById('themeIcon').textContent = d?'☀️':'🌙';
+}
+
+function printTimeline() {
+  const now = new Date().toLocaleDateString('de-CH');
+  const rows = EVENTS.map(ev => `<tr><td style="padding:7px 10px;font-weight:700">${ev.label}</td><td style="padding:7px 10px">${ev.emoji} ${ev.event}</td><td style="padding:7px 10px;font-size:0.82rem;color:#555">${ev.detail}</td></tr>`).join('');
+  document.getElementById('printContent').innerHTML = `<div style="font-family:Arial,sans-serif;max-width:720px;margin:0 auto;padding:30px;color:#111;">
+    <h2>📅 Zeitleiste — Lohn & Soziales in der Schweiz</h2>
+    <p style="font-size:0.82rem;color:#666;margin-bottom:16px;">Datum: ${now}</p>
+    <table style="width:100%;border-collapse:collapse;font-size:0.85rem;">
+      <thead><tr style="background:#f1f5f9"><th style="padding:8px 10px;text-align:left">Jahr</th><th style="padding:8px 10px;text-align:left">Ereignis</th><th style="padding:8px 10px;text-align:left">Details</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table></div>`;
+  window.print();
+}
+
+initOrder();
+initDisplay();
+</script>
+</body>
+</html>
