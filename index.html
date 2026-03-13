@@ -74,6 +74,16 @@
       color: #cbd5e1;
     }
 
+    .hero ul {
+      margin: 12px 0 0;
+      padding-left: 20px;
+      color: #cbd5e1;
+    }
+
+    .hero li {
+      margin: 6px 0;
+    }
+
     .grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -178,7 +188,12 @@
     <section class="hero">
       <p class="kicker">GitHub Pages Entry</p>
       <h1>HTML Skills fuer Lehrpersonen</h1>
-      <p>Diese Startseite verlinkt alle zentralen Ressourcen im Repo. Alle gezeigten Inhalte wurden mit dem Skill erstellt; als Input dienten die zwei SRF-Video-Transkripte im Ordner <code>examples/pages/transcripts/</code>. Die Seite ist absichtlich nach Themen und Typen gegliedert, damit spaetere Beispiele und neue Prompt-Seiten einfach ergaenzt werden koennen.</p>
+      <p>Diese Seite ist dein Startpunkt, um die Materialien einfach zu nutzen. Alle gezeigten Inhalte wurden mit dem Skill erstellt; als Input dienten die zwei SRF-Video-Transkripte im Ordner <code>examples/pages/transcripts/</code>.</p>
+      <ul>
+        <li><strong>Schritt 1:</strong> Erkunde unten die verschiedenen Seiten-Typen (Type A bis M) als konkrete Unterrichtsbeispiele.</li>
+        <li><strong>Schritt 2:</strong> Nutze die Prompt-Bibliothek, kopiere Prompts und teste sie in anderen LLMs (z. B. ChatGPT oder Claude).</li>
+        <li><strong>Schritt 3 (advanced):</strong> Verwende den Skill, um eigene weitere HTML-Seiten zu generieren.</li>
+      </ul>
     </section>
 
     <h2 class="section-title">Unterrichtsbeispiele</h2>
@@ -215,8 +230,29 @@
         <p>Skill-Paket und Anleitungen zur Generierung neuer Seiten.</p>
         <div class="links">
           <a class="item" href="README.md">README</a>
-          <a class="item" href="skill/edu-html-generator/edu-html-generator/SKILL.md">Skill Anleitung</a>
+          <a class="item" href="skill/edu-html-generator/SKILL.md">Skill Anleitung</a>
           <a class="item" href="edu-html-generator.zip">Skill ZIP Download</a>
+        </div>
+      </article>
+
+      <article class="card">
+        <h2>Transkripte & Skill-Quellen</h2>
+        <p>Direkter Zugriff auf die Eingaben (SRF-Transkripte) und zentrale Skill-Dateien.</p>
+        <div class="links">
+          <a class="item" href="examples/pages/transcripts/video1.md">Transkript Video 1</a>
+          <a class="item" href="examples/pages/transcripts/video2.md">Transkript Video 2</a>
+          <a class="item" href="skill/edu-html-generator/SKILL.md">Skill: Hauptanleitung (SKILL.md)</a>
+          <a class="item" href="skill/edu-html-generator/references/type-a-components.md">Skill Referenz: Type A</a>
+          <a class="item" href="skill/edu-html-generator/references/type-b-components.md">Skill Referenz: Type B</a>
+          <a class="item" href="skill/edu-html-generator/references/type-c-components.md">Skill Referenz: Type C</a>
+          <a class="item" href="skill/edu-html-generator/assets/templates/type-e-adaptive-lernpfad.html">Skill Template: Type E</a>
+          <a class="item" href="skill/edu-html-generator/assets/templates/type-f-fallstudie.html">Skill Template: Type F</a>
+          <a class="item" href="skill/edu-html-generator/assets/templates/type-g-vocabulary-trainer.html">Skill Template: Type G</a>
+          <a class="item" href="skill/edu-html-generator/assets/templates/type-h-concept-map.html">Skill Template: Type H</a>
+          <a class="item" href="skill/edu-html-generator/assets/templates/type-i-experiment-log.html">Skill Template: Type I</a>
+          <a class="item" href="skill/edu-html-generator/assets/templates/type-j-timeline.html">Skill Template: Type J</a>
+          <a class="item" href="skill/edu-html-generator/assets/templates/type-k-rollenspiel.html">Skill Template: Type K</a>
+          <a class="item" href="skill/edu-html-generator/assets/templates/type-m-exit-ticket.html">Skill Template: Type M</a>
         </div>
       </article>
     </section>

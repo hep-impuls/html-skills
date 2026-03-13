@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🃏 Vokabeltrainer — [Fach/Thema]</title>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root[data-theme="dark"] {
+    --bg-primary:#0f172a;--bg-secondary:#1e293b;--bg-card:#334155;
+    --text-primary:#f1f5f9;--text-secondary:#94a3b8;--border:#475569;
+  }
+  :root[data-theme="light"] {
+    --bg-primary:#f8fafc;--bg-secondary:#ffffff;--bg-card:#f1f5f9;
+    --text-primary:#1e293b;--text-secondary:#64748b;--border:#e2e8f0;
+  }
+  :root{
+    --accent:#10b981;--accent-2:#06b6d4;
+    --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+    --radius:12px;--radius-lg:20px;--transition:0.2s ease;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Lexend',sans-serif;background:var(--bg-primary);color:var(--text-primary);min-height:100vh;}
+
+  /* Header */
+  .header{background:var(--bg-secondary);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+  .header-title{font-size:1rem;font-weight:700;}
+  .header-sub{font-size:0.75rem;color:var(--text-secondary);margin-top:2px;}
+  .header-right{display:flex;align-items:center;gap:10px;}
+  .btn-sm{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:6px 14px;font-size:0.82rem;font-weight:600;color:var(--text-primary);cursor:pointer;font-family:inherit;transition:all var(--transition);}
+  .btn-sm:hover{border-color:var(--accent);color:var(--accent);}
+  .score-badge{background:color-mix(in srgb,var(--accent) 15%,transparent);border:1px solid color-mix(in srgb,var(--accent) 30%,transparent);border-radius:99px;padding:4px 12px;font-size:0.8rem;font-weight:700;color:var(--accent);}
+
+  /* Round indicator */
+  .round-bar{background:var(--bg-secondary);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;gap:0;}
+  .round-step{display:flex;align-items:center;gap:0;}
+  .round-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;background:var(--bg-card);border:2px solid var(--border);color:var(--text-secondary);transition:all 0.3s;}
+  .round-dot.active{background:var(--accent);border-color:var(--accent);color:white;}
+  .round-dot.done{background:color-mix(in srgb,var(--green) 20%,transparent);border-color:var(--green);color:var(--green);}
+  .round-label{font-size:0.72rem;color:var(--text-secondary);margin-left:6px;margin-right:16px;}
+  .round-label.active{color:var(--text-primary);font-weight:600;}
+  .round-connector{width:24px;height:2px;background:var(--border);margin-right:4px;}
+
+  /* Main */
+  .main-container{max-width:720px;margin:0 auto;padding:28px 20px 60px;}
+
+  /* Cards */
+  .card{background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius-lg);padding:32px;animation:fadeIn 0.3s ease;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+  .card-center{text-align:center;}
+
+  /* Word counter */
+  .word-counter{font-size:0.78rem;color:var(--text-secondary);margin-bottom:20px;}
+  .word-counter span{font-weight:700;color:var(--text-primary);}
+
+  /* ===== ROUND 1: FLIP CARDS ===== */
+  .vocab-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px;}
+  @media(max-width:600px){.vocab-grid{grid-template-columns:repeat(2,1fr);}}
+  .vocab-card{perspective:800px;cursor:pointer;}
+  .vocab-card-inner{position:relative;width:100%;transform-style:preserve-3d;transition:transform 0.55s cubic-bezier(.4,0,.2,1);border-radius:var(--radius-lg);}
+  .vocab-card.revealed .vocab-card-inner{transform:rotateY(180deg);}
+  .vocab-front{border-radius:var(--radius-lg);padding:18px 12px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;backface-visibility:hidden;-webkit-backface-visibility:hidden;background:var(--bg-card);border:2px solid transparent;transition:border-color var(--transition);min-height:140px;}
+  .vocab-card:hover .vocab-front{border-color:var(--accent);}
+  .vocab-back{position:absolute;inset:0;border-radius:var(--radius-lg);padding:14px 12px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;backface-visibility:hidden;-webkit-backface-visibility:hidden;background:linear-gradient(135deg,var(--accent),var(--accent-2));color:white;transform:rotateY(180deg);}
+  .vocab-emoji{font-size:1.8rem;margin-bottom:6px;}
+  .vocab-word{font-size:0.9rem;font-weight:700;line-height:1.3;}
+  .vocab-tap{font-size:0.68rem;color:var(--text-secondary);margin-top:4px;}
+  .vocab-translation{font-size:0.82rem;color:rgba(255,255,255,0.95);margin-top:4px;line-height:1.4;}
+  .vocab-example{font-size:0.7rem;color:rgba(255,255,255,0.75);margin-top:5px;font-style:italic;}
+
+  /* ===== ROUND 2: MC ===== */
+  .mc-word-display{font-size:2rem;font-weight:700;text-align:center;padding:24px;background:var(--bg-card);border-radius:var(--radius-lg);margin-bottom:20px;}
+  .mc-word-emoji{font-size:1.5rem;display:block;margin-bottom:6px;}
+  .choices{display:flex;flex-direction:column;gap:10px;margin-bottom:16px;}
+  .choice-btn{background:var(--bg-card);border:2px solid var(--border);border-radius:var(--radius);padding:12px 16px;text-align:left;font-family:inherit;font-size:0.9rem;color:var(--text-primary);cursor:pointer;transition:all var(--transition);}
+  .choice-btn:hover:not(:disabled){border-color:var(--accent);background:color-mix(in srgb,var(--accent) 8%,var(--bg-card));}
+  .choice-btn.correct{border-color:var(--green);background:color-mix(in srgb,var(--green) 12%,transparent);color:var(--green);}
+  .choice-btn.wrong{border-color:var(--red);background:color-mix(in srgb,var(--red) 12%,transparent);color:var(--red);}
+
+  /* ===== ROUND 3: TYPING ===== */
+  .typing-word{font-size:2.2rem;font-weight:700;text-align:center;margin-bottom:8px;}
+  .typing-emoji{font-size:2rem;text-align:center;margin-bottom:16px;display:block;}
+  .typing-input-wrap{position:relative;margin-bottom:14px;}
+  .typing-input{width:100%;background:var(--bg-card);border:2px solid var(--border);border-radius:var(--radius);padding:14px 16px;color:var(--text-primary);font-family:inherit;font-size:1.1rem;text-align:center;font-weight:600;transition:border-color var(--transition);}
+  .typing-input:focus{outline:none;border-color:var(--accent);}
+  .typing-input.correct{border-color:var(--green);}
+  .typing-input.wrong{border-color:var(--red);}
+  .typing-input.partial{border-color:var(--yellow);}
+  .typing-feedback{text-align:center;font-size:0.88rem;font-weight:600;min-height:22px;margin-bottom:10px;}
+  .correct-reveal{text-align:center;font-size:0.85rem;color:var(--text-secondary);margin-bottom:14px;}
+
+  /* Buttons */
+  .btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent-2));border:none;border-radius:var(--radius);padding:12px 28px;font-size:0.95rem;font-weight:700;color:white;cursor:pointer;font-family:inherit;transition:all var(--transition);display:inline-block;}
+  .btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 14px color-mix(in srgb,var(--accent) 35%,transparent);}
+  .btn-secondary{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:11px 22px;font-size:0.9rem;font-weight:600;color:var(--text-primary);cursor:pointer;font-family:inherit;transition:all var(--transition);margin-right:8px;}
+  .btn-secondary:hover{border-color:var(--accent);color:var(--accent);}
+  .btn-wrap{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:16px;}
+
+  /* Results */
+  .results-big{font-size:3rem;text-align:center;margin-bottom:12px;}
+  .results-score{text-align:center;font-size:1.15rem;font-weight:700;margin-bottom:6px;}
+  .results-sub{text-align:center;color:var(--text-secondary);font-size:0.88rem;margin-bottom:24px;}
+  .weak-words{background:var(--bg-card);border-radius:var(--radius);padding:16px;margin-bottom:20px;}
+  .weak-word-chip{display:inline-flex;align-items:center;gap:6px;background:color-mix(in srgb,var(--red) 15%,transparent);border:1px solid color-mix(in srgb,var(--red) 30%,transparent);border-radius:99px;padding:4px 12px;font-size:0.8rem;margin:4px;}
+
+  /* Print */
+  #printContent{display:none;}
+  @media print{body>*:not(#printContent){display:none!important;}#printContent{display:block!important;}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="header-title">🃏 Vokabeltrainer — [Thema]</div>
+    <div class="header-sub">[Fach] · [Stufe]</div>
+  </div>
+  <div class="header-right">
+    <div class="score-badge">⭐ <span id="scoreDisplay">0</span></div>
+    <button class="btn-sm" onclick="printLesson()">🖨️ Ausdruck</button>
+    <button class="btn-sm" onclick="toggleTheme()"><span id="themeIcon">🌙</span></button>
+  </div>
+</div>
+
+<div class="round-bar">
+  <div class="round-step">
+    <div class="round-dot active" id="rdot0">1</div>
+    <div class="round-label active" id="rlabel0">Karten</div>
+  </div>
+  <div class="round-connector"></div>
+  <div class="round-step">
+    <div class="round-dot" id="rdot1">2</div>
+    <div class="round-label" id="rlabel1">Auswahl</div>
+  </div>
+  <div class="round-connector"></div>
+  <div class="round-step">
+    <div class="round-dot" id="rdot2">3</div>
+    <div class="round-label" id="rlabel2">Tippen</div>
+  </div>
+  <div class="round-connector"></div>
+  <div class="round-step">
+    <div class="round-dot" id="rdot3">🏁</div>
+    <div class="round-label" id="rlabel3">Ergebnis</div>
+  </div>
+</div>
+
+<div class="main-container" id="mainContainer"></div>
+<div id="printContent"></div>
+
+<script>
+// ==================== DATA ====================
+// Direction: 'L1toL2' shows word → student types/picks translation
+// lang1 = source language label, lang2 = target language label
+const CONFIG = {
+  lang1: '[Deutsch]',
+  lang2: '[Englisch / Fachbegriff / Definition]',
+  rounds: ['flip', 'mc', 'typing'],
+  direction: 'L1toL2'
+};
+
+const VOCAB = [
+  { word: '[Begriff 1]',    emoji: '📌', translation: '[Übersetzung/Definition 1]', example: '[Beispielsatz]' },
+  { word: '[Begriff 2]',    emoji: '🔑', translation: '[Übersetzung/Definition 2]', example: '[Beispielsatz]' },
+  { word: '[Begriff 3]',    emoji: '💡', translation: '[Übersetzung/Definition 3]', example: '[Beispielsatz]' },
+  { word: '[Begriff 4]',    emoji: '⚙️', translation: '[Übersetzung/Definition 4]', example: '[Beispielsatz]' },
+  { word: '[Begriff 5]',    emoji: '🌍', translation: '[Übersetzung/Definition 5]', example: '[Beispielsatz]' },
+  { word: '[Begriff 6]',    emoji: '📊', translation: '[Übersetzung/Definition 6]', example: '[Beispielsatz]' },
+];
+
+// ==================== STATE ====================
+const STORAGE_KEY = 'vocab_[slug]_v1';
+let currentRound = 0;  // 0=flip, 1=mc, 2=typing, 3=results
+let score = 0;
+let vocabFlipped = {};
+let mcAnswers = {};    // {wordIndex: chosenIndex}
+let typingAnswers = {}; // {wordIndex: {typed, correct}}
+let wrongWords = new Set();
+let shuffledVocab = [];
+
+// ==================== UTILS ====================
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i+1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function levenshtein(a, b) {
+  const m = a.length, n = b.length;
+  const dp = Array.from({length:m+1}, (_,i) => Array.from({length:n+1}, (_,j) => i===0?j:j===0?i:0));
+  for (let i=1;i<=m;i++) for (let j=1;j<=n;j++)
+    dp[i][j] = a[i-1]===b[j-1] ? dp[i-1][j-1] : 1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);
+  return dp[m][n];
+}
+
+function addScore(pts) {
+  score += pts;
+  document.getElementById('scoreDisplay').textContent = score;
+  saveState();
+}
+
+// ==================== STORAGE ====================
+function saveState() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify({
+    currentRound, score, vocabFlipped, mcAnswers, typingAnswers,
+    wrongWords: [...wrongWords],
+    theme: document.documentElement.getAttribute('data-theme')
+  })); } catch(e) {}
+}
+function loadState() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch(e) { return {}; } }
+function clearState() { try { localStorage.removeItem(STORAGE_KEY); } catch(e) {} location.reload(); }
+
+// ==================== ROUND INDICATOR ====================
+function updateRoundBar(r) {
+  [0,1,2,3].forEach(i => {
+    const dot = document.getElementById('rdot'+i);
+    const label = document.getElementById('rlabel'+i);
+    dot.className = 'round-dot' + (i < r ? ' done' : i === r ? ' active' : '');
+    label.className = 'round-label' + (i === r ? ' active' : '');
+  });
+}
+
+// ==================== ROUND 1: FLIP ====================
+function renderFlip() {
+  updateRoundBar(0);
+  const allFlipped = VOCAB.every((_,i) => vocabFlipped[i]);
+  const flippedCount = Object.keys(vocabFlipped).length;
+  document.getElementById('mainContainer').innerHTML = `
+    <p class="word-counter">Runde 1 — Karten: <span>${flippedCount}/${VOCAB.length}</span> umgedreht</p>
+    <div class="vocab-grid">
+      ${VOCAB.map((v,i) => `
+        <div class="vocab-card${vocabFlipped[i]?' revealed':''}" onclick="flipCard(${i})">
+          <div class="vocab-card-inner">
+            <div class="vocab-front">
+              <div class="vocab-emoji">${v.emoji}</div>
+              <div class="vocab-word">${v.word}</div>
+              <div class="vocab-tap">👆 anklicken</div>
+            </div>
+            <div class="vocab-back">
+              <div class="vocab-emoji">${v.emoji}</div>
+              <div class="vocab-word">${v.word}</div>
+              <div class="vocab-translation">${v.translation}</div>
+              ${v.example ? `<div class="vocab-example">${v.example}</div>` : ''}
+            </div>
+          </div>
+        </div>`).join('')}
+    </div>
+    <div class="btn-wrap">
+      <button class="btn-primary" onclick="startRound(1)" ${!allFlipped?'disabled style="opacity:0.4;cursor:not-allowed"':''}>
+        ${allFlipped ? 'Weiter zu Runde 2 →' : `Noch ${VOCAB.length-flippedCount} Karte(n) übrig`}
+      </button>
+    </div>`;
+}
+
+function flipCard(i) {
+  if (vocabFlipped[i]) return;
+  vocabFlipped[i] = true;
+  addScore(1);
+  renderFlip();
+}
+
+// ==================== ROUND 2: MC ====================
+let mcIndex = 0;
+function renderMC() {
+  updateRoundBar(1);
+  shuffledVocab = shuffle([...VOCAB.map((v,i) => ({...v, originalIndex: i}))]);
+  mcIndex = 0;
+  showMCQuestion();
+}
+
+function showMCQuestion() {
+  if (mcIndex >= shuffledVocab.length) { startRound(2); return; }
+  const v = shuffledVocab[mcIndex];
+  const oi = v.originalIndex;
+  const savedAnswer = mcAnswers[oi];
+  const answered = savedAnswer !== undefined;
+
+  // Build 4 distractors from other words
+  const others = VOCAB.filter((_,i) => i !== oi);
+  const distractors = shuffle(others).slice(0,3).map(x => x.translation);
+  const allChoices = shuffle([v.translation, ...distractors]);
+  const correctIdx = allChoices.indexOf(v.translation);
+
+  document.getElementById('mainContainer').innerHTML = `
+    <p class="word-counter">Runde 2 — Frage <span>${mcIndex+1}/${shuffledVocab.length}</span></p>
+    <div class="card">
+      <div class="mc-word-display">
+        <span class="mc-word-emoji">${v.emoji}</span>
+        ${v.word}
+      </div>
+      <p style="text-align:center;color:var(--text-secondary);font-size:0.85rem;margin-bottom:16px;">Was bedeutet dieses Wort?</p>
+      <div class="choices">
+        ${allChoices.map((c,ci) => `
+          <button class="choice-btn ${answered ? (ci===correctIdx?'correct':(ci===savedAnswer&&savedAnswer!==correctIdx?'wrong':'')) : ''}"
+            onclick="answerMC(${oi},${ci},${correctIdx})"
+            ${answered?'disabled':''}>
+            ${answered&&ci===correctIdx?'✅ ':answered&&ci===savedAnswer&&ci!==correctIdx?'❌ ':'○ '}${c}
+          </button>`).join('')}
+      </div>
+      <div id="mc-feedback" style="text-align:center;font-size:0.88rem;font-weight:600;min-height:22px;">
+        ${answered ? (savedAnswer===correctIdx?'✅ Richtig!':'❌ Nicht ganz.') : ''}
+      </div>
+      ${answered ? `<div class="btn-wrap"><button class="btn-primary" onclick="nextMC()">Nächste →</button></div>` : ''}
+    </div>`;
+}
+
+function answerMC(oi, chosen, correct) {
+  if (mcAnswers[oi] !== undefined) return;
+  mcAnswers[oi] = chosen;
+  if (chosen === correct) { addScore(2); } else { wrongWords.add(oi); }
+  saveState();
+  showMCQuestion();
+}
+
+function nextMC() { mcIndex++; showMCQuestion(); }
+
+// ==================== ROUND 3: TYPING ====================
+let typingIndex = 0;
+function renderTyping() {
+  updateRoundBar(2);
+  shuffledVocab = shuffle([...VOCAB.map((v,i) => ({...v, originalIndex: i}))]);
+  typingIndex = 0;
+  showTypingQuestion();
+}
+
+function showTypingQuestion() {
+  if (typingIndex >= shuffledVocab.length) { startRound(3); return; }
+  const v = shuffledVocab[typingIndex];
+  const oi = v.originalIndex;
+  const saved = typingAnswers[oi];
+  const answered = saved !== undefined;
+
+  document.getElementById('mainContainer').innerHTML = `
+    <p class="word-counter">Runde 3 — Wort <span>${typingIndex+1}/${shuffledVocab.length}</span></p>
+    <div class="card card-center">
+      <span class="typing-emoji">${v.emoji}</span>
+      <div class="typing-word">${v.word}</div>
+      <p style="color:var(--text-secondary);font-size:0.82rem;margin-bottom:20px;">Übersetze / erkläre dieses Wort auf ${CONFIG.lang2}</p>
+      <div class="typing-input-wrap">
+        <input type="text" class="typing-input ${answered?(saved.correct===true?'correct':saved.correct==='partial'?'partial':'wrong'):''}"
+          id="typInput" placeholder="Deine Antwort..."
+          value="${answered?saved.typed:''}"
+          ${answered?'disabled':''}
+          onkeydown="if(event.key==='Enter')submitTyping(${oi},'${v.translation.replace(/'/g,"\\'")}')" />
+      </div>
+      <div class="typing-feedback" style="color:${answered?(saved.correct===true?'var(--green)':saved.correct==='partial'?'var(--yellow)':'var(--red)'):''}">
+        ${answered?(saved.correct===true?'✅ Richtig!':saved.correct==='partial'?'✓ Fast richtig!':'❌ Nicht ganz'):''}
+      </div>
+      ${answered&&saved.correct!==true?`<div class="correct-reveal">Richtige Antwort: <strong>${v.translation}</strong></div>`:''}
+      ${!answered?`<div class="btn-wrap"><button class="btn-primary" onclick="submitTyping(${oi},'${v.translation.replace(/'/g,"\\'")}')">Prüfen ✓</button></div>`:''}
+      ${answered?`<div class="btn-wrap"><button class="btn-primary" onclick="nextTyping()">Nächste →</button></div>`:''}
+    </div>`;
+  if (!answered) document.getElementById('typInput').focus();
+}
+
+function submitTyping(oi, correct) {
+  const input = document.getElementById('typInput');
+  if (!input) return;
+  const typed = input.value.trim();
+  const norm = s => s.toLowerCase().trim();
+  const dist = levenshtein(norm(typed), norm(correct));
+  let result;
+  if (dist === 0) { result = true; addScore(3); }
+  else if (dist <= 1) { result = 'partial'; addScore(1); wrongWords.add(oi); }
+  else { result = false; wrongWords.add(oi); }
+  typingAnswers[oi] = { typed, correct: result };
+  saveState();
+  showTypingQuestion();
+}
+
+function nextTyping() { typingIndex++; showTypingQuestion(); }
+
+// ==================== ROUND 4: RESULTS ====================
+function renderResults() {
+  updateRoundBar(3);
+  const total = VOCAB.length;
+  const mcCorrect = Object.values(mcAnswers).filter((v,i) => {
+    const oi = Object.keys(mcAnswers)[i];
+    return mcAnswers[oi] !== undefined;
+  }).length; // simplified
+  const typingCorrect = Object.values(typingAnswers).filter(a => a.correct === true).length;
+  const typingPartial = Object.values(typingAnswers).filter(a => a.correct === 'partial').length;
+  const stars = score >= (total*5) ? '🌟🌟🌟' : score >= (total*3) ? '⭐⭐' : '⭐';
+  const weakList = [...wrongWords].map(i => VOCAB[i]);
+
+  document.getElementById('mainContainer').innerHTML = `
+    <div class="card card-center">
+      <div class="results-big">${stars}</div>
+      <div class="results-score">Total: ${score} Punkte</div>
+      <div class="results-sub">
+        Runde 1: ${total} Karten · Runde 2: ${total} Fragen · Runde 3: ${typingCorrect} richtig, ${typingPartial} fast richtig
+      </div>
+      ${weakList.length > 0 ? `
+        <div class="weak-words">
+          <p style="font-size:0.82rem;font-weight:700;margin-bottom:8px;color:var(--text-secondary);">📚 Noch üben:</p>
+          ${weakList.map(v => `<span class="weak-word-chip">${v.emoji} ${v.word}</span>`).join('')}
+        </div>` : `<p style="color:var(--green);font-weight:700;margin-bottom:20px;">🎉 Alle Wörter beherrscht!</p>`}
+      <div class="btn-wrap">
+        <button class="btn-primary" onclick="printLesson()">🖨️ Ausdruck</button>
+        <button class="btn-secondary" onclick="if(confirm('Neu starten?')) clearState()">🔄 Neu starten</button>
+        ${weakList.length > 0 ? `<button class="btn-secondary" onclick="practiceWeak()">📚 Schwache üben</button>` : ''}
+      </div>
+    </div>`;
+}
+
+function practiceWeak() {
+  alert('Funktion: Nur schwache Wörter wiederholen. Passe VOCAB im Code an oder rufe clearState() und starte neu.');
+}
+
+// ==================== ROUND ROUTER ====================
+function startRound(r) {
+  currentRound = r;
+  saveState();
+  if (r === 0) renderFlip();
+  else if (r === 1) renderMC();
+  else if (r === 2) renderTyping();
+  else renderResults();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ==================== THEME ====================
+function toggleTheme() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  document.getElementById('themeIcon').textContent = isDark ? '☀️' : '🌙';
+  saveState();
+}
+
+// ==================== PRINT ====================
+function printLesson() {
+  const now = new Date().toLocaleDateString('de-CH');
+  const rows = VOCAB.map((v,i) => {
+    const t = typingAnswers[i];
+    return `<tr style="border-bottom:1px solid #eee;">
+      <td style="padding:8px 10px;">${v.emoji} ${v.word}</td>
+      <td style="padding:8px 10px;">${v.translation}</td>
+      <td style="padding:8px 10px;color:${!t?'#999':t.correct===true?'#059669':t.correct==='partial'?'#d97706':'#dc2626'}">
+        ${!t ? '—' : t.typed} ${t?(t.correct===true?'✅':t.correct==='partial'?'✓':'❌'):''}
+      </td>
+    </tr>`;
+  }).join('');
+  document.getElementById('printContent').innerHTML = `
+    <div style="font-family:Georgia,serif;max-width:680px;margin:0 auto;padding:40px 30px;color:#111;">
+      <h1 style="font-size:1.4rem;margin-bottom:4px;">🃏 Vokabeltrainer: [Thema]</h1>
+      <p style="font-size:0.85rem;color:#666;margin-bottom:24px;">Datum: ${now} | Punkte: ${score}</p>
+      <table style="width:100%;border-collapse:collapse;font-size:0.9rem;">
+        <thead><tr style="background:#f1f5f9;">
+          <th style="padding:8px 10px;text-align:left;">${CONFIG.lang1}</th>
+          <th style="padding:8px 10px;text-align:left;">${CONFIG.lang2}</th>
+          <th style="padding:8px 10px;text-align:left;">Meine Antwort</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+  window.print();
+}
+
+// ==================== INIT ====================
+document.addEventListener('DOMContentLoaded', () => {
+  const s = loadState();
+  if (s.theme) document.documentElement.setAttribute('data-theme', s.theme);
+  if (s.theme === 'light') document.getElementById('themeIcon').textContent = '☀️';
+  if (s.score) score = s.score;
+  if (s.vocabFlipped) vocabFlipped = s.vocabFlipped;
+  if (s.mcAnswers) mcAnswers = s.mcAnswers;
+  if (s.typingAnswers) typingAnswers = s.typingAnswers;
+  if (s.wrongWords) wrongWords = new Set(s.wrongWords);
+  document.getElementById('scoreDisplay').textContent = score;
+  startRound(s.currentRound || 0);
+});
+</script>
+</body>
+</html>

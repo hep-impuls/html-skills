@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📁 Fallstudie — [Titel]</title>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root[data-theme="dark"] {
+    --bg-primary:#0f172a;--bg-secondary:#1e293b;--bg-card:#334155;
+    --text-primary:#f1f5f9;--text-secondary:#94a3b8;--border:#475569;
+  }
+  :root[data-theme="light"] {
+    --bg-primary:#f8fafc;--bg-secondary:#ffffff;--bg-card:#f1f5f9;
+    --text-primary:#1e293b;--text-secondary:#64748b;--border:#e2e8f0;
+  }
+  :root {
+    --accent:#0ea5e9;--accent-2:#6366f1;
+    --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+    --radius:12px;--radius-lg:18px;--transition:0.2s ease;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Lexend',sans-serif;background:var(--bg-primary);color:var(--text-primary);min-height:100vh;}
+
+  /* Header */
+  .header{background:var(--bg-secondary);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;}
+  .header-title{font-size:1rem;font-weight:700;}
+  .header-sub{font-size:0.75rem;color:var(--text-secondary);margin-top:2px;}
+  .header-right{display:flex;align-items:center;gap:10px;}
+  .btn-small{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:6px 14px;font-size:0.82rem;font-weight:600;color:var(--text-primary);cursor:pointer;font-family:inherit;transition:all var(--transition);}
+  .btn-small:hover{border-color:var(--accent);color:var(--accent);}
+
+  /* Tab bar */
+  .tab-bar{background:var(--bg-secondary);border-bottom:1px solid var(--border);padding:0 20px;display:flex;gap:0;position:sticky;top:57px;z-index:100;overflow-x:auto;}
+  .tab-btn{padding:12px 18px;font-size:0.82rem;font-weight:600;font-family:inherit;border:none;background:transparent;color:var(--text-secondary);cursor:pointer;border-bottom:3px solid transparent;transition:all var(--transition);white-space:nowrap;display:flex;align-items:center;gap:6px;}
+  .tab-btn.active{color:var(--accent);border-bottom-color:var(--accent);}
+  .tab-btn.locked{opacity:0.45;cursor:not-allowed;}
+  .tab-btn:hover:not(.locked):not(.active){color:var(--text-primary);}
+
+  /* Main */
+  .main-container{max-width:820px;margin:0 auto;padding:28px 20px 60px;}
+  .tab-panel{display:none;}
+  .tab-panel.active{display:block;animation:fadeIn 0.3s ease;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+  /* Section title */
+  .section-title{font-size:1.3rem;font-weight:700;margin-bottom:6px;}
+  .section-sub{font-size:0.88rem;color:var(--text-secondary);margin-bottom:24px;line-height:1.6;}
+
+  /* Key fact cards */
+  .keyfacts-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:24px;}
+  .keyfact-card{background:var(--bg-card);border-radius:var(--radius);padding:16px;border-left:4px solid var(--accent);}
+  .keyfact-label{font-size:0.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--text-secondary);margin-bottom:4px;}
+  .keyfact-value{font-size:1rem;font-weight:700;}
+
+  /* Situation text */
+  .situation-text{background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;line-height:1.8;font-size:0.95rem;color:var(--text-primary);}
+  .situation-text p{margin-bottom:14px;}
+  .situation-text p:last-child{margin-bottom:0;}
+
+  /* Role badge */
+  .role-badge{display:inline-flex;align-items:center;gap:8px;background:color-mix(in srgb,var(--accent-2) 15%,transparent);border:1px solid color-mix(in srgb,var(--accent-2) 30%,transparent);border-radius:99px;padding:6px 14px;font-size:0.8rem;font-weight:600;color:var(--accent-2);margin-bottom:20px;}
+
+  /* Document cards */
+  .docs-grid{display:grid;gap:20px;}
+  .doc-card{border-radius:var(--radius-lg);overflow:hidden;border:1px solid var(--border);}
+  .doc-header{background:var(--bg-card);padding:12px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);}
+  .doc-type-icon{font-size:1.1rem;}
+  .doc-title{font-size:0.9rem;font-weight:700;}
+  .doc-source{font-size:0.75rem;color:var(--text-secondary);}
+  .doc-body{padding:20px;}
+
+  /* Document type styles */
+  .doc-body.letter{font-family:'Georgia',serif;line-height:1.8;font-size:0.92rem;background:var(--bg-secondary);}
+  .doc-body.stat{background:var(--bg-secondary);}
+  .doc-body.contract{font-family:'Courier New',monospace;font-size:0.85rem;line-height:1.7;background:var(--bg-card);color:var(--text-secondary);}
+  .doc-body.news{column-count:2;column-gap:24px;font-size:0.88rem;line-height:1.75;background:var(--bg-secondary);}
+  @media(max-width:600px){.doc-body.news{column-count:1;}}
+  .doc-body.quote{text-align:center;padding:32px;background:var(--bg-secondary);}
+  .pullquote{font-size:1.3rem;font-style:italic;color:var(--accent);line-height:1.5;margin-bottom:8px;}
+  .pullquote-source{font-size:0.8rem;color:var(--text-secondary);}
+
+  /* Stat bars */
+  .stat-bar-row{display:flex;align-items:center;gap:12px;margin-bottom:10px;}
+  .stat-bar-label{font-size:0.82rem;min-width:120px;color:var(--text-secondary);}
+  .stat-bar-track{flex:1;height:20px;background:var(--border);border-radius:99px;overflow:hidden;}
+  .stat-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2));border-radius:99px;transition:width 0.8s ease;}
+  .stat-bar-val{font-size:0.82rem;font-weight:700;min-width:40px;text-align:right;}
+
+  /* Tasks */
+  .task-block{background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius-lg);padding:22px;margin-bottom:16px;}
+  .task-num{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;background:linear-gradient(135deg,var(--accent),var(--accent-2));border-radius:50%;font-size:0.8rem;font-weight:700;color:white;margin-bottom:12px;}
+  .task-prompt{font-size:0.95rem;font-weight:600;margin-bottom:14px;line-height:1.4;}
+  textarea{width:100%;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px;color:var(--text-primary);font-family:inherit;font-size:0.9rem;resize:vertical;min-height:100px;transition:border-color var(--transition);}
+  textarea:focus{outline:none;border-color:var(--accent);}
+
+  /* Argument builder */
+  .arg-builder{background:var(--bg-card);border-radius:var(--radius);padding:16px;margin-bottom:16px;}
+  .arg-label{font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-secondary);margin-bottom:6px;}
+  .arg-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+  @media(max-width:600px){.arg-row{grid-template-columns:1fr;}}
+
+  /* Decision options */
+  .decision-options{display:flex;flex-direction:column;gap:10px;margin-bottom:20px;}
+  .decision-opt{background:var(--bg-card);border:2px solid var(--border);border-radius:var(--radius);padding:14px 16px;cursor:pointer;font-family:inherit;font-size:0.9rem;color:var(--text-primary);text-align:left;transition:all var(--transition);}
+  .decision-opt:hover{border-color:var(--accent);}
+  .decision-opt.selected{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,var(--bg-card));}
+
+  /* Nav buttons */
+  .tab-nav{display:flex;justify-content:flex-end;margin-top:24px;}
+  .btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent-2));border:none;border-radius:var(--radius);padding:12px 28px;font-size:0.95rem;font-weight:700;color:white;cursor:pointer;font-family:inherit;transition:all var(--transition);}
+  .btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 14px color-mix(in srgb,var(--accent) 35%,transparent);}
+
+  /* Print */
+  #printContent{display:none;}
+  @media print{body>*:not(#printContent){display:none!important;}#printContent{display:block!important;}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="header-title">📁 [Fallstudie: Titel]</div>
+    <div class="header-sub">[Fach] · [Klasse/Stufe]</div>
+  </div>
+  <div class="header-right">
+    <button class="btn-small" onclick="printLesson()">🖨️ Ausdruck</button>
+    <button class="btn-small" onclick="toggleTheme()"><span id="themeIcon">🌙</span></button>
+  </div>
+</div>
+
+<div class="tab-bar" id="tabBar">
+  <button class="tab-btn active" onclick="switchTab(0)" id="tab0">📋 Situation</button>
+  <button class="tab-btn locked" onclick="switchTab(1)" id="tab1">🔒 Dokumente</button>
+  <button class="tab-btn locked" onclick="switchTab(2)" id="tab2">🔒 Aufgaben</button>
+  <button class="tab-btn locked" onclick="switchTab(3)" id="tab3">🔒 Entscheidung</button>
+  <button class="tab-btn locked" onclick="switchTab(4)" id="tab4">🔒 Reflexion</button>
+</div>
+
+<div class="main-container">
+
+  <!-- TAB 0: Situation -->
+  <div class="tab-panel active" id="panel0">
+    <div class="section-title">📋 Die Situation</div>
+    <p class="section-sub">Lies die Fallbeschreibung sorgfältig. Achte auf die Schlüsselfakten.</p>
+
+    <div class="keyfacts-grid">
+      <div class="keyfact-card">
+        <div class="keyfact-label">Ort</div>
+        <div class="keyfact-value">[Stadt/Land]</div>
+      </div>
+      <div class="keyfact-card">
+        <div class="keyfact-label">Jahr</div>
+        <div class="keyfact-value">[Jahr]</div>
+      </div>
+      <div class="keyfact-card">
+        <div class="keyfact-label">Thema</div>
+        <div class="keyfact-value">[Themenbereich]</div>
+      </div>
+      <div class="keyfact-card">
+        <div class="keyfact-label">Deine Rolle</div>
+        <div class="keyfact-value">[Rolle/Funktion]</div>
+      </div>
+    </div>
+
+    <div class="role-badge">👤 Du spielst die Rolle: [Persona, z.B. «Gemeinderätin», «Journalist», «Schüler»]</div>
+
+    <div class="situation-text">
+      <p>[Beschreibung der Ausgangssituation. Was ist passiert? Was ist das Problem oder die Entscheidung? Wer ist beteiligt? Verwende 3–5 Absätze.]</p>
+      <p>[Zweiter Absatz: Hintergrundinformationen, Kontext, Vorgeschichte.]</p>
+      <p>[Dritter Absatz: Worum geht es konkret? Was muss entschieden oder gelöst werden?]</p>
+    </div>
+
+    <div class="tab-nav">
+      <button class="btn-primary" onclick="unlockAndGo(1)">Weiter zu den Dokumenten →</button>
+    </div>
+  </div>
+
+  <!-- TAB 1: Dokumente -->
+  <div class="tab-panel" id="panel1">
+    <div class="section-title">📄 Dokumente & Quellen</div>
+    <p class="section-sub">Analysiere die folgenden Quellen. Sie helfen dir, eine informierte Entscheidung zu treffen.</p>
+
+    <div class="docs-grid">
+
+      <!-- Letter document -->
+      <div class="doc-card">
+        <div class="doc-header">
+          <span class="doc-type-icon">✉️</span>
+          <div>
+            <div class="doc-title">Brief von [Absender]</div>
+            <div class="doc-source">Quelle: [Datum / Organisation]</div>
+          </div>
+        </div>
+        <div class="doc-body letter">
+          <p>[Ort], [Datum]</p>
+          <p>Sehr geehrte Damen und Herren</p>
+          <p>[Inhalt des Briefes. Was teilt der Absender mit? Was verlangt oder fordert er?]</p>
+          <p>Mit freundlichen Grüssen<br>[Unterschrift]</p>
+        </div>
+      </div>
+
+      <!-- Statistics document -->
+      <div class="doc-card">
+        <div class="doc-header">
+          <span class="doc-type-icon">📊</span>
+          <div>
+            <div class="doc-title">Statistik: [Titel]</div>
+            <div class="doc-source">Quelle: [Bundesamt/Organisation, Jahr]</div>
+          </div>
+        </div>
+        <div class="doc-body stat">
+          <div id="statBars"></div>
+        </div>
+      </div>
+
+      <!-- News document -->
+      <div class="doc-card">
+        <div class="doc-header">
+          <span class="doc-type-icon">📰</span>
+          <div>
+            <div class="doc-title">[Schlagzeile des Artikels]</div>
+            <div class="doc-source">[Medium], [Datum]</div>
+          </div>
+        </div>
+        <div class="doc-body news">
+          <p><strong>[Unterzeile / Lead-Satz]</strong></p>
+          <p>[Erster Absatz des Artikels — Kernaussage und Kontext.]</p>
+          <p>[Zweiter Absatz — Details, Zahlen, Zitate.]</p>
+          <p>[Dritter Absatz — Reaktionen, Einschätzungen, Ausblick.]</p>
+        </div>
+      </div>
+
+      <!-- Quote document -->
+      <div class="doc-card">
+        <div class="doc-header">
+          <span class="doc-type-icon">💬</span>
+          <div>
+            <div class="doc-title">Aussage von [Person]</div>
+            <div class="doc-source">[Kontext / Datum]</div>
+          </div>
+        </div>
+        <div class="doc-body quote">
+          <div class="pullquote">«[Direktes Zitat oder prägnante Aussage der Person zum Fall.]»</div>
+          <div class="pullquote-source">— [Name], [Funktion]</div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="tab-nav">
+      <button class="btn-primary" onclick="unlockAndGo(2)">Weiter zu den Aufgaben →</button>
+    </div>
+  </div>
+
+  <!-- TAB 2: Aufgaben -->
+  <div class="tab-panel" id="panel2">
+    <div class="section-title">✏️ Aufgaben</div>
+    <p class="section-sub">Bearbeite die folgenden Aufgaben auf Basis der Situation und der Dokumente.</p>
+
+    <div class="task-block">
+      <div class="task-num">1</div>
+      <div class="task-prompt">Fasse die Kernaussagen der Dokumente in eigenen Worten zusammen. Welche Informationen sind für die Entscheidung am relevantesten?</div>
+      <textarea id="task1" placeholder="Deine Antwort..." oninput="saveAnswers()"></textarea>
+    </div>
+
+    <div class="task-block">
+      <div class="task-num">2</div>
+      <div class="task-prompt">Welche Interessen und Perspektiven vertreten die verschiedenen Beteiligten im Fall?</div>
+      <textarea id="task2" placeholder="Deine Antwort..." oninput="saveAnswers()"></textarea>
+    </div>
+
+    <div class="task-block">
+      <div class="task-num">3</div>
+      <div class="task-prompt">Welche Argumente sprechen für und gegen die möglichen Handlungsoptionen?</div>
+      <textarea id="task3" placeholder="Deine Antwort..." oninput="saveAnswers()"></textarea>
+    </div>
+
+    <div class="tab-nav">
+      <button class="btn-primary" onclick="unlockAndGo(3)">Weiter zur Entscheidung →</button>
+    </div>
+  </div>
+
+  <!-- TAB 3: Entscheidung -->
+  <div class="tab-panel" id="panel3">
+    <div class="section-title">⚖️ Meine Entscheidung</div>
+    <p class="section-sub">Triff jetzt eine begründete Entscheidung. Nutze den Argumentationsrahmen.</p>
+
+    <p style="font-weight:600;margin-bottom:12px;">Welche Option wählst du?</p>
+    <div class="decision-options">
+      <button class="decision-opt" onclick="selectDecision(this, 'A')">🅰️ Option A: [Beschreibung der ersten Handlungsoption]</button>
+      <button class="decision-opt" onclick="selectDecision(this, 'B')">🅱️ Option B: [Beschreibung der zweiten Handlungsoption]</button>
+      <button class="decision-opt" onclick="selectDecision(this, 'C')">🅾️ Option C: [Eigene/Kompromiss-Option]</button>
+    </div>
+
+    <div class="arg-builder">
+      <p style="font-weight:600;margin-bottom:14px;">Argumentationsrahmen:</p>
+      <div class="arg-label">📌 Meine Position</div>
+      <textarea id="pos" style="min-height:60px" placeholder="Ich entscheide mich für ... weil ..." oninput="saveAnswers()"></textarea>
+      <div class="arg-row" style="margin-top:12px;">
+        <div>
+          <div class="arg-label">✅ Argument 1 dafür</div>
+          <textarea id="arg1" style="min-height:70px" placeholder="Erstens..." oninput="saveAnswers()"></textarea>
+        </div>
+        <div>
+          <div class="arg-label">✅ Argument 2 dafür</div>
+          <textarea id="arg2" style="min-height:70px" placeholder="Ausserdem..." oninput="saveAnswers()"></textarea>
+        </div>
+      </div>
+      <div class="arg-label">❌ Gegenargument & Entkräftung</div>
+      <textarea id="counter" style="min-height:70px" placeholder="Zwar könnte man einwenden... Jedoch..." oninput="saveAnswers()"></textarea>
+      <div class="arg-label" style="margin-top:12px;">🏁 Fazit</div>
+      <textarea id="fazit" style="min-height:60px" placeholder="Zusammenfassend..." oninput="saveAnswers()"></textarea>
+    </div>
+
+    <div class="tab-nav">
+      <button class="btn-primary" onclick="unlockAndGo(4)">Weiter zur Reflexion →</button>
+    </div>
+  </div>
+
+  <!-- TAB 4: Reflexion -->
+  <div class="tab-panel" id="panel4">
+    <div class="section-title">🪞 Reflexion</div>
+    <p class="section-sub">Tritt einen Schritt zurück und reflektiere deinen Lernprozess.</p>
+
+    <div class="task-block">
+      <div class="task-prompt">Was war die grösste Herausforderung bei dieser Fallstudie?</div>
+      <textarea id="refl1" placeholder="Deine Antwort..." oninput="saveAnswers()"></textarea>
+    </div>
+    <div class="task-block">
+      <div class="task-prompt">Was würdest du in einer ähnlichen realen Situation anders machen als in der Fallstudie?</div>
+      <textarea id="refl2" placeholder="Deine Antwort..." oninput="saveAnswers()"></textarea>
+    </div>
+    <div class="task-block">
+      <div class="task-prompt">Was hast du über das Thema [Thema] gelernt, das du vorher nicht wusstest?</div>
+      <textarea id="refl3" placeholder="Deine Antwort..." oninput="saveAnswers()"></textarea>
+    </div>
+
+    <div class="tab-nav">
+      <button class="btn-primary" onclick="printLesson()">🖨️ Abschliessen & Drucken</button>
+    </div>
+  </div>
+
+</div><!-- /main-container -->
+
+<div id="printContent"></div>
+
+<script>
+// ==================== DATA ====================
+const STATS = [
+  { label: '[Kategorie A]', value: 75, unit: '%' },
+  { label: '[Kategorie B]', value: 48, unit: '%' },
+  { label: '[Kategorie C]', value: 92, unit: '%' },
+];
+
+// ==================== STATE ====================
+const STORAGE_KEY = 'fallstudie_[slug]_v1';
+let unlockedTab = 0;
+let selectedDecision = '';
+let answers = {};
+
+function saveAnswers() {
+  const ids = ['task1','task2','task3','pos','arg1','arg2','counter','fazit','refl1','refl2','refl3'];
+  ids.forEach(id => { const el = document.getElementById(id); if(el) answers[id] = el.value; });
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify({
+    unlockedTab, selectedDecision, answers,
+    theme: document.documentElement.getAttribute('data-theme')
+  })); } catch(e) {}
+}
+
+function loadState() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch(e) { return {}; }
+}
+
+// ==================== TABS ====================
+let activeTab = 0;
+function switchTab(i) {
+  if (i > unlockedTab) return;
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel'+i).classList.add('active');
+  document.getElementById('tab'+i).classList.add('active');
+  activeTab = i;
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function unlockAndGo(i) {
+  if (i > unlockedTab) {
+    unlockedTab = i;
+    const btn = document.getElementById('tab'+i);
+    if (btn) btn.classList.remove('locked');
+    saveAnswers();
+  }
+  switchTab(i);
+}
+
+function selectDecision(btn, val) {
+  document.querySelectorAll('.decision-opt').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  selectedDecision = val;
+  saveAnswers();
+}
+
+// ==================== STATS ====================
+function renderStats() {
+  const container = document.getElementById('statBars');
+  if (!container) return;
+  container.innerHTML = STATS.map(s => `
+    <div class="stat-bar-row">
+      <div class="stat-bar-label">${s.label}</div>
+      <div class="stat-bar-track"><div class="stat-bar-fill" style="width:0%" data-val="${s.value}"></div></div>
+      <div class="stat-bar-val">${s.value}${s.unit}</div>
+    </div>`).join('');
+  setTimeout(() => {
+    document.querySelectorAll('.stat-bar-fill').forEach(bar => {
+      bar.style.width = bar.getAttribute('data-val') + '%';
+    });
+  }, 100);
+}
+
+// ==================== THEME ====================
+function toggleTheme() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  document.getElementById('themeIcon').textContent = isDark ? '☀️' : '🌙';
+  saveAnswers();
+}
+
+// ==================== PRINT ====================
+function printLesson() {
+  saveAnswers();
+  const now = new Date().toLocaleDateString('de-CH');
+  const taskIds = ['task1','task2','task3'];
+  const argIds = ['pos','arg1','arg2','counter','fazit'];
+  const reflIds = ['refl1','refl2','refl3'];
+  const taskLabels = ['Analyse der Dokumente','Perspektiven der Beteiligten','Für & Gegen'];
+  const argLabels = ['Meine Position','Argument 1','Argument 2','Gegenargument & Entkräftung','Fazit'];
+  const reflLabels = ['Grösste Herausforderung','Real vs. Fallstudie','Neues gelernt'];
+
+  const section = (title, ids, labels) => `
+    <h2 style="font-size:1rem;border-bottom:2px solid #eee;padding-bottom:6px;margin:20px 0 12px;">${title}</h2>
+    ${ids.map((id,i) => `<div style="margin-bottom:14px;">
+      <p style="font-weight:600;font-size:0.88rem;color:#555;">${labels[i]}</p>
+      <div style="background:#f8fafc;border-left:3px solid #6366f1;padding:10px 14px;font-size:0.9rem;white-space:pre-wrap;">${answers[id] || '<em>nicht ausgefüllt</em>'}</div>
+    </div>`).join('')}`;
+
+  document.getElementById('printContent').innerHTML = `
+    <div style="font-family:Georgia,serif;max-width:700px;margin:0 auto;padding:40px 30px;color:#111;">
+      <h1 style="font-size:1.4rem;margin-bottom:4px;">📁 Fallstudie: [Titel]</h1>
+      <p style="font-size:0.85rem;color:#666;margin-bottom:4px;">Datum: ${now}</p>
+      <p style="font-size:0.85rem;color:#666;margin-bottom:24px;">Entscheidung: Option ${selectedDecision || '—'}</p>
+      ${section('✏️ Aufgaben', taskIds, taskLabels)}
+      ${section('⚖️ Argumentation', argIds, argLabels)}
+      ${section('🪞 Reflexion', reflIds, reflLabels)}
+    </div>`;
+  window.print();
+}
+
+// ==================== INIT ====================
+document.addEventListener('DOMContentLoaded', () => {
+  const s = loadState();
+  if (s.theme) document.documentElement.setAttribute('data-theme', s.theme);
+  if (s.theme === 'light') document.getElementById('themeIcon').textContent = '☀️';
+  if (s.answers) answers = s.answers;
+  if (s.selectedDecision) selectedDecision = s.selectedDecision;
+  if (s.unlockedTab) {
+    unlockedTab = s.unlockedTab;
+    for (let i = 1; i <= unlockedTab; i++) {
+      const btn = document.getElementById('tab'+i);
+      if (btn) btn.classList.remove('locked');
+    }
+  }
+  // Restore answers
+  Object.entries(answers).forEach(([id, val]) => {
+    const el = document.getElementById(id);
+    if (el) el.value = val;
+  });
+  // Restore decision
+  if (selectedDecision) {
+    document.querySelectorAll('.decision-opt').forEach(btn => {
+      if (btn.onclick.toString().includes(`'${selectedDecision}'`)) btn.classList.add('selected');
+    });
+  }
+  renderStats();
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📅 Zeitleiste — [Thema]</title>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root[data-theme="dark"] {
+    --bg-primary:#0f172a;--bg-secondary:#1e293b;--bg-card:#334155;
+    --text-primary:#f1f5f9;--text-secondary:#94a3b8;--border:#475569;
+  }
+  :root[data-theme="light"] {
+    --bg-primary:#f8fafc;--bg-secondary:#ffffff;--bg-card:#f1f5f9;
+    --text-primary:#1e293b;--text-secondary:#64748b;--border:#e2e8f0;
+  }
+  :root{
+    --accent:#f59e0b;--accent-2:#ef4444;
+    --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+    --radius:12px;--transition:0.2s ease;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Lexend',sans-serif;background:var(--bg-primary);color:var(--text-primary);min-height:100vh;}
+
+  /* Header */
+  .header{background:var(--bg-secondary);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;}
+  .header-title{font-size:1rem;font-weight:700;}
+  .header-sub{font-size:0.75rem;color:var(--text-secondary);margin-top:2px;}
+  .header-right{display:flex;align-items:center;gap:10px;}
+  .btn-sm{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:6px 14px;font-size:0.82rem;font-weight:600;color:var(--text-primary);cursor:pointer;font-family:inherit;transition:all var(--transition);}
+  .btn-sm:hover{border-color:var(--accent);color:var(--accent);}
+  .mode-badge{background:color-mix(in srgb,var(--accent) 15%,transparent);border:1px solid color-mix(in srgb,var(--accent) 30%,transparent);border-radius:99px;padding:4px 12px;font-size:0.75rem;font-weight:700;color:var(--accent);}
+
+  /* Tabs */
+  .tab-bar{background:var(--bg-secondary);border-bottom:1px solid var(--border);padding:0 20px;display:flex;position:sticky;top:57px;z-index:100;}
+  .tab-btn{padding:10px 16px;font-size:0.82rem;font-weight:600;font-family:inherit;border:none;background:transparent;color:var(--text-secondary);cursor:pointer;border-bottom:3px solid transparent;transition:all var(--transition);}
+  .tab-btn.active{color:var(--accent);border-bottom-color:var(--accent);}
+
+  /* Main */
+  .main-container{max-width:900px;margin:0 auto;padding:28px 20px 60px;}
+  .panel{display:none;}
+  .panel.active{display:block;animation:fadeIn 0.3s ease;}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
+  /* ===== ORDER MODE ===== */
+  .order-instructions{background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:20px;font-size:0.88rem;color:var(--text-secondary);}
+  .cards-pool{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:24px;min-height:80px;padding:14px;background:color-mix(in srgb,var(--accent) 5%,var(--bg-secondary));border:2px dashed var(--border);border-radius:var(--radius);}
+  .event-card{background:var(--bg-card);border:2px solid var(--border);border-radius:var(--radius);padding:10px 14px;cursor:grab;font-size:0.82rem;font-weight:600;display:flex;align-items:center;gap:8px;user-select:none;transition:all var(--transition);}
+  .event-card:hover{border-color:var(--accent);transform:translateY(-2px);}
+  .event-card.dragging{opacity:0.5;transform:scale(0.95);}
+  .event-card.placed{opacity:0.4;cursor:default;border-style:dashed;}
+  .event-card .card-emoji{font-size:1.1rem;}
+  .event-card .card-cat{font-size:0.65rem;color:var(--text-secondary);display:block;}
+
+  /* Timeline slots */
+  .timeline-rail{position:relative;padding:10px 0 20px;}
+  .timeline-axis{position:absolute;left:50px;top:0;bottom:0;width:3px;background:linear-gradient(180deg,var(--accent),var(--accent-2));border-radius:99px;}
+  .slot{display:flex;align-items:flex-start;gap:16px;margin-bottom:14px;position:relative;padding-left:70px;}
+  .slot-dot{width:14px;height:14px;border-radius:50%;background:var(--bg-secondary);border:3px solid var(--accent);position:absolute;left:43px;top:10px;transition:all var(--transition);}
+  .slot-dot.correct{border-color:var(--green);background:var(--green);}
+  .slot-dot.wrong{border-color:var(--red);background:var(--red);}
+  .slot-year{font-size:0.75rem;font-weight:700;color:var(--text-secondary);min-width:34px;margin-top:10px;position:absolute;left:0;text-align:right;}
+  .slot-drop{flex:1;min-height:52px;background:var(--bg-card);border:2px dashed var(--border);border-radius:var(--radius);display:flex;align-items:center;padding:10px 14px;transition:all var(--transition);font-size:0.82rem;color:var(--text-secondary);}
+  .slot-drop.drag-over{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,var(--bg-card));}
+  .slot-drop.has-card{border-style:solid;border-color:var(--border);background:var(--bg-secondary);color:var(--text-primary);font-weight:600;}
+  .slot-drop.correct-slot{border-color:var(--green);}
+  .slot-drop.wrong-slot{border-color:var(--red);}
+
+  /* Check button */
+  .check-wrap{text-align:center;margin-top:16px;}
+  .btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent-2));border:none;border-radius:var(--radius);padding:12px 28px;font-size:0.95rem;font-weight:700;color:white;cursor:pointer;font-family:inherit;transition:all var(--transition);}
+  .btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 14px color-mix(in srgb,var(--accent) 35%,transparent);}
+  .btn-secondary{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:11px 22px;font-size:0.9rem;font-weight:600;color:var(--text-primary);cursor:pointer;font-family:inherit;transition:all var(--transition);margin-right:8px;}
+  .btn-secondary:hover{border-color:var(--accent);color:var(--accent);}
+  .order-score{font-size:0.9rem;color:var(--text-secondary);margin-top:12px;}
+
+  /* ===== DISPLAY MODE ===== */
+  .display-timeline{position:relative;padding:10px 0 20px;}
+  .display-axis{position:absolute;left:50%;top:0;bottom:0;width:3px;background:linear-gradient(180deg,var(--accent),var(--accent-2));border-radius:99px;transform:translateX(-50%);}
+  .display-event{display:flex;align-items:center;margin-bottom:32px;position:relative;}
+  .display-event:nth-child(even) .event-content{margin-left:auto;text-align:right;}
+  .display-event:nth-child(even) .event-dot{order:0;}
+  .event-content{width:calc(50% - 40px);background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;cursor:pointer;transition:all var(--transition);position:relative;}
+  .event-content:hover{border-color:var(--accent);transform:translateY(-2px);}
+  .event-year-badge{font-size:0.72rem;font-weight:700;color:var(--accent);margin-bottom:4px;}
+  .event-title{font-size:0.9rem;font-weight:700;margin-bottom:4px;}
+  .event-detail{font-size:0.8rem;color:var(--text-secondary);line-height:1.5;display:none;}
+  .event-content.expanded .event-detail{display:block;}
+  .event-content.expanded{border-color:var(--accent);}
+  .display-dot{width:16px;height:16px;border-radius:50%;background:var(--accent);border:3px solid var(--bg-primary);position:absolute;left:50%;transform:translate(-50%,-50%);top:50%;z-index:1;}
+
+  /* Category filter */
+  .cat-filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;}
+  .cat-filter{background:var(--bg-card);border:1px solid var(--border);border-radius:99px;padding:4px 12px;font-size:0.78rem;font-weight:600;cursor:pointer;transition:all var(--transition);}
+  .cat-filter.active{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 15%,transparent);color:var(--accent);}
+
+  /* Print */
+  #printContent{display:none;}
+  @media print{body>*:not(#printContent){display:none!important;}#printContent{display:block!important;}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="header-title">📅 [Thema der Zeitleiste]</div>
+    <div class="header-sub">[Fach] · [Zeitraum]</div>
+  </div>
+  <div class="header-right">
+    <span class="mode-badge" id="modeBadge">🎯 Ordne die Ereignisse</span>
+    <button class="btn-sm" onclick="printLesson()">🖨️ Ausdruck</button>
+    <button class="btn-sm" onclick="toggleTheme()"><span id="themeIcon">🌙</span></button>
+  </div>
+</div>
+
+<div class="tab-bar">
+  <button class="tab-btn active" id="tabOrder" onclick="switchPanel('order')">🎯 Ereignisse ordnen</button>
+  <button class="tab-btn" id="tabDisplay" onclick="switchPanel('display')">📖 Zeitleiste ansehen</button>
+</div>
+
+<div class="main-container">
+
+  <!-- ORDER PANEL -->
+  <div class="panel active" id="panelOrder">
+    <div class="order-instructions">
+      📌 <strong>Aufgabe:</strong> Ziehe die Ereigniskarten in die richtige chronologische Reihenfolge auf der Zeitleiste. Klicke danach auf «Überprüfen».
+    </div>
+
+    <p style="font-size:0.82rem;font-weight:700;color:var(--text-secondary);margin-bottom:8px;">Verfügbare Ereignisse:</p>
+    <div class="cards-pool" id="cardsPool"></div>
+
+    <div class="timeline-rail" id="timelineRail">
+      <div class="timeline-axis"></div>
+    </div>
+
+    <div class="check-wrap">
+      <button class="btn-secondary" onclick="resetOrder()">🔄 Zurücksetzen</button>
+      <button class="btn-primary" onclick="checkOrder()">✅ Überprüfen</button>
+      <div class="order-score" id="orderScore"></div>
+    </div>
+  </div>
+
+  <!-- DISPLAY PANEL -->
+  <div class="panel" id="panelDisplay">
+    <div class="cat-filters" id="catFilters"></div>
+    <div class="display-timeline" id="displayTimeline">
+      <div class="display-axis"></div>
+    </div>
+  </div>
+
+</div>
+
+<div id="printContent"></div>
+
+<script>
+// ==================== DATA ====================
+// Mode: 'order' | 'display' | 'both'  (both = show both tabs)
+const TL_CONFIG = {
+  mode: 'both',
+  title: '[Zeitleiste: Thema]',
+  era: { start: 1900, end: 2024 }
+};
+
+const EVENTS = [
+  { id:'e1', date: 1914, label:'[Ereignis 1]', emoji:'💥', detail:'[Detailbeschreibung zu Ereignis 1]', category:'[Kategorie A]' },
+  { id:'e2', date: 1929, label:'[Ereignis 2]', emoji:'📉', detail:'[Detailbeschreibung zu Ereignis 2]', category:'[Kategorie B]' },
+  { id:'e3', date: 1939, label:'[Ereignis 3]', emoji:'⚔️', detail:'[Detailbeschreibung zu Ereignis 3]', category:'[Kategorie A]' },
+  { id:'e4', date: 1945, label:'[Ereignis 4]', emoji:'🕊️', detail:'[Detailbeschreibung zu Ereignis 4]', category:'[Kategorie A]' },
+  { id:'e5', date: 1969, label:'[Ereignis 5]', emoji:'🌕', detail:'[Detailbeschreibung zu Ereignis 5]', category:'[Kategorie B]' },
+  { id:'e6', date: 1989, label:'[Ereignis 6]', emoji:'🧱', detail:'[Detailbeschreibung zu Ereignis 6]', category:'[Kategorie A]' },
+  { id:'e7', date: 2001, label:'[Ereignis 7]', emoji:'🌐', detail:'[Detailbeschreibung zu Ereignis 7]', category:'[Kategorie B]' },
+  { id:'e8', date: 2020, label:'[Ereignis 8]', emoji:'🦠', detail:'[Detailbeschreibung zu Ereignis 8]', category:'[Kategorie B]' },
+];
+
+// Sorted by date (correct order)
+const CORRECT_ORDER = [...EVENTS].sort((a,b) => a.date - b.date);
+// Categories
+const CATEGORIES = [...new Set(EVENTS.map(e => e.category))];
+
+// ==================== STATE ====================
+const STORAGE_KEY = 'timeline_[slug]_v1';
+let slotAssignments = {};  // {slotIndex: eventId}
+let checkedResult = false;
+let activeCategory = 'all';
+
+function saveState() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify({
+    slotAssignments, theme: document.documentElement.getAttribute('data-theme')
+  })); } catch(e) {}
+}
+function loadState() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch(e) { return {}; } }
+
+// ==================== PANEL ====================
+function switchPanel(panel) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel'+panel.charAt(0).toUpperCase()+panel.slice(1)).classList.add('active');
+  document.getElementById('tab'+panel.charAt(0).toUpperCase()+panel.slice(1)).classList.add('active');
+  if (panel === 'display') renderDisplayTimeline();
+}
+
+// ==================== ORDER MODE ====================
+function shuffled(arr) {
+  const a = [...arr];
+  for (let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+  return a;
+}
+
+let shuffledEvents = [];
+
+function renderOrderMode() {
+  shuffledEvents = shuffled(EVENTS);
+  // Cards pool
+  renderCardsPool();
+  // Slots
+  const rail = document.getElementById('timelineRail');
+  // Remove old slots
+  rail.querySelectorAll('.slot').forEach(s => s.remove());
+  CORRECT_ORDER.forEach((ev, i) => {
+    const slot = document.createElement('div');
+    slot.className = 'slot';
+    slot.innerHTML = `
+      <span class="slot-year">${ev.date}</span>
+      <div class="slot-dot" id="sdot-${i}"></div>
+      <div class="slot-drop" id="slot-${i}"
+        ondragover="event.preventDefault();this.classList.add('drag-over')"
+        ondragleave="this.classList.remove('drag-over')"
+        ondrop="dropToSlot(event,${i})">
+        ${slotAssignments[i] ? renderCardInSlot(slotAssignments[i]) : '<span>Ereignis hierher ziehen …</span>'}
+      </div>`;
+    rail.appendChild(slot);
+    if (slotAssignments[i]) {
+      document.getElementById('slot-'+i).classList.add('has-card');
+    }
+  });
+}
+
+function renderCardInSlot(eventId) {
+  const ev = EVENTS.find(e => e.id === eventId);
+  if (!ev) return '';
+  return `<span style="display:flex;align-items:center;gap:8px;">
+    <span>${ev.emoji}</span>
+    <span>${ev.label}</span>
+    <button onclick="returnToPool('${eventId}',this)" style="background:none;border:none;color:var(--text-secondary);cursor:pointer;font-size:0.85rem;margin-left:auto;">✕</button>
+  </span>`;
+}
+
+function renderCardsPool() {
+  const placed = new Set(Object.values(slotAssignments));
+  document.getElementById('cardsPool').innerHTML = shuffledEvents
+    .filter(ev => !placed.has(ev.id))
+    .map(ev => `<div class="event-card" draggable="true" id="card-${ev.id}"
+      ondragstart="dragCard(event,'${ev.id}')">
+      <span class="card-emoji">${ev.emoji}</span>
+      <span>${ev.label}<span class="card-cat">${ev.category}</span></span>
+    </div>`).join('') || '<span style="color:var(--text-secondary);font-size:0.85rem;">✅ Alle Karten platziert!</span>';
+}
+
+let dragEventId = null;
+function dragCard(event, eventId) {
+  dragEventId = eventId;
+  event.dataTransfer.effectAllowed = 'move';
+}
+
+function dropToSlot(event, slotIndex) {
+  event.preventDefault();
+  const drop = document.getElementById('slot-'+slotIndex);
+  drop.classList.remove('drag-over');
+  if (!dragEventId) return;
+  // If slot occupied, return old card to pool
+  if (slotAssignments[slotIndex]) {
+    delete slotAssignments[slotIndex];
+  }
+  slotAssignments[slotIndex] = dragEventId;
+  dragEventId = null;
+  checkedResult = false;
+  saveState();
+  renderCardsPool();
+  // Update slot
+  drop.innerHTML = renderCardInSlot(slotAssignments[slotIndex]);
+  drop.classList.add('has-card');
+  drop.classList.remove('correct-slot','wrong-slot');
+  document.getElementById('sdot-'+slotIndex).className = 'slot-dot';
+  document.getElementById('orderScore').textContent = '';
+}
+
+function returnToPool(eventId, btn) {
+  const slotEl = btn.closest('.slot-drop');
+  const slotIndex = parseInt(slotEl.id.replace('slot-',''));
+  delete slotAssignments[slotIndex];
+  slotEl.innerHTML = '<span>Ereignis hierher ziehen …</span>';
+  slotEl.classList.remove('has-card','correct-slot','wrong-slot');
+  document.getElementById('sdot-'+slotIndex).className = 'slot-dot';
+  saveState();
+  renderCardsPool();
+}
+
+function checkOrder() {
+  let correct = 0;
+  CORRECT_ORDER.forEach((ev, i) => {
+    const slot = document.getElementById('slot-'+i);
+    const dot = document.getElementById('sdot-'+i);
+    if (slotAssignments[i] === ev.id) {
+      correct++;
+      slot.classList.add('correct-slot');
+      dot.classList.add('correct');
+    } else if (slotAssignments[i]) {
+      slot.classList.add('wrong-slot');
+      dot.classList.add('wrong');
+    }
+  });
+  const total = CORRECT_ORDER.length;
+  const score = document.getElementById('orderScore');
+  if (correct === total) {
+    score.innerHTML = '🎉 Perfekt! Alle ' + total + ' Ereignisse richtig geordnet.';
+    score.style.color = 'var(--green)';
+  } else {
+    score.innerHTML = `${correct} von ${total} richtig. Schau dir die roten Felder an.`;
+    score.style.color = 'var(--red)';
+  }
+  checkedResult = true;
+}
+
+function resetOrder() {
+  slotAssignments = {};
+  checkedResult = false;
+  saveState();
+  renderOrderMode();
+  document.getElementById('orderScore').textContent = '';
+}
+
+// ==================== DISPLAY MODE ====================
+function renderDisplayTimeline() {
+  const tl = document.getElementById('displayTimeline');
+  const filtered = activeCategory === 'all'
+    ? CORRECT_ORDER
+    : CORRECT_ORDER.filter(e => e.category === activeCategory);
+
+  // Remove old events
+  tl.querySelectorAll('.display-event').forEach(el => el.remove());
+  filtered.forEach((ev, i) => {
+    const div = document.createElement('div');
+    div.className = 'display-event';
+    div.innerHTML = `
+      <div class="event-content ${i%2===1?'right':''}" onclick="toggleDetail(this)">
+        <div class="event-year-badge">📅 ${ev.date}</div>
+        <div class="event-title">${ev.emoji} ${ev.label}</div>
+        <div class="event-detail">${ev.detail}</div>
+      </div>
+      <div class="display-dot"></div>`;
+    tl.appendChild(div);
+  });
+
+  // Category filters
+  const cf = document.getElementById('catFilters');
+  cf.innerHTML = `<button class="cat-filter ${activeCategory==='all'?'active':''}" onclick="filterCat('all')">Alle</button>
+    ${CATEGORIES.map(c => `<button class="cat-filter ${activeCategory===c?'active':''}" onclick="filterCat('${c}')">${c}</button>`).join('')}`;
+}
+
+function toggleDetail(el) {
+  el.classList.toggle('expanded');
+}
+
+function filterCat(cat) {
+  activeCategory = cat;
+  renderDisplayTimeline();
+}
+
+// ==================== THEME ====================
+function toggleTheme() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  document.getElementById('themeIcon').textContent = isDark ? '☀️' : '🌙';
+  saveState();
+}
+
+// ==================== PRINT ====================
+function printLesson() {
+  const now = new Date().toLocaleDateString('de-CH');
+  const rows = CORRECT_ORDER.map(ev => `
+    <tr style="border-bottom:1px solid #eee;">
+      <td style="padding:8px 10px;font-weight:700;">${ev.date}</td>
+      <td style="padding:8px 10px;">${ev.emoji} ${ev.label}</td>
+      <td style="padding:8px 10px;font-size:0.85rem;color:#555;">${ev.detail}</td>
+      <td style="padding:8px 10px;font-size:0.78rem;color:#888;">${ev.category}</td>
+    </tr>`).join('');
+  document.getElementById('printContent').innerHTML = `
+    <div style="font-family:Georgia,serif;max-width:700px;margin:0 auto;padding:40px 30px;color:#111;">
+      <h1 style="font-size:1.4rem;margin-bottom:4px;">📅 ${TL_CONFIG.title}</h1>
+      <p style="font-size:0.85rem;color:#666;margin-bottom:24px;">Datum: ${now} | ${TL_CONFIG.era.start}–${TL_CONFIG.era.end}</p>
+      <table style="width:100%;border-collapse:collapse;font-size:0.9rem;">
+        <thead><tr style="background:#f1f5f9;">
+          <th style="padding:8px 10px;text-align:left;">Jahr</th>
+          <th style="padding:8px 10px;text-align:left;">Ereignis</th>
+          <th style="padding:8px 10px;text-align:left;">Details</th>
+          <th style="padding:8px 10px;text-align:left;">Kategorie</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+  window.print();
+}
+
+// ==================== INIT ====================
+document.addEventListener('DOMContentLoaded', () => {
+  const s = loadState();
+  if (s.theme) document.documentElement.setAttribute('data-theme', s.theme);
+  if (s.theme === 'light') document.getElementById('themeIcon').textContent = '☀️';
+  if (s.slotAssignments) slotAssignments = s.slotAssignments;
+  renderOrderMode();
+  renderDisplayTimeline();
+});
+</script>
+</body>
+</html>

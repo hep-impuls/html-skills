@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🕸️ Concept Map — [Thema]</title>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root[data-theme="dark"] {
+    --bg-primary:#0f172a;--bg-secondary:#1e293b;--bg-card:#334155;
+    --text-primary:#f1f5f9;--text-secondary:#94a3b8;--border:#475569;
+    --canvas-bg:#0a1628;
+  }
+  :root[data-theme="light"] {
+    --bg-primary:#f8fafc;--bg-secondary:#ffffff;--bg-card:#f1f5f9;
+    --text-primary:#1e293b;--text-secondary:#64748b;--border:#e2e8f0;
+    --canvas-bg:#eef2ff;
+  }
+  :root{
+    --accent:#f59e0b;--accent-2:#ef4444;
+    --radius:10px;--transition:0.2s ease;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Lexend',sans-serif;background:var(--bg-primary);color:var(--text-primary);height:100vh;display:flex;flex-direction:column;overflow:hidden;}
+
+  /* Header */
+  .header{background:var(--bg-secondary);border-bottom:1px solid var(--border);padding:8px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;z-index:200;}
+  .header-title{font-size:0.95rem;font-weight:700;}
+  .header-sub{font-size:0.72rem;color:var(--text-secondary);}
+  .toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .tool-btn{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:5px 12px;font-size:0.78rem;font-weight:600;color:var(--text-primary);cursor:pointer;font-family:inherit;transition:all var(--transition);white-space:nowrap;}
+  .tool-btn:hover{border-color:var(--accent);color:var(--accent);}
+  .tool-btn.active{background:var(--accent);border-color:var(--accent);color:white;}
+  .tool-sep{width:1px;height:24px;background:var(--border);margin:0 4px;}
+
+  /* Layout */
+  .workspace{display:flex;flex:1;overflow:hidden;}
+
+  /* Sidebar */
+  .sidebar{width:200px;background:var(--bg-secondary);border-right:1px solid var(--border);padding:14px;overflow-y:auto;flex-shrink:0;}
+  .sidebar-title{font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-secondary);margin-bottom:10px;}
+  .concept-chip{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:8px 10px;margin-bottom:6px;font-size:0.8rem;cursor:grab;display:flex;align-items:center;gap:6px;transition:all var(--transition);user-select:none;}
+  .concept-chip:hover{border-color:var(--accent);transform:translateX(2px);}
+  .concept-chip.placed{opacity:0.4;cursor:default;}
+  .concept-chip:active{cursor:grabbing;}
+
+  /* Canvas */
+  .canvas-wrap{flex:1;position:relative;overflow:hidden;background:var(--canvas-bg);}
+  #svgLayer{position:absolute;inset:0;pointer-events:none;}
+  #svgLayer.connect-mode{pointer-events:all;cursor:crosshair;}
+  .canvas-grid{position:absolute;inset:0;background-image:radial-gradient(circle, var(--border) 1px, transparent 1px);background-size:28px 28px;pointer-events:none;opacity:0.4;}
+
+  /* Concept nodes */
+  .concept-node{position:absolute;background:var(--bg-secondary);border:2px solid var(--accent);border-radius:14px;padding:10px 14px;min-width:90px;max-width:160px;text-align:center;cursor:move;user-select:none;font-size:0.8rem;font-weight:600;box-shadow:0 4px 12px rgba(0,0,0,0.3);transition:box-shadow var(--transition),border-color var(--transition);z-index:10;}
+  .concept-node:hover{box-shadow:0 6px 20px rgba(0,0,0,0.4);}
+  .concept-node.selected{border-color:#60a5fa;box-shadow:0 0 0 3px rgba(96,165,250,0.3);}
+  .concept-node.connect-source{border-color:#4ade80;box-shadow:0 0 0 3px rgba(74,222,128,0.3);}
+  .concept-node-emoji{font-size:1.2rem;display:block;margin-bottom:3px;}
+  .concept-node-label{line-height:1.3;}
+  .node-delete{position:absolute;top:-8px;right:-8px;width:18px;height:18px;background:#ef4444;border-radius:50%;display:none;align-items:center;justify-content:center;font-size:0.65rem;color:white;cursor:pointer;border:none;}
+  .concept-node:hover .node-delete{display:flex;}
+
+  /* Edge labels */
+  .edge-label{position:absolute;background:var(--bg-secondary);border:1px solid var(--border);border-radius:6px;padding:2px 8px;font-size:0.7rem;font-weight:600;color:var(--text-secondary);cursor:pointer;transform:translate(-50%,-50%);white-space:nowrap;z-index:5;}
+  .edge-label:hover{border-color:var(--accent);color:var(--accent);}
+
+  /* Status bar */
+  .status-bar{background:var(--bg-secondary);border-top:1px solid var(--border);padding:5px 16px;font-size:0.72rem;color:var(--text-secondary);flex-shrink:0;display:flex;justify-content:space-between;}
+
+  /* Mode hint */
+  .mode-hint{position:absolute;bottom:40px;left:50%;transform:translateX(-50%);background:var(--bg-card);border:1px solid var(--border);border-radius:99px;padding:6px 16px;font-size:0.78rem;color:var(--text-secondary);pointer-events:none;opacity:0;transition:opacity 0.3s;z-index:100;}
+  .mode-hint.visible{opacity:1;}
+
+  /* Print */
+  #printContent{display:none;}
+  @media print{body>*:not(#printContent){display:none!important;}#printContent{display:block!important;font-family:Georgia,serif;padding:30px;}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="header-title">🕸️ Concept Map — [Thema]</div>
+    <div class="header-sub">[Fach] · [Klasse]</div>
+  </div>
+  <div class="toolbar">
+    <button class="tool-btn active" id="btnMove" onclick="setMode('move')" title="Knoten verschieben">✋ Verschieben</button>
+    <button class="tool-btn" id="btnConnect" onclick="setMode('connect')" title="Verbindung ziehen">🔗 Verbinden</button>
+    <div class="tool-sep"></div>
+    <button class="tool-btn" onclick="undoLast()" title="Rückgängig">↩️ Undo</button>
+    <button class="tool-btn" onclick="clearCanvas()" title="Alles löschen">🗑️ Leeren</button>
+    <div class="tool-sep"></div>
+    <button class="tool-btn" onclick="printLesson()">🖨️ Drucken</button>
+    <button class="tool-btn" onclick="toggleTheme()"><span id="themeIcon">🌙</span></button>
+  </div>
+</div>
+
+<div class="workspace">
+  <div class="sidebar">
+    <div class="sidebar-title">Begriffe</div>
+    <div id="conceptBank"></div>
+  </div>
+  <div class="canvas-wrap" id="canvasWrap">
+    <div class="canvas-grid"></div>
+    <svg id="svgLayer" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="var(--accent)" opacity="0.7"/>
+        </marker>
+        <marker id="arrow-light" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#94a3b8" opacity="0.6"/>
+        </marker>
+      </defs>
+      <g id="edgesGroup"></g>
+      <line id="tempLine" x1="0" y1="0" x2="0" y2="0" stroke="var(--green)" stroke-width="2" stroke-dasharray="6,3" opacity="0" marker-end="url(#arrow)"/>
+    </svg>
+    <div id="nodesLayer"></div>
+    <div class="mode-hint" id="modeHint">Klicke auf den Quell-Knoten, dann auf den Ziel-Knoten</div>
+  </div>
+</div>
+
+<div class="status-bar">
+  <span id="statusLeft">Modus: Verschieben | Knoten: 0 | Verbindungen: 0</span>
+  <span>Tipp: Ziehe Begriffe aus der Leiste auf die Karte</span>
+</div>
+
+<div id="printContent"></div>
+
+<script>
+// ==================== DATA ====================
+// Mode: 'free' | 'guided' | 'display'
+const MODE = 'free';
+
+const CONCEPTS = [
+  { id: 'c1', label: '[Begriff 1]', emoji: '🌍', detail: '[Erklärung zum Hover]' },
+  { id: 'c2', label: '[Begriff 2]', emoji: '⚙️', detail: '[Erklärung zum Hover]' },
+  { id: 'c3', label: '[Begriff 3]', emoji: '💡', detail: '[Erklärung zum Hover]' },
+  { id: 'c4', label: '[Begriff 4]', emoji: '📊', detail: '[Erklärung zum Hover]' },
+  { id: 'c5', label: '[Begriff 5]', emoji: '🔑', detail: '[Erklärung zum Hover]' },
+  { id: 'c6', label: '[Begriff 6]', emoji: '🌱', detail: '[Erklärung zum Hover]' },
+];
+
+// For 'guided' mode — preloaded node positions
+const PRELOADED_NODES = [];
+// e.g.: { id:'c1', x:200, y:150 }, { id:'c2', x:400, y:200 }
+
+// For 'display' mode — preloaded edges
+const PRELOADED_EDGES = [];
+// e.g.: { from:'c1', to:'c2', label:'beeinflusst' }
+
+// ==================== STATE ====================
+const STORAGE_KEY = 'conceptmap_[slug]_v1';
+let nodes = [];   // {id, conceptId, x, y}
+let edges = [];   // {id, fromNodeId, toNodeId, label}
+let currentMode = 'move';
+let connectSource = null;
+let history = [];
+let nodeCounter = 0;
+let edgeCounter = 0;
+
+// ==================== STORAGE ====================
+function saveState() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify({
+    nodes, edges, nodeCounter, edgeCounter,
+    theme: document.documentElement.getAttribute('data-theme')
+  })); } catch(e) {}
+}
+function loadState() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch(e) { return {}; } }
+
+// ==================== CONCEPT BANK ====================
+function renderConceptBank() {
+  const placed = new Set(nodes.map(n => n.conceptId));
+  document.getElementById('conceptBank').innerHTML = CONCEPTS.map(c => `
+    <div class="concept-chip ${placed.has(c.id)?'placed':''}"
+      draggable="${placed.has(c.id)?'false':'true'}"
+      ondragstart="${placed.has(c.id)?'':'dragStart(event,\''+c.id+'\')'}">
+      <span>${c.emoji}</span> ${c.label}
+    </div>`).join('');
+}
+
+// ==================== DRAG FROM SIDEBAR ====================
+let dragConceptId = null;
+function dragStart(e, conceptId) {
+  dragConceptId = conceptId;
+  e.dataTransfer.effectAllowed = 'copy';
+}
+
+const canvas = document.getElementById('canvasWrap');
+canvas.addEventListener('dragover', e => e.preventDefault());
+canvas.addEventListener('drop', e => {
+  e.preventDefault();
+  if (!dragConceptId) return;
+  const rect = canvas.getBoundingClientRect();
+  const x = e.clientX - rect.left - 60;
+  const y = e.clientY - rect.top - 25;
+  addNode(dragConceptId, x, y);
+  dragConceptId = null;
+});
+
+// ==================== NODES ====================
+function addNode(conceptId, x, y) {
+  const existing = nodes.find(n => n.conceptId === conceptId);
+  if (existing) return;
+  const c = CONCEPTS.find(c => c.id === conceptId);
+  if (!c) return;
+  history.push(JSON.stringify({nodes:[...nodes],edges:[...edges]}));
+  const node = { id: 'n'+(++nodeCounter), conceptId, x, y };
+  nodes.push(node);
+  renderNodes();
+  renderEdges();
+  renderConceptBank();
+  updateStatus();
+  saveState();
+}
+
+function removeNode(nodeId) {
+  history.push(JSON.stringify({nodes:[...nodes],edges:[...edges]}));
+  nodes = nodes.filter(n => n.id !== nodeId);
+  edges = edges.filter(e => e.fromNodeId !== nodeId && e.toNodeId !== nodeId);
+  renderNodes();
+  renderEdges();
+  renderConceptBank();
+  updateStatus();
+  saveState();
+}
+
+function renderNodes() {
+  const layer = document.getElementById('nodesLayer');
+  layer.innerHTML = nodes.map(node => {
+    const c = CONCEPTS.find(c => c.id === node.conceptId);
+    return `<div class="concept-node" id="${node.id}"
+      style="left:${node.x}px;top:${node.y}px"
+      title="${c?.detail||''}"
+      onmousedown="startDrag(event,'${node.id}')">
+      <button class="node-delete" onclick="event.stopPropagation();removeNode('${node.id}')">✕</button>
+      <span class="concept-node-emoji">${c?.emoji||'📌'}</span>
+      <span class="concept-node-label">${c?.label||node.conceptId}</span>
+    </div>`;
+  }).join('');
+}
+
+// ==================== DRAG NODES ====================
+let draggingNodeId = null, dragOffX = 0, dragOffY = 0;
+
+function startDrag(e, nodeId) {
+  if (currentMode === 'connect') { handleConnectClick(nodeId); return; }
+  if (e.button !== 0) return;
+  draggingNodeId = nodeId;
+  const el = document.getElementById(nodeId);
+  const rect = canvas.getBoundingClientRect();
+  dragOffX = e.clientX - rect.left - parseInt(el.style.left);
+  dragOffY = e.clientY - rect.top - parseInt(el.style.top);
+  el.style.zIndex = 20;
+  e.preventDefault();
+}
+
+document.addEventListener('mousemove', e => {
+  if (!draggingNodeId) return;
+  const rect = canvas.getBoundingClientRect();
+  const x = Math.max(0, e.clientX - rect.left - dragOffX);
+  const y = Math.max(0, e.clientY - rect.top - dragOffY);
+  const el = document.getElementById(draggingNodeId);
+  if (el) { el.style.left = x+'px'; el.style.top = y+'px'; }
+  const node = nodes.find(n => n.id === draggingNodeId);
+  if (node) { node.x = x; node.y = y; }
+  renderEdges();
+  // temp line
+  if (currentMode === 'connect' && connectSource) updateTempLine(e.clientX - rect.left, e.clientY - rect.top);
+});
+
+document.addEventListener('mouseup', () => {
+  if (draggingNodeId) {
+    const el = document.getElementById(draggingNodeId);
+    if (el) el.style.zIndex = 10;
+    saveState();
+  }
+  draggingNodeId = null;
+});
+
+// ==================== EDGES ====================
+function getNodeCenter(nodeId) {
+  const el = document.getElementById(nodeId);
+  if (!el) return {x:0,y:0};
+  return { x: parseInt(el.style.left)+el.offsetWidth/2, y: parseInt(el.style.top)+el.offsetHeight/2 };
+}
+
+function renderEdges() {
+  const g = document.getElementById('edgesGroup');
+  // Remove old edge labels
+  document.querySelectorAll('.edge-label').forEach(el => el.remove());
+  g.innerHTML = edges.map(edge => {
+    const from = getNodeCenter(edge.fromNodeId);
+    const to = getNodeCenter(edge.toNodeId);
+    const mx = (from.x+to.x)/2, my = (from.y+to.y)/2;
+    // Add label div
+    const labelDiv = document.createElement('div');
+    labelDiv.className = 'edge-label';
+    labelDiv.style.left = mx+'px';
+    labelDiv.style.top = my+'px';
+    labelDiv.textContent = edge.label || '...';
+    labelDiv.onclick = () => {
+      const newLabel = prompt('Verbindung beschriften:', edge.label||'');
+      if (newLabel !== null) { edge.label = newLabel; renderEdges(); saveState(); }
+    };
+    document.getElementById('canvasWrap').appendChild(labelDiv);
+    return `<line x1="${from.x}" y1="${from.y}" x2="${to.x}" y2="${to.y}"
+      stroke="var(--accent)" stroke-width="2" opacity="0.7" marker-end="url(#arrow)"/>`;
+  }).join('');
+}
+
+// ==================== CONNECT MODE ====================
+function setMode(mode) {
+  currentMode = mode;
+  connectSource = null;
+  document.getElementById('btnMove').classList.toggle('active', mode==='move');
+  document.getElementById('btnConnect').classList.toggle('active', mode==='connect');
+  document.getElementById('svgLayer').classList.toggle('connect-mode', mode==='connect');
+  document.getElementById('modeHint').classList.toggle('visible', mode==='connect');
+  document.querySelectorAll('.concept-node').forEach(el => el.classList.remove('connect-source','selected'));
+  document.getElementById('tempLine').setAttribute('opacity','0');
+}
+
+function handleConnectClick(nodeId) {
+  if (!connectSource) {
+    connectSource = nodeId;
+    document.getElementById(nodeId).classList.add('connect-source');
+  } else if (connectSource === nodeId) {
+    connectSource = null;
+    document.querySelectorAll('.concept-node').forEach(el => el.classList.remove('connect-source'));
+    document.getElementById('tempLine').setAttribute('opacity','0');
+  } else {
+    const label = prompt('Verbindung beschriften (z.B. «beeinflusst», «führt zu»):', '') || '';
+    history.push(JSON.stringify({nodes:[...nodes],edges:[...edges]}));
+    edges.push({ id:'e'+(++edgeCounter), fromNodeId:connectSource, toNodeId:nodeId, label });
+    document.querySelectorAll('.concept-node').forEach(el => el.classList.remove('connect-source'));
+    connectSource = null;
+    document.getElementById('tempLine').setAttribute('opacity','0');
+    renderEdges();
+    updateStatus();
+    saveState();
+    setMode('connect'); // stay in connect mode
+  }
+}
+
+function updateTempLine(mx, my) {
+  if (!connectSource) return;
+  const from = getNodeCenter(connectSource);
+  const tl = document.getElementById('tempLine');
+  tl.setAttribute('x1',from.x); tl.setAttribute('y1',from.y);
+  tl.setAttribute('x2',mx); tl.setAttribute('y2',my);
+  tl.setAttribute('opacity','1');
+}
+
+// ==================== UNDO ====================
+function undoLast() {
+  if (!history.length) return;
+  const prev = JSON.parse(history.pop());
+  nodes = prev.nodes;
+  edges = prev.edges;
+  renderNodes();
+  renderEdges();
+  renderConceptBank();
+  updateStatus();
+  saveState();
+}
+
+function clearCanvas() {
+  if (!confirm('Alles löschen?')) return;
+  history.push(JSON.stringify({nodes:[...nodes],edges:[...edges]}));
+  nodes = []; edges = [];
+  renderNodes(); renderEdges(); renderConceptBank(); updateStatus(); saveState();
+}
+
+// ==================== STATUS ====================
+function updateStatus() {
+  document.getElementById('statusLeft').textContent =
+    `Modus: ${currentMode==='move'?'Verschieben':'Verbinden'} | Knoten: ${nodes.length} | Verbindungen: ${edges.length}`;
+}
+
+// ==================== THEME ====================
+function toggleTheme() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  document.getElementById('themeIcon').textContent = isDark ? '☀️' : '🌙';
+  renderEdges();
+  saveState();
+}
+
+// ==================== PRINT ====================
+function printLesson() {
+  const now = new Date().toLocaleDateString('de-CH');
+  const nodeList = nodes.map(n => {
+    const c = CONCEPTS.find(c => c.id === n.conceptId);
+    return `<li>${c?.emoji||''} <strong>${c?.label||n.conceptId}</strong> ${c?.detail?'— '+c.detail:''}</li>`;
+  }).join('');
+  const edgeList = edges.map(e => {
+    const from = nodes.find(n => n.id === e.fromNodeId);
+    const to = nodes.find(n => n.id === e.toNodeId);
+    const fc = CONCEPTS.find(c => c.id === from?.conceptId);
+    const tc = CONCEPTS.find(c => c.id === to?.conceptId);
+    return `<li>${fc?.label||'?'} → <em>${e.label||'...'}</em> → ${tc?.label||'?'}</li>`;
+  }).join('');
+  document.getElementById('printContent').innerHTML = `
+    <div style="font-family:Georgia,serif;max-width:680px;margin:0 auto;padding:40px 30px;color:#111;">
+      <h1 style="font-size:1.4rem;margin-bottom:4px;">🕸️ Concept Map: [Thema]</h1>
+      <p style="color:#666;font-size:0.85rem;margin-bottom:24px;">Datum: ${now}</p>
+      <h2 style="font-size:1rem;margin-bottom:10px;">Verwendete Begriffe (${nodes.length})</h2>
+      <ul style="margin-bottom:20px;padding-left:20px;line-height:2;">${nodeList||'<li>Keine Knoten</li>'}</ul>
+      <h2 style="font-size:1rem;margin-bottom:10px;">Verbindungen (${edges.length})</h2>
+      <ul style="padding-left:20px;line-height:2;">${edgeList||'<li>Keine Verbindungen</li>'}</ul>
+    </div>`;
+  window.print();
+}
+
+// ==================== INIT ====================
+document.addEventListener('DOMContentLoaded', () => {
+  const s = loadState();
+  if (s.theme) document.documentElement.setAttribute('data-theme', s.theme);
+  if (s.theme === 'light') document.getElementById('themeIcon').textContent = '☀️';
+  if (s.nodes) nodes = s.nodes;
+  if (s.edges) edges = s.edges;
+  if (s.nodeCounter) nodeCounter = s.nodeCounter;
+  if (s.edgeCounter) edgeCounter = s.edgeCounter;
+
+  // Load preloaded nodes for guided/display mode
+  if (MODE !== 'free' && !s.nodes) {
+    PRELOADED_NODES.forEach(pn => {
+      nodes.push({id:'n'+(++nodeCounter), conceptId:pn.id, x:pn.x, y:pn.y});
+    });
+    if (MODE === 'display') {
+      PRELOADED_EDGES.forEach(pe => {
+        const fn = nodes.find(n => n.conceptId === pe.from);
+        const tn = nodes.find(n => n.conceptId === pe.to);
+        if (fn && tn) edges.push({id:'e'+(++edgeCounter), fromNodeId:fn.id, toNodeId:tn.id, label:pe.label});
+      });
+    }
+  }
+
+  renderConceptBank();
+  renderNodes();
+  renderEdges();
+  updateStatus();
+});
+</script>
+</body>
+</html>

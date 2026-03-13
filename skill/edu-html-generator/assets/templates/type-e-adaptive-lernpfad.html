@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🔀 Adaptiver Lernpfad — [Thema]</title>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root[data-theme="dark"] {
+    --bg-primary:#0f172a;--bg-secondary:#1e293b;--bg-card:#334155;
+    --text-primary:#f1f5f9;--text-secondary:#94a3b8;--border:#475569;
+  }
+  :root[data-theme="light"] {
+    --bg-primary:#f8fafc;--bg-secondary:#ffffff;--bg-card:#f1f5f9;
+    --text-primary:#1e293b;--text-secondary:#64748b;--border:#e2e8f0;
+  }
+  :root {
+    --accent:#6366f1;--accent-2:#8b5cf6;
+    --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+    --radius:12px;--radius-lg:20px;--transition:0.2s ease;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Lexend',sans-serif;background:var(--bg-primary);color:var(--text-primary);min-height:100vh;}
+
+  /* Header */
+  .header{background:var(--bg-secondary);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+  .header-title{font-size:1rem;font-weight:700;}
+  .header-sub{font-size:0.75rem;color:var(--text-secondary);margin-top:2px;}
+  .header-right{display:flex;align-items:center;gap:10px;}
+  .btn-print-header,.theme-toggle{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:6px 14px;font-size:0.82rem;font-weight:600;color:var(--text-primary);cursor:pointer;font-family:inherit;transition:all var(--transition);}
+  .btn-print-header:hover,.theme-toggle:hover{border-color:var(--accent);color:var(--accent);}
+
+  /* Progress */
+  .progress-bar-wrap{background:var(--bg-secondary);padding:10px 20px;border-bottom:1px solid var(--border);}
+  .progress-label{font-size:0.75rem;color:var(--text-secondary);margin-bottom:6px;}
+  .progress-track{height:6px;background:var(--border);border-radius:99px;overflow:hidden;}
+  .progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2));border-radius:99px;transition:width 0.4s ease;width:0%;}
+
+  /* Main */
+  .main-container{max-width:680px;margin:0 auto;padding:32px 20px 60px;}
+
+  /* Node card */
+  .node-card{background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius-lg);padding:32px;animation:fadeIn 0.35s ease;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+  .node-badge{display:inline-flex;align-items:center;gap:6px;font-size:0.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:4px 12px;border-radius:99px;margin-bottom:16px;}
+  .badge-intro{background:color-mix(in srgb,var(--accent) 15%,transparent);color:var(--accent);}
+  .badge-question{background:color-mix(in srgb,var(--yellow) 15%,transparent);color:var(--yellow);}
+  .badge-explanation{background:color-mix(in srgb,var(--green) 15%,transparent);color:var(--green);}
+  .badge-checkpoint{background:color-mix(in srgb,#60a5fa 15%,transparent);color:#60a5fa;}
+  .badge-results{background:color-mix(in srgb,var(--accent-2) 15%,transparent);color:var(--accent-2);}
+
+  .node-title{font-size:1.35rem;font-weight:700;margin-bottom:12px;line-height:1.3;}
+  .node-text{color:var(--text-secondary);line-height:1.7;font-size:0.95rem;margin-bottom:24px;}
+  .node-visual{background:var(--bg-card);border-radius:var(--radius);padding:16px;margin-bottom:20px;font-size:0.9rem;line-height:1.6;border-left:4px solid var(--accent);}
+
+  /* Question */
+  .question-text{font-size:1.05rem;font-weight:600;margin-bottom:18px;line-height:1.4;}
+  .choices{display:flex;flex-direction:column;gap:10px;margin-bottom:20px;}
+  .choice-btn{background:var(--bg-card);border:2px solid var(--border);border-radius:var(--radius);padding:12px 16px;text-align:left;font-family:inherit;font-size:0.9rem;color:var(--text-primary);cursor:pointer;transition:all var(--transition);}
+  .choice-btn:hover:not(:disabled){border-color:var(--accent);background:color-mix(in srgb,var(--accent) 8%,var(--bg-card));}
+  .choice-btn.correct{border-color:var(--green);background:color-mix(in srgb,var(--green) 12%,transparent);color:var(--green);}
+  .choice-btn.wrong{border-color:var(--red);background:color-mix(in srgb,var(--red) 12%,transparent);color:var(--red);}
+  .choice-btn:disabled{cursor:not-allowed;}
+
+  /* Feedback */
+  .feedback{display:none;padding:14px 16px;border-radius:var(--radius);margin-bottom:18px;font-size:0.9rem;font-weight:500;}
+  .feedback.correct{display:block;background:color-mix(in srgb,var(--green) 12%,transparent);border:1px solid var(--green);color:var(--green);}
+  .feedback.wrong{display:block;background:color-mix(in srgb,var(--red) 12%,transparent);border:1px solid var(--red);color:var(--red);}
+  .feedback.info{display:block;background:color-mix(in srgb,#60a5fa 12%,transparent);border:1px solid #60a5fa;color:#60a5fa;}
+
+  /* Reflection */
+  .reflection-prompt{font-size:0.95rem;font-weight:600;margin-bottom:10px;}
+  textarea{width:100%;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px;color:var(--text-primary);font-family:inherit;font-size:0.9rem;resize:vertical;min-height:100px;transition:border-color var(--transition);}
+  textarea:focus{outline:none;border-color:var(--accent);}
+
+  /* Buttons */
+  .btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent-2));border:none;border-radius:var(--radius);padding:12px 28px;font-size:0.95rem;font-weight:700;color:white;cursor:pointer;font-family:inherit;transition:all var(--transition);margin-top:10px;}
+  .btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 14px color-mix(in srgb,var(--accent) 35%,transparent);}
+  .btn-secondary{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:11px 22px;font-size:0.9rem;font-weight:600;color:var(--text-primary);cursor:pointer;font-family:inherit;transition:all var(--transition);margin-top:10px;margin-right:8px;}
+  .btn-secondary:hover{border-color:var(--accent);color:var(--accent);}
+
+  /* Branch indicator */
+  .branch-hint{display:flex;align-items:center;gap:8px;font-size:0.78rem;color:var(--text-secondary);margin-top:16px;padding:10px 14px;background:var(--bg-card);border-radius:var(--radius);}
+
+  /* Results */
+  .results-stars{font-size:2.5rem;text-align:center;margin-bottom:12px;}
+  .results-score{text-align:center;font-size:1.1rem;font-weight:700;margin-bottom:8px;}
+  .path-trace{margin-top:20px;}
+  .path-node{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:var(--radius);margin-bottom:6px;font-size:0.85rem;}
+  .path-node.success{background:color-mix(in srgb,var(--green) 10%,transparent);border:1px solid color-mix(in srgb,var(--green) 30%,transparent);}
+  .path-node.retry{background:color-mix(in srgb,var(--yellow) 10%,transparent);border:1px solid color-mix(in srgb,var(--yellow) 30%,transparent);}
+
+  /* Print */
+  #printContent{display:none;}
+  @media print{body>*:not(#printContent){display:none!important;}#printContent{display:block!important;}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="header-title">🔀 [Thema des Lernpfads]</div>
+    <div class="header-sub">[Fach] · Adaptiver Lernpfad</div>
+  </div>
+  <div class="header-right">
+    <button class="btn-print-header" onclick="printLesson()">🖨️ Ausdruck</button>
+    <button class="theme-toggle" onclick="toggleTheme()"><span id="themeIcon">🌙</span></button>
+  </div>
+</div>
+
+<div class="progress-bar-wrap">
+  <div class="progress-label" id="progressLabel">Knoten 0 von 0 abgeschlossen</div>
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+</div>
+
+<div class="main-container">
+  <div id="nodeContainer"></div>
+</div>
+
+<div id="printContent"></div>
+
+<script>
+// ==================== DATA ====================
+// Each node: id, type, and type-specific fields
+// Types: 'intro' | 'question' | 'explanation' | 'checkpoint' | 'results'
+const NODES = [
+  {
+    id: 'start',
+    type: 'intro',
+    badge: '🚀 Start',
+    title: 'Willkommen im Lernpfad',
+    text: 'In diesem Lernpfad erarbeitest du [Thema] Schritt für Schritt. Je nach deinen Antworten wird der Pfad angepasst. Lies sorgfältig und arbeite in deinem eigenen Tempo.',
+    next: 'q1'
+  },
+  {
+    id: 'q1',
+    type: 'question',
+    emoji: '❓',
+    question: 'Was versteht man unter [Kernbegriff]?',
+    choices: [
+      '[Richtige Antwort]',
+      '[Falsche Alternative 1]',
+      '[Falsche Alternative 2]'
+    ],
+    correct: 0,
+    onCorrect: 'q2',
+    onWrong: 'help1'
+  },
+  {
+    id: 'help1',
+    type: 'explanation',
+    badge: '💡 Erklärung',
+    title: 'Lass uns das gemeinsam anschauen',
+    text: 'Hier ist die Erklärung zu [Kernbegriff]: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Erkläre das Konzept einfach und verständlich.',
+    visual: '📌 Merke: [Kurze Eselsbrücke oder Analogie zum Konzept]',
+    next: 'q1retry'
+  },
+  {
+    id: 'q1retry',
+    type: 'question',
+    emoji: '🔄',
+    question: 'Versuche es nochmals: Welche Aussage beschreibt [Kernbegriff] am besten?',
+    choices: [
+      '[Richtige Antwort — anders formuliert]',
+      '[Falsche Alternative A]',
+      '[Falsche Alternative B]'
+    ],
+    correct: 0,
+    onCorrect: 'q2',
+    onWrong: 'q2'   // fail-safe: nach 2 Versuchen trotzdem weiter
+  },
+  {
+    id: 'q2',
+    type: 'question',
+    emoji: '🧠',
+    question: 'Wie hängt [Konzept A] mit [Konzept B] zusammen?',
+    choices: [
+      '[Richtige Verbindung]',
+      '[Falsche Verbindung 1]',
+      '[Falsche Verbindung 2]',
+      '[Falsche Verbindung 3]'
+    ],
+    correct: 0,
+    onCorrect: 'checkpoint1',
+    onWrong: 'help2'
+  },
+  {
+    id: 'help2',
+    type: 'explanation',
+    badge: '💡 Erklärung',
+    title: 'Der Zusammenhang erklärt',
+    text: 'Der Zusammenhang zwischen [Konzept A] und [Konzept B] lässt sich so verstehen: ...',
+    visual: '🔗 Kurzformel: [Konzept A] → bewirkt → [Konzept B]',
+    next: 'checkpoint1'
+  },
+  {
+    id: 'checkpoint1',
+    type: 'checkpoint',
+    badge: '✍️ Reflexion',
+    title: 'Halte inne und reflektiere',
+    reflection: 'Was hast du in diesem Lernpfad Neues gelernt? Was war überraschend?',
+    placeholder: 'Schreibe hier deine Gedanken...',
+    next: 'results'
+  },
+  {
+    id: 'results',
+    type: 'results'
+  }
+];
+
+// ==================== STATE ====================
+const STORAGE_KEY = 'lernpfad_[slug]_v1';
+let currentNodeId = 'start';
+let completedNodes = [];
+let retryCount = {};
+let reflectionText = '';
+let questionAnswers = {}; // {nodeId: chosenIndex}
+
+// ==================== LOCALSTORAGE ====================
+function saveState() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      currentNodeId, completedNodes, retryCount, reflectionText, questionAnswers,
+      theme: document.documentElement.getAttribute('data-theme')
+    }));
+  } catch(e) {}
+}
+function loadState() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch(e) { return {}; }
+}
+function clearState() {
+  try { localStorage.removeItem(STORAGE_KEY); } catch(e) {}
+  location.reload();
+}
+
+// ==================== PROGRESS ====================
+function updateProgress() {
+  const total = NODES.filter(n => n.type !== 'results').length;
+  const done = completedNodes.length;
+  const pct = total > 0 ? (done / total) * 100 : 0;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = `Knoten ${done} von ${total} abgeschlossen`;
+}
+
+// ==================== RENDER ENGINE ====================
+function renderNode(nodeId) {
+  const node = NODES.find(n => n.id === nodeId);
+  if (!node) return;
+  currentNodeId = nodeId;
+  saveState();
+  updateProgress();
+
+  const container = document.getElementById('nodeContainer');
+
+  if (node.type === 'intro') {
+    container.innerHTML = `
+      <div class="node-card">
+        <span class="node-badge badge-intro">${node.badge || '🚀 Intro'}</span>
+        <div class="node-title">${node.title}</div>
+        <div class="node-text">${node.text}</div>
+        <button class="btn-primary" onclick="advance('${node.next}')">Los geht's →</button>
+      </div>`;
+  }
+  else if (node.type === 'question') {
+    const savedAnswer = questionAnswers[nodeId];
+    const alreadyAnswered = savedAnswer !== undefined;
+    const isCorrect = alreadyAnswered && savedAnswer === node.correct;
+    container.innerHTML = `
+      <div class="node-card">
+        <span class="node-badge badge-question">❓ Frage</span>
+        <div class="question-text">${node.emoji} ${node.question}</div>
+        <div class="choices">
+          ${node.choices.map((c, ci) => `
+            <button class="choice-btn ${alreadyAnswered ? (ci === node.correct ? 'correct' : (ci === savedAnswer ? 'wrong' : '')) : ''}"
+              onclick="answerQuestion('${nodeId}', ${ci})"
+              ${alreadyAnswered ? 'disabled' : ''}>
+              ${ci === node.correct && alreadyAnswered ? '✅' : ci === savedAnswer && !isCorrect ? '❌' : '○'} ${c}
+            </button>`).join('')}
+        </div>
+        <div class="feedback ${alreadyAnswered ? (isCorrect ? 'correct' : 'wrong') : ''}" id="feedback-${nodeId}">
+          ${alreadyAnswered ? (isCorrect ? '✅ Richtig! Weiter so.' : '❌ Nicht ganz — schau dir die Erklärung an.') : ''}
+        </div>
+        ${alreadyAnswered && isCorrect ? `<button class="btn-primary" onclick="advance('${node.onCorrect}')">Weiter →</button>` : ''}
+        ${alreadyAnswered && !isCorrect ? `<button class="btn-primary" onclick="advance('${node.onWrong}')">💡 Erklärung ansehen →</button>` : ''}
+        <div class="branch-hint">🔀 Der Pfad passt sich deiner Antwort an</div>
+      </div>`;
+  }
+  else if (node.type === 'explanation') {
+    container.innerHTML = `
+      <div class="node-card">
+        <span class="node-badge badge-explanation">${node.badge || '💡 Erklärung'}</span>
+        <div class="node-title">${node.title}</div>
+        <div class="node-text">${node.text}</div>
+        ${node.visual ? `<div class="node-visual">${node.visual}</div>` : ''}
+        <button class="btn-primary" onclick="advance('${node.next}')">Verstanden — nochmals versuchen →</button>
+      </div>`;
+    if (!completedNodes.includes(nodeId)) { completedNodes.push(nodeId); saveState(); }
+  }
+  else if (node.type === 'checkpoint') {
+    const saved = reflectionText;
+    container.innerHTML = `
+      <div class="node-card">
+        <span class="node-badge badge-checkpoint">${node.badge || '✍️ Reflexion'}</span>
+        <div class="node-title">${node.title}</div>
+        <p class="reflection-prompt">${node.reflection}</p>
+        <textarea id="reflText" placeholder="${node.placeholder}">${saved}</textarea>
+        <button class="btn-primary" onclick="submitCheckpoint('${node.next}')">Abschliessen →</button>
+      </div>`;
+    document.getElementById('reflText').addEventListener('input', e => {
+      reflectionText = e.target.value;
+      saveState();
+    });
+    if (!completedNodes.includes(nodeId)) { completedNodes.push(nodeId); saveState(); }
+  }
+  else if (node.type === 'results') {
+    const total = NODES.filter(n => n.type === 'question').length;
+    const correct = Object.entries(questionAnswers).filter(([id, ci]) => {
+      const n = NODES.find(n => n.id === id);
+      return n && ci === n.correct;
+    }).length;
+    const retries = Object.values(retryCount).reduce((a,b) => a+b, 0);
+    container.innerHTML = `
+      <div class="node-card">
+        <span class="node-badge badge-results">🏁 Abschluss</span>
+        <div class="results-stars">${correct >= total ? '🌟🌟🌟' : correct >= total/2 ? '⭐⭐' : '⭐'}</div>
+        <div class="results-score">${correct} von ${total} Fragen richtig beim ersten Versuch</div>
+        <p class="node-text" style="text-align:center;margin-bottom:24px;">
+          ${retries > 0 ? `Du hast ${retries} Erklärungen genutzt — das ist klug!` : 'Hervorragend — keine Erklärungen nötig!'}
+        </p>
+        <div class="path-trace">
+          <p style="font-weight:600;margin-bottom:10px;">Dein Lernpfad:</p>
+          ${completedNodes.map(id => {
+            const n = NODES.find(n => n.id === id);
+            if (!n) return '';
+            const isRetry = id.includes('retry') || (retryCount[id] > 0);
+            return `<div class="path-node ${isRetry ? 'retry' : 'success'}">
+              ${isRetry ? '🔄' : '✅'} ${n.title || n.question || n.badge || id}
+            </div>`;
+          }).join('')}
+        </div>
+        <button class="btn-primary" style="margin-top:20px" onclick="printLesson()">🖨️ Ausdruck</button>
+        <button class="btn-secondary" onclick="if(confirm('Lernpfad neu starten?')) clearState()">🔄 Neu starten</button>
+      </div>`;
+    if (!completedNodes.includes('results')) { completedNodes.push('results'); saveState(); }
+  }
+}
+
+// ==================== ACTIONS ====================
+function answerQuestion(nodeId, chosenIndex) {
+  const node = NODES.find(n => n.id === nodeId);
+  if (!node || questionAnswers[nodeId] !== undefined) return;
+  questionAnswers[nodeId] = chosenIndex;
+  if (chosenIndex !== node.correct) {
+    retryCount[nodeId] = (retryCount[nodeId] || 0) + 1;
+  }
+  if (!completedNodes.includes(nodeId)) completedNodes.push(nodeId);
+  saveState();
+  renderNode(nodeId); // re-render with feedback
+}
+
+function advance(nextId) {
+  renderNode(nextId);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function submitCheckpoint(nextId) {
+  const ta = document.getElementById('reflText');
+  reflectionText = ta ? ta.value : reflectionText;
+  saveState();
+  advance(nextId);
+}
+
+// ==================== THEME ====================
+function toggleTheme() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  document.getElementById('themeIcon').textContent = isDark ? '☀️' : '🌙';
+  saveState();
+}
+
+// ==================== PRINT ====================
+function printLesson() {
+  const now = new Date().toLocaleDateString('de-CH');
+  const total = NODES.filter(n => n.type === 'question').length;
+  const correct = Object.entries(questionAnswers).filter(([id, ci]) => {
+    const n = NODES.find(n => n.id === id);
+    return n && ci === n.correct;
+  }).length;
+  const qSummary = NODES.filter(n => n.type === 'question').map(n => {
+    const ci = questionAnswers[n.id];
+    const answered = ci !== undefined;
+    const isCorrect = answered && ci === n.correct;
+    return `<div style="border-left:4px solid ${!answered?'#ccc':isCorrect?'#4ade80':'#f87171'};padding:10px 14px;margin-bottom:10px;background:#f8fafc;">
+      <p style="font-weight:600;">${isCorrect?'✅':answered?'❌':'⬜'} ${n.question}</p>
+      <p style="font-size:0.85rem;margin-top:4px;">Antwort: ${answered ? n.choices[ci] : '<em>nicht beantwortet</em>'}</p>
+      ${!isCorrect && answered ? `<p style="font-size:0.85rem;color:#059669;">Richtig: ${n.choices[n.correct]}</p>` : ''}
+    </div>`;
+  }).join('');
+  document.getElementById('printContent').innerHTML = `
+    <div style="font-family:Georgia,serif;max-width:680px;margin:0 auto;padding:40px 30px;color:#111;">
+      <h1 style="font-size:1.4rem;margin-bottom:4px;">🔀 Adaptiver Lernpfad</h1>
+      <p style="font-size:0.85rem;color:#666;margin-bottom:24px;">Datum: ${now} | Fragen: ${correct}/${total} richtig</p>
+      <h2 style="font-size:1rem;margin-bottom:12px;border-bottom:2px solid #eee;padding-bottom:6px;">Fragen & Antworten</h2>
+      ${qSummary}
+      ${reflectionText ? `<h2 style="font-size:1rem;margin:20px 0 12px;border-bottom:2px solid #eee;padding-bottom:6px;">✍️ Reflexion</h2>
+      <div style="background:#fffbeb;border-left:4px solid #f59e0b;padding:12px 16px;white-space:pre-wrap;">${reflectionText}</div>` : ''}
+    </div>`;
+  window.print();
+}
+
+// ==================== INIT ====================
+document.addEventListener('DOMContentLoaded', () => {
+  const s = loadState();
+  if (s.theme) document.documentElement.setAttribute('data-theme', s.theme);
+  if (s.theme === 'light') document.getElementById('themeIcon').textContent = '☀️';
+  if (s.completedNodes) completedNodes = s.completedNodes;
+  if (s.retryCount) retryCount = s.retryCount;
+  if (s.reflectionText) reflectionText = s.reflectionText;
+  if (s.questionAnswers) questionAnswers = s.questionAnswers;
+  const startNode = s.currentNodeId || 'start';
+  renderNode(startNode);
+});
+</script>
+</body>
+</html>

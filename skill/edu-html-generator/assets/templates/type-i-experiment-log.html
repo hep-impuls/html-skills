@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🧪 Laborprotokoll — [Versuchstitel]</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;700&family=DM+Mono&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --accent:#6366f1;--green:#059669;--red:#dc2626;--yellow:#d97706;
+    --radius:8px;--border:#d1d5db;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'DM Sans',sans-serif;background:#f9fafb;color:#111827;min-height:100vh;}
+
+  /* Header */
+  .header{background:#1e1b4b;color:white;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+  .header-title{font-family:'DM Serif Display',serif;font-size:1.1rem;}
+  .header-sub{font-size:0.75rem;color:#a5b4fc;margin-top:2px;}
+  .header-right{display:flex;gap:10px;align-items:center;}
+  .btn-print{background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:var(--radius);padding:6px 14px;font-size:0.82rem;font-weight:600;color:white;cursor:pointer;font-family:inherit;transition:all 0.2s;}
+  .btn-print:hover{background:rgba(255,255,255,0.25);}
+
+  /* Progress sidebar */
+  .layout{display:flex;max-width:980px;margin:0 auto;padding:28px 20px;gap:24px;}
+  .sidebar{width:160px;flex-shrink:0;}
+  .section-nav{position:sticky;top:70px;}
+  .nav-item{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:var(--radius);font-size:0.78rem;cursor:pointer;margin-bottom:4px;transition:background 0.15s;color:#6b7280;}
+  .nav-item:hover{background:#f3f4f6;}
+  .nav-item.done{color:var(--green);}
+  .nav-item .nav-icon{font-size:0.9rem;}
+  @media(max-width:700px){.sidebar{display:none;}}
+
+  /* Main content */
+  .main{flex:1;min-width:0;}
+
+  /* Meta info */
+  .meta-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:28px;}
+  @media(max-width:500px){.meta-grid{grid-template-columns:1fr 1fr;}}
+  .meta-field{background:white;border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;}
+  .meta-label{font-size:0.7rem;text-transform:uppercase;letter-spacing:.05em;color:#9ca3af;margin-bottom:4px;}
+  .meta-input{width:100%;border:none;outline:none;font-family:inherit;font-size:0.88rem;background:transparent;color:#111827;}
+
+  /* Sections */
+  .section{background:white;border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:20px;}
+  .section-header{display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+  .section-num{width:28px;height:28px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.78rem;font-weight:700;color:white;flex-shrink:0;}
+  .section-title{font-family:'DM Serif Display',serif;font-size:1.05rem;}
+  .section-done{font-size:0.72rem;color:var(--green);margin-left:auto;display:none;}
+  .section.completed .section-done{display:block;}
+  .section.completed{border-color:#a7f3d0;}
+
+  /* Hypothesis */
+  .word-count{font-size:0.72rem;color:#9ca3af;text-align:right;margin-top:4px;}
+  .sentence-starter{background:#eff6ff;border-left:3px solid #3b82f6;padding:8px 12px;border-radius:var(--radius);font-size:0.82rem;color:#1d4ed8;margin-bottom:10px;font-style:italic;}
+
+  /* Material checklist */
+  .material-list{display:flex;flex-direction:column;gap:6px;}
+  .material-item{display:flex;align-items:center;gap:10px;padding:8px 10px;background:#f9fafb;border-radius:var(--radius);font-size:0.88rem;cursor:pointer;}
+  .material-item input[type=checkbox]{width:16px;height:16px;accent-color:var(--accent);cursor:pointer;}
+  .material-item.checked span{text-decoration:line-through;color:#9ca3af;}
+
+  /* Procedure */
+  .step-list{display:flex;flex-direction:column;gap:8px;}
+  .step-item{display:flex;align-items:flex-start;gap:12px;padding:10px 12px;background:#f9fafb;border-radius:var(--radius);}
+  .step-item.done-step{background:#f0fdf4;}
+  .step-num{width:24px;height:24px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:700;color:white;flex-shrink:0;margin-top:1px;}
+  .step-item.done-step .step-num{background:var(--green);}
+  .step-text{font-size:0.88rem;line-height:1.5;flex:1;}
+  .step-item.done-step .step-text{text-decoration:line-through;color:#9ca3af;}
+  .step-check{width:18px;height:18px;accent-color:var(--green);cursor:pointer;flex-shrink:0;margin-top:2px;}
+
+  /* Observation */
+  .sketch-area{border:2px dashed var(--border);border-radius:var(--radius);min-height:140px;display:flex;align-items:center;justify-content:center;color:#d1d5db;font-size:0.85rem;margin-top:12px;background:#fafafa;}
+
+  /* Data table */
+  .data-table-wrap{overflow-x:auto;margin-top:4px;}
+  table.data-table{width:100%;border-collapse:collapse;font-size:0.85rem;font-family:'DM Mono',monospace;}
+  table.data-table th{background:#f3f4f6;padding:8px 10px;text-align:left;border:1px solid var(--border);font-weight:700;font-family:'DM Sans',sans-serif;}
+  table.data-table td{border:1px solid var(--border);padding:0;}
+  table.data-table input[type=number],table.data-table input[type=text]{width:100%;border:none;outline:none;padding:8px 10px;font-family:'DM Mono',monospace;font-size:0.85rem;background:transparent;color:#111827;}
+  table.data-table input:focus{background:#eff6ff;}
+  .table-avg{background:#f0fdf4!important;}
+  .table-avg td{background:#f0fdf4;font-weight:700;color:var(--green);}
+
+  /* Textareas */
+  textarea{width:100%;border:1px solid var(--border);border-radius:var(--radius);padding:12px;font-family:'DM Sans',sans-serif;font-size:0.9rem;resize:vertical;min-height:110px;color:#111827;background:white;transition:border-color 0.2s;}
+  textarea:focus{outline:none;border-color:var(--accent);}
+
+  /* Print */
+  #printContent{display:none;}
+  @media print{
+    body{background:white;}
+    .header,.sidebar,.btn-print{display:none!important;}
+    .layout{padding:0;gap:0;max-width:100%;}
+    .main{width:100%;}
+    .section{border:1px solid #ddd;break-inside:avoid;margin-bottom:14px;padding:16px;}
+    textarea,input{border:none!important;resize:none!important;}
+    #printContent{display:none!important;}
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="header-title">🧪 [Versuchstitel]</div>
+    <div class="header-sub">[Fach] · [Klasse] · Laborprotokoll</div>
+  </div>
+  <div class="header-right">
+    <button class="btn-print" onclick="saveAll();window.print()">🖨️ Protokoll drucken</button>
+  </div>
+</div>
+
+<div class="layout">
+  <div class="sidebar">
+    <nav class="section-nav" id="sectionNav">
+      <div class="nav-item" onclick="scrollToSection('meta')"><span class="nav-icon">📋</span> Angaben</div>
+      <div class="nav-item" id="nav-hyp" onclick="scrollToSection('hyp')"><span class="nav-icon">💭</span> Hypothese</div>
+      <div class="nav-item" id="nav-mat" onclick="scrollToSection('mat')"><span class="nav-icon">🧰</span> Material</div>
+      <div class="nav-item" id="nav-proc" onclick="scrollToSection('proc')"><span class="nav-icon">📝</span> Durchführung</div>
+      <div class="nav-item" id="nav-obs" onclick="scrollToSection('obs')"><span class="nav-icon">👁️</span> Beobachtung</div>
+      <div class="nav-item" id="nav-data" onclick="scrollToSection('data')"><span class="nav-icon">📊</span> Messwerte</div>
+      <div class="nav-item" id="nav-conc" onclick="scrollToSection('conc')"><span class="nav-icon">🔬</span> Schlussfolgerung</div>
+      <div class="nav-item" id="nav-err" onclick="scrollToSection('err')"><span class="nav-icon">⚠️</span> Fehleranalyse</div>
+    </nav>
+  </div>
+
+  <div class="main">
+
+    <!-- META -->
+    <div id="meta" class="meta-grid">
+      <div class="meta-field"><div class="meta-label">Name</div><input class="meta-input" id="meta-name" placeholder="Dein Name" oninput="saveAll()"></div>
+      <div class="meta-field"><div class="meta-label">Datum</div><input class="meta-input" id="meta-date" type="date" oninput="saveAll()"></div>
+      <div class="meta-field"><div class="meta-label">Klasse</div><input class="meta-input" id="meta-class" placeholder="z.B. 1A" oninput="saveAll()"></div>
+      <div class="meta-field"><div class="meta-label">Partner/in</div><input class="meta-input" id="meta-partner" placeholder="Optional" oninput="saveAll()"></div>
+      <div class="meta-field"><div class="meta-label">Lehrperson</div><input class="meta-input" id="meta-teacher" placeholder="z.B. Herr Müller" oninput="saveAll()"></div>
+      <div class="meta-field"><div class="meta-label">Raumtemperatur</div><input class="meta-input" id="meta-temp" placeholder="z.B. 21°C" oninput="saveAll()"></div>
+    </div>
+
+    <!-- HYPOTHESIS -->
+    <div class="section" id="hyp">
+      <div class="section-header">
+        <div class="section-num">1</div>
+        <div class="section-title">💭 Hypothese</div>
+        <span class="section-done">✅ Ausgefüllt</span>
+      </div>
+      <div class="sentence-starter">Ich vermute, dass … weil …</div>
+      <textarea id="hyp-text" placeholder="Formuliere deine Hypothese. Was erwartest du? Warum?" oninput="saveAll();checkCompletion('hyp','hyp-text');updateWordCount('hyp-text','hyp-wc')"></textarea>
+      <div class="word-count" id="hyp-wc">0 Wörter</div>
+    </div>
+
+    <!-- MATERIAL -->
+    <div class="section" id="mat">
+      <div class="section-header">
+        <div class="section-num">2</div>
+        <div class="section-title">🧰 Material & Geräte</div>
+        <span class="section-done">✅ Vollständig</span>
+      </div>
+      <div class="material-list" id="materialList"></div>
+    </div>
+
+    <!-- PROCEDURE -->
+    <div class="section" id="proc">
+      <div class="section-header">
+        <div class="section-num">3</div>
+        <div class="section-title">📝 Durchführung</div>
+        <span class="section-done">✅ Abgeschlossen</span>
+      </div>
+      <div class="step-list" id="stepList"></div>
+    </div>
+
+    <!-- OBSERVATION -->
+    <div class="section" id="obs">
+      <div class="section-header">
+        <div class="section-num">4</div>
+        <div class="section-title">👁️ Beobachtung</div>
+        <span class="section-done">✅ Ausgefüllt</span>
+      </div>
+      <textarea id="obs-text" placeholder="Beschreibe, was du während des Versuchs beobachtest hast. Was ist passiert? Farben, Formen, Reaktionen, Veränderungen?" oninput="saveAll();checkCompletion('obs','obs-text');updateWordCount('obs-text','obs-wc')"></textarea>
+      <div class="word-count" id="obs-wc">0 Wörter</div>
+      <div class="sketch-area">✏️ Zeichnung / Skizze (auf Papier — hier beschriften)</div>
+    </div>
+
+    <!-- DATA TABLE -->
+    <div class="section" id="data">
+      <div class="section-header">
+        <div class="section-num">5</div>
+        <div class="section-title">📊 Messwerte</div>
+        <span class="section-done">✅ Erfasst</span>
+      </div>
+      <div class="data-table-wrap">
+        <table class="data-table" id="dataTable"></table>
+      </div>
+    </div>
+
+    <!-- CONCLUSION -->
+    <div class="section" id="conc">
+      <div class="section-header">
+        <div class="section-num">6</div>
+        <div class="section-title">🔬 Schlussfolgerung</div>
+        <span class="section-done">✅ Ausgefüllt</span>
+      </div>
+      <div class="sentence-starter">Meine Hypothese wurde (bestätigt / widerlegt / teilweise bestätigt), weil …</div>
+      <textarea id="conc-text" placeholder="Was zeigen deine Ergebnisse? Wurde deine Hypothese bestätigt oder widerlegt? Was bedeuten die Messwerte?" oninput="saveAll();checkCompletion('conc','conc-text');updateWordCount('conc-text','conc-wc')"></textarea>
+      <div class="word-count" id="conc-wc">0 Wörter</div>
+    </div>
+
+    <!-- ERROR ANALYSIS -->
+    <div class="section" id="err">
+      <div class="section-header">
+        <div class="section-num">7</div>
+        <div class="section-title">⚠️ Fehleranalyse</div>
+        <span class="section-done">✅ Ausgefüllt</span>
+      </div>
+      <div class="sentence-starter">Mögliche Fehlerquellen: systematische Fehler (z.B. Gerät), zufällige Fehler (z.B. Ablesung), Umgebungseinflüsse …</div>
+      <textarea id="err-text" placeholder="Welche Fehlerquellen könnten die Ergebnisse beeinflusst haben? Was würdest du beim nächsten Mal anders machen?" oninput="saveAll();checkCompletion('err','err-text');updateWordCount('err-text','err-wc')"></textarea>
+      <div class="word-count" id="err-wc">0 Wörter</div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ==================== DATA ====================
+const EXPERIMENT = {
+  title: '[Versuchstitel]',
+  subject: 'Chemie',  // Chemie | Biologie | Physik
+  material: [
+    '[Gerät/Stoff 1, z.B. Becherglas 250 ml]',
+    '[Gerät/Stoff 2, z.B. Thermometer]',
+    '[Gerät/Stoff 3, z.B. Bunsenbrenner]',
+    '[Stoff 4, z.B. destilliertes Wasser 200 ml]',
+    '[Stoff 5, z.B. Natriumchlorid 10 g]',
+  ],
+  procedure: [
+    '[Schritt 1: Was wird zuerst gemacht?]',
+    '[Schritt 2: Nächste Aktion im Versuch]',
+    '[Schritt 3: Beobachtung notieren]',
+    '[Schritt 4: Messwert ablesen und aufzeichnen]',
+    '[Schritt 5: Versuch abschliessen]',
+  ],
+  data: {
+    headers: ['Messung', '[Messgrösse 1] ([Einheit])', '[Messgrösse 2] ([Einheit])', '[Messgrösse 3]'],
+    rows: 5,
+    showAverage: true
+  }
+};
+
+// ==================== STORAGE ====================
+const STORAGE_KEY = 'protokoll_[slug]_v1';
+let materialChecked = {};
+let stepsChecked = {};
+let dataValues = {};
+
+function saveAll() {
+  const meta = {};
+  ['name','date','class','partner','teacher','temp'].forEach(f => {
+    const el = document.getElementById('meta-'+f);
+    if (el) meta[f] = el.value;
+  });
+  const texts = {};
+  ['hyp-text','obs-text','conc-text','err-text'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) texts[id] = el.value;
+  });
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify({
+    meta, texts, materialChecked, stepsChecked, dataValues
+  })); } catch(e) {}
+}
+
+function loadState() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch(e) { return {}; } }
+
+// ==================== HELPERS ====================
+function updateWordCount(textareaId, wcId) {
+  const ta = document.getElementById(textareaId);
+  const wc = document.getElementById(wcId);
+  if (!ta || !wc) return;
+  const words = ta.value.trim().split(/\s+/).filter(w => w.length > 0).length;
+  wc.textContent = words + ' Wörter';
+}
+
+function checkCompletion(sectionId, textareaId) {
+  const ta = document.getElementById(textareaId);
+  const sec = document.getElementById(sectionId);
+  if (ta && sec) sec.classList.toggle('completed', ta.value.trim().length > 10);
+}
+
+function scrollToSection(id) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+// ==================== MATERIAL ====================
+function renderMaterial() {
+  document.getElementById('materialList').innerHTML = EXPERIMENT.material.map((item, i) => `
+    <div class="material-item ${materialChecked[i]?'checked':''}" onclick="toggleMaterial(${i})">
+      <input type="checkbox" ${materialChecked[i]?'checked':''} onclick="event.stopPropagation();toggleMaterial(${i})">
+      <span>${item}</span>
+    </div>`).join('');
+  // Check if all materials checked
+  const allChecked = EXPERIMENT.material.every((_,i) => materialChecked[i]);
+  document.getElementById('mat').classList.toggle('completed', allChecked);
+}
+
+function toggleMaterial(i) {
+  materialChecked[i] = !materialChecked[i];
+  saveAll();
+  renderMaterial();
+}
+
+// ==================== PROCEDURE ====================
+function renderProcedure() {
+  document.getElementById('stepList').innerHTML = EXPERIMENT.procedure.map((step, i) => `
+    <div class="step-item ${stepsChecked[i]?'done-step':''}" id="step-${i}">
+      <div class="step-num">${stepsChecked[i]?'✓':(i+1)}</div>
+      <div class="step-text">${step}</div>
+      <input type="checkbox" class="step-check" ${stepsChecked[i]?'checked':''}
+        onchange="toggleStep(${i})" title="Schritt erledigt">
+    </div>`).join('');
+  const allDone = EXPERIMENT.procedure.every((_,i) => stepsChecked[i]);
+  document.getElementById('proc').classList.toggle('completed', allDone);
+}
+
+function toggleStep(i) {
+  stepsChecked[i] = !stepsChecked[i];
+  saveAll();
+  renderProcedure();
+}
+
+// ==================== DATA TABLE ====================
+function renderDataTable() {
+  const d = EXPERIMENT.data;
+  const headers = d.headers.map(h => `<th>${h}</th>`).join('');
+  const dataRows = Array.from({length:d.rows}, (_,ri) => `
+    <tr>
+      <td><input type="text" value="${ri+1}" style="text-align:center;width:60px;font-weight:700;"></td>
+      ${d.headers.slice(1).map((_,ci) => `
+        <td><input type="number" step="any"
+          value="${dataValues[ri+','+ci]||''}"
+          oninput="dataValues['${ri},${ci}']=this.value;saveAll();calcAverage()"
+          placeholder="—"></td>`).join('')}
+    </tr>`).join('');
+  const avgRow = d.showAverage ? `
+    <tr class="table-avg">
+      <td style="padding:8px 10px;font-weight:700;font-family:'DM Sans',sans-serif;">Ø Mittelwert</td>
+      ${d.headers.slice(1).map((_,ci) => `<td id="avg-${ci}" style="padding:8px 10px;"></td>`).join('')}
+    </tr>` : '';
+  document.getElementById('dataTable').innerHTML = `
+    <thead><tr>${headers}</tr></thead>
+    <tbody>${dataRows}${avgRow}</tbody>`;
+  calcAverage();
+}
+
+function calcAverage() {
+  const d = EXPERIMENT.data;
+  if (!d.showAverage) return;
+  d.headers.slice(1).forEach((_,ci) => {
+    const vals = Array.from({length:d.rows}, (_,ri) => parseFloat(dataValues[ri+','+ci])).filter(v => !isNaN(v));
+    const avgEl = document.getElementById('avg-'+ci);
+    if (avgEl) avgEl.textContent = vals.length > 0 ? (vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(2) : '—';
+  });
+  const hasData = Object.values(dataValues).some(v => v !== '' && v !== undefined);
+  document.getElementById('data').classList.toggle('completed', hasData);
+}
+
+// ==================== INIT ====================
+document.addEventListener('DOMContentLoaded', () => {
+  // Set today's date
+  const dateEl = document.getElementById('meta-date');
+  if (dateEl && !dateEl.value) dateEl.value = new Date().toISOString().split('T')[0];
+
+  const s = loadState();
+  if (s.meta) Object.entries(s.meta).forEach(([f, v]) => {
+    const el = document.getElementById('meta-'+f);
+    if (el) el.value = v;
+  });
+  if (s.texts) Object.entries(s.texts).forEach(([id, v]) => {
+    const el = document.getElementById(id);
+    if (el) el.value = v;
+  });
+  if (s.materialChecked) materialChecked = s.materialChecked;
+  if (s.stepsChecked) stepsChecked = s.stepsChecked;
+  if (s.dataValues) dataValues = s.dataValues;
+
+  renderMaterial();
+  renderProcedure();
+  renderDataTable();
+
+  // Update word counts and completion states
+  ['hyp-text','obs-text','conc-text','err-text'].forEach(id => {
+    const wcId = id.replace('-text','-wc');
+    const secId = id.split('-')[0];
+    updateWordCount(id, wcId);
+    checkCompletion(secId, id);
+  });
+});
+</script>
+</body>
+</html>

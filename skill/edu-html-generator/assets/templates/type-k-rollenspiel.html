@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎭 Rollenspiel — [Szenario]</title>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root[data-theme="dark"] {
+    --bg-primary:#0f172a;--bg-secondary:#1e293b;--bg-card:#334155;
+    --text-primary:#f1f5f9;--text-secondary:#94a3b8;--border:#475569;
+  }
+  :root[data-theme="light"] {
+    --bg-primary:#f8fafc;--bg-secondary:#ffffff;--bg-card:#f1f5f9;
+    --text-primary:#1e293b;--text-secondary:#64748b;--border:#e2e8f0;
+  }
+  :root{
+    --accent:#8b5cf6;--accent-2:#ec4899;
+    --radius:14px;--transition:0.2s ease;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Lexend',sans-serif;background:var(--bg-primary);color:var(--text-primary);min-height:100vh;}
+
+  /* Header */
+  .header{background:var(--bg-secondary);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+  .header-title{font-size:1rem;font-weight:700;}
+  .header-sub{font-size:0.75rem;color:var(--text-secondary);margin-top:2px;}
+  .header-right{display:flex;align-items:center;gap:8px;}
+  .btn-sm{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:6px 14px;font-size:0.82rem;font-weight:600;color:var(--text-primary);cursor:pointer;font-family:inherit;transition:all var(--transition);white-space:nowrap;}
+  .btn-sm:hover{border-color:var(--accent);color:var(--accent);}
+
+  /* Main */
+  .main-container{max-width:860px;margin:0 auto;padding:28px 20px 60px;}
+
+  /* Scenario box */
+  .scenario-box{background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius);padding:22px;margin-bottom:28px;}
+  .scenario-label{font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-secondary);margin-bottom:8px;}
+  .scenario-title{font-size:1.15rem;font-weight:700;margin-bottom:10px;}
+  .scenario-text{font-size:0.9rem;color:var(--text-secondary);line-height:1.7;margin-bottom:14px;}
+  .task-badge{display:inline-flex;align-items:center;gap:6px;background:color-mix(in srgb,var(--accent) 15%,transparent);border:1px solid color-mix(in srgb,var(--accent) 30%,transparent);border-radius:99px;padding:5px 14px;font-size:0.8rem;font-weight:600;color:var(--accent);}
+
+  /* View toggle */
+  .view-toggle{display:flex;gap:10px;margin-bottom:24px;}
+  .view-btn{flex:1;padding:10px;font-family:inherit;font-size:0.85rem;font-weight:600;border-radius:var(--radius);cursor:pointer;transition:all var(--transition);border:2px solid var(--border);background:var(--bg-card);color:var(--text-secondary);}
+  .view-btn.active{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,transparent);color:var(--accent);}
+
+  /* ===== DECK VIEW ===== */
+  .deck-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px;}
+  .role-card{border-radius:20px;overflow:hidden;border:2px solid;transition:transform var(--transition),box-shadow var(--transition);cursor:pointer;}
+  .role-card:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(0,0,0,0.3);}
+  .card-top{padding:22px 20px 16px;text-align:center;}
+  .card-avatar{font-size:3rem;margin-bottom:8px;display:block;}
+  .card-name{font-size:1rem;font-weight:700;margin-bottom:4px;}
+  .card-job{font-size:0.78rem;opacity:0.8;}
+  .card-divider{height:1px;margin:0 20px;opacity:0.3;}
+  .card-body{padding:14px 18px 18px;background:rgba(0,0,0,0.15);}
+  .card-position{font-size:0.8rem;font-weight:700;margin-bottom:8px;font-style:italic;}
+  .card-args{padding-left:16px;margin-bottom:8px;}
+  .card-args li{font-size:0.75rem;margin-bottom:4px;line-height:1.4;opacity:0.9;}
+  .card-goal-label{font-size:0.65rem;text-transform:uppercase;letter-spacing:.05em;opacity:0.7;margin-bottom:2px;}
+  .card-goal{font-size:0.75rem;font-weight:600;}
+  .card-secret{background:rgba(0,0,0,0.2);border-radius:8px;padding:6px 10px;font-size:0.72rem;margin-top:8px;font-style:italic;}
+  .card-secret::before{content:'🔒 Nur du weisst: ';}
+
+  /* ===== DRAW VIEW ===== */
+  .draw-area{text-align:center;padding:20px 0;}
+  .draw-deck{width:180px;height:240px;margin:0 auto 24px;position:relative;cursor:pointer;}
+  .deck-card-back{position:absolute;background:linear-gradient(135deg,var(--accent),var(--accent-2));border-radius:16px;border:2px solid rgba(255,255,255,0.2);}
+  .deck-card-back:nth-child(1){inset:0;transform:rotate(-3deg);}
+  .deck-card-back:nth-child(2){inset:0;transform:rotate(1deg);}
+  .deck-card-back:nth-child(3){inset:0;display:flex;align-items:center;justify-content:center;font-size:2.5rem;}
+  .draw-btn{background:linear-gradient(135deg,var(--accent),var(--accent-2));border:none;border-radius:var(--radius);padding:14px 32px;font-size:1rem;font-weight:700;color:white;cursor:pointer;font-family:inherit;transition:all var(--transition);margin-bottom:12px;}
+  .draw-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px color-mix(in srgb,var(--accent) 40%,transparent);}
+  .draw-hint{font-size:0.82rem;color:var(--text-secondary);}
+
+  /* Drawn card display */
+  .drawn-card-wrap{display:none;animation:cardReveal 0.5s cubic-bezier(.34,1.56,.64,1);}
+  @keyframes cardReveal{from{opacity:0;transform:scale(0.7) rotateY(90deg)}to{opacity:1;transform:scale(1) rotateY(0deg)}}
+  .drawn-role-card{max-width:380px;margin:0 auto;border-radius:20px;overflow:hidden;border:2px solid;}
+
+  /* Timer */
+  .timer-wrap{display:none;margin-top:20px;}
+  .timer-display{font-size:2.5rem;font-weight:700;font-variant-numeric:tabular-nums;text-align:center;margin-bottom:12px;}
+  .timer-label{text-align:center;font-size:0.82rem;color:var(--text-secondary);margin-bottom:12px;}
+  .timer-bar-wrap{height:6px;background:var(--border);border-radius:99px;overflow:hidden;max-width:300px;margin:0 auto;}
+  .timer-bar{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2));border-radius:99px;transition:width 1s linear;}
+
+  .btn-secondary{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:10px 22px;font-size:0.88rem;font-weight:600;color:var(--text-primary);cursor:pointer;font-family:inherit;transition:all var(--transition);margin-top:10px;}
+  .btn-secondary:hover{border-color:var(--accent);color:var(--accent);}
+
+  /* Print */
+  #printContent{display:none;}
+  @media print{
+    body>*:not(#printContent){display:none!important;}
+    #printContent{display:block!important;}
+    .print-card{break-inside:avoid;margin-bottom:20px;border:2px solid #ddd;border-radius:12px;padding:16px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="header-title">🎭 [Szenario-Titel]</div>
+    <div class="header-sub">Rollenspiel · [Fach] · [Klasse]</div>
+  </div>
+  <div class="header-right">
+    <button class="btn-sm" onclick="showAllCards()">📋 Alle Karten</button>
+    <button class="btn-sm" onclick="printLesson()">🖨️ Drucken</button>
+    <button class="btn-sm" onclick="toggleTheme()"><span id="themeIcon">🌙</span></button>
+  </div>
+</div>
+
+<div class="main-container">
+
+  <!-- Scenario -->
+  <div class="scenario-box">
+    <div class="scenario-label">📍 Szenario</div>
+    <div class="scenario-title">[Titel des Szenarios]</div>
+    <div class="scenario-text">
+      [Beschreibe die Ausgangssituation in 2–3 Sätzen. Was ist der Konflikt oder das Problem? Wer ist beteiligt?]
+    </div>
+    <span class="task-badge">🎯 Aufgabe: [Diskussion / Verhandlung / Debatte — was sollen Schüler tun?]</span>
+  </div>
+
+  <!-- View toggle -->
+  <div class="view-toggle">
+    <button class="view-btn active" id="btnDeckView" onclick="showView('deck')">📋 Alle Rollen ansehen</button>
+    <button class="view-btn" id="btnDrawView" onclick="showView('draw')">🎲 Karte ziehen</button>
+  </div>
+
+  <!-- DECK VIEW -->
+  <div id="deckView">
+    <div class="deck-grid" id="deckGrid"></div>
+  </div>
+
+  <!-- DRAW VIEW -->
+  <div id="drawView" style="display:none;">
+    <div class="draw-area" id="drawArea">
+      <div class="draw-deck" onclick="drawCard()">
+        <div class="deck-card-back"></div>
+        <div class="deck-card-back"></div>
+        <div class="deck-card-back">🎭</div>
+      </div>
+      <div>
+        <button class="draw-btn" onclick="drawCard()">🎲 Karte ziehen</button>
+        <div class="draw-hint">Klicke auf das Deck oder den Button</div>
+      </div>
+    </div>
+    <div class="drawn-card-wrap" id="drawnCardWrap">
+      <div class="drawn-role-card" id="drawnCard"></div>
+      <div class="timer-wrap" id="timerWrap">
+        <div class="timer-display" id="timerDisplay">2:00</div>
+        <div class="timer-label">⏱️ Vorbereitungszeit</div>
+        <div class="timer-bar-wrap"><div class="timer-bar" id="timerBar" style="width:100%"></div></div>
+      </div>
+      <div style="text-align:center;margin-top:16px;">
+        <button class="btn-secondary" onclick="resetDraw()">🔄 Neue Karte ziehen</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div id="printContent"></div>
+
+<script>
+// ==================== DATA ====================
+const ROLEPLAY = {
+  title: '[Szenario-Titel]',
+  scenario: '[Szenario-Beschreibung]',
+  task: '[Aufgabenstellung für die Schüler]',
+  prepTime: 120,  // seconds — set 0 to disable timer
+  roles: [
+    {
+      id: 'r1',
+      name: '[Name Rolle 1]',
+      emoji: '👩‍💼',
+      job: '[Beruf / Funktion]',
+      position: '«[Klare Position zum Thema in einem Satz]»',
+      arguments: [
+        '[Argument 1, das diese Rolle verwenden kann]',
+        '[Argument 2]',
+        '[Argument 3]',
+      ],
+      goal: '[Was will diese Rolle am Ende erreichen?]',
+      secret: '[Optional: Information, die nur diese Rolle kennt]',
+      color: '#6366f1'  // card accent color
+    },
+    {
+      id: 'r2',
+      name: '[Name Rolle 2]',
+      emoji: '👨‍🏭',
+      job: '[Beruf / Funktion]',
+      position: '«[Position zu Thema]»',
+      arguments: ['[Argument 1]','[Argument 2]','[Argument 3]'],
+      goal: '[Ziel der Rolle]',
+      secret: '',
+      color: '#0ea5e9'
+    },
+    {
+      id: 'r3',
+      name: '[Name Rolle 3]',
+      emoji: '👩‍🔬',
+      job: '[Beruf / Funktion]',
+      position: '«[Position zu Thema]»',
+      arguments: ['[Argument 1]','[Argument 2]'],
+      goal: '[Ziel der Rolle]',
+      secret: '[Geheiminfo optional]',
+      color: '#10b981'
+    },
+    {
+      id: 'r4',
+      name: '[Name Rolle 4]',
+      emoji: '🧑‍🎓',
+      job: '[Beruf / Funktion]',
+      position: '«[Position zu Thema]»',
+      arguments: ['[Argument 1]','[Argument 2]','[Argument 3]'],
+      goal: '[Ziel der Rolle]',
+      secret: '',
+      color: '#f59e0b'
+    },
+  ]
+};
+
+// ==================== STATE ====================
+const STORAGE_KEY = 'roleplay_[slug]_v1';
+let drawnRoleId = null;
+let timerInterval = null;
+let timerRemaining = ROLEPLAY.prepTime;
+
+function saveState() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify({
+    drawnRoleId, theme: document.documentElement.getAttribute('data-theme')
+  })); } catch(e) {}
+}
+function loadState() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch(e) { return {}; } }
+
+// ==================== CARD RENDER ====================
+function cardHTML(role, compact=false) {
+  const textColor = 'white';
+  return `
+    <div class="role-card" style="border-color:${role.color};" onclick="${compact?'':''}">
+      <div class="card-top" style="background:${role.color};">
+        <span class="card-avatar">${role.emoji}</span>
+        <div class="card-name" style="color:${textColor}">${role.name}</div>
+        <div class="card-job" style="color:${textColor}">${role.job}</div>
+      </div>
+      <div class="card-divider" style="background:${role.color};"></div>
+      <div class="card-body" style="background:color-mix(in srgb,${role.color} 20%,var(--bg-secondary));">
+        <div class="card-position" style="color:${role.color}">${role.position}</div>
+        <ul class="card-args">
+          ${role.arguments.map(a => `<li style="color:var(--text-primary)">${a}</li>`).join('')}
+        </ul>
+        <div class="card-goal-label" style="color:var(--text-secondary)">Ziel</div>
+        <div class="card-goal" style="color:var(--text-primary)">${role.goal}</div>
+        ${role.secret ? `<div class="card-secret" style="color:${role.color}">${role.secret}</div>` : ''}
+      </div>
+    </div>`;
+}
+
+// ==================== DECK VIEW ====================
+function renderDeckView() {
+  document.getElementById('deckGrid').innerHTML = ROLEPLAY.roles.map(r => cardHTML(r)).join('');
+}
+
+function showAllCards() {
+  showView('deck');
+  document.getElementById('btnDeckView').click();
+}
+
+// ==================== DRAW VIEW ====================
+function drawCard() {
+  const undrawnRoles = ROLEPLAY.roles.filter(r => r.id !== drawnRoleId);
+  if (!undrawnRoles.length) return;
+  const role = undrawnRoles[Math.floor(Math.random() * undrawnRoles.length)];
+  drawnRoleId = role.id;
+  saveState();
+
+  // Hide draw deck, show card
+  document.getElementById('drawArea').style.display = 'none';
+  const wrap = document.getElementById('drawnCardWrap');
+  wrap.style.display = 'block';
+  wrap.style.animation = 'none';
+  requestAnimationFrame(() => { wrap.style.animation = ''; wrap.className = 'drawn-card-wrap'; });
+  document.getElementById('drawnCard').innerHTML = cardHTML(role);
+  document.getElementById('drawnCard').style.borderColor = role.color;
+
+  // Start timer if configured
+  if (ROLEPLAY.prepTime > 0) {
+    startTimer();
+  }
+}
+
+function startTimer() {
+  clearInterval(timerInterval);
+  timerRemaining = ROLEPLAY.prepTime;
+  document.getElementById('timerWrap').style.display = 'block';
+  updateTimerDisplay();
+  timerInterval = setInterval(() => {
+    timerRemaining--;
+    updateTimerDisplay();
+    if (timerRemaining <= 0) {
+      clearInterval(timerInterval);
+      document.getElementById('timerDisplay').textContent = '⏱️ Los!';
+      document.getElementById('timerDisplay').style.color = 'var(--green)';
+    }
+  }, 1000);
+}
+
+function updateTimerDisplay() {
+  const m = Math.floor(timerRemaining / 60);
+  const s = timerRemaining % 60;
+  document.getElementById('timerDisplay').textContent = `${m}:${s.toString().padStart(2,'0')}`;
+  document.getElementById('timerDisplay').style.color = timerRemaining <= 30 ? 'var(--red)' : 'var(--text-primary)';
+  document.getElementById('timerBar').style.width = (timerRemaining / ROLEPLAY.prepTime * 100) + '%';
+}
+
+function resetDraw() {
+  clearInterval(timerInterval);
+  drawnRoleId = null;
+  saveState();
+  document.getElementById('drawArea').style.display = 'block';
+  document.getElementById('drawnCardWrap').style.display = 'none';
+  document.getElementById('timerWrap').style.display = 'none';
+}
+
+// ==================== VIEWS ====================
+function showView(view) {
+  document.getElementById('deckView').style.display = view==='deck' ? 'block' : 'none';
+  document.getElementById('drawView').style.display = view==='draw' ? 'block' : 'none';
+  document.getElementById('btnDeckView').classList.toggle('active', view==='deck');
+  document.getElementById('btnDrawView').classList.toggle('active', view==='draw');
+}
+
+// ==================== THEME ====================
+function toggleTheme() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  document.getElementById('themeIcon').textContent = isDark ? '☀️' : '🌙';
+  saveState();
+}
+
+// ==================== PRINT ====================
+function printLesson() {
+  const now = new Date().toLocaleDateString('de-CH');
+  const cardsHtml = ROLEPLAY.roles.map(r => `
+    <div class="print-card">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+        <span style="font-size:2rem;">${r.emoji}</span>
+        <div>
+          <div style="font-size:1rem;font-weight:700;">${r.name}</div>
+          <div style="font-size:0.82rem;color:#555;">${r.job}</div>
+        </div>
+      </div>
+      <p style="font-style:italic;color:#555;margin-bottom:8px;border-left:3px solid ${r.color};padding-left:10px;">${r.position}</p>
+      <p style="font-size:0.8rem;font-weight:700;margin-bottom:4px;">Argumente:</p>
+      <ul style="padding-left:16px;margin-bottom:8px;">${r.arguments.map(a=>`<li style="font-size:0.85rem;margin-bottom:2px;">${a}</li>`).join('')}</ul>
+      <p style="font-size:0.8rem;"><strong>Ziel:</strong> ${r.goal}</p>
+      ${r.secret?`<p style="font-size:0.78rem;background:#fef3c7;padding:6px 10px;border-radius:6px;margin-top:6px;">🔒 ${r.secret}</p>`:''}
+    </div>`).join('');
+
+  document.getElementById('printContent').innerHTML = `
+    <div style="font-family:Georgia,serif;max-width:700px;margin:0 auto;padding:30px;color:#111;">
+      <h1 style="font-size:1.3rem;margin-bottom:4px;">🎭 Rollenspiel: ${ROLEPLAY.title}</h1>
+      <p style="font-size:0.85rem;color:#666;margin-bottom:6px;">Datum: ${now}</p>
+      <p style="font-size:0.88rem;background:#f3f4f6;padding:10px 14px;border-radius:8px;margin-bottom:20px;">${ROLEPLAY.scenario}</p>
+      <h2 style="font-size:1rem;margin-bottom:14px;">Rollenkarten</h2>
+      ${cardsHtml}
+    </div>`;
+  window.print();
+}
+
+// ==================== INIT ====================
+document.addEventListener('DOMContentLoaded', () => {
+  const s = loadState();
+  if (s.theme) document.documentElement.setAttribute('data-theme', s.theme);
+  if (s.theme === 'light') document.getElementById('themeIcon').textContent = '☀️';
+  renderDeckView();
+  if (s.drawnRoleId) {
+    drawnRoleId = s.drawnRoleId;
+    // Restore drawn card without timer
+    const role = ROLEPLAY.roles.find(r => r.id === drawnRoleId);
+    if (role) {
+      showView('draw');
+      document.getElementById('drawArea').style.display = 'none';
+      const wrap = document.getElementById('drawnCardWrap');
+      wrap.style.display = 'block';
+      document.getElementById('drawnCard').innerHTML = cardHTML(role);
+    }
+  }
+});
+</script>
+</body>
+</html>

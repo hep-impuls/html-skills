@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎫 Exit Ticket — [Lektionstitel]</title>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root[data-theme="dark"] {
+    --bg-primary:#0f172a;--bg-secondary:#1e293b;--bg-card:#334155;
+    --text-primary:#f1f5f9;--text-secondary:#94a3b8;--border:#475569;
+  }
+  :root[data-theme="light"] {
+    --bg-primary:#f8fafc;--bg-secondary:#ffffff;--bg-card:#f1f5f9;
+    --text-primary:#1e293b;--text-secondary:#64748b;--border:#e2e8f0;
+  }
+  :root{
+    --accent:#06b6d4;--accent-2:#6366f1;
+    --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+    --radius:12px;--radius-lg:20px;--transition:0.2s ease;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Lexend',sans-serif;background:var(--bg-primary);color:var(--text-primary);min-height:100vh;}
+
+  /* Header — minimal */
+  .header{background:var(--bg-secondary);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;}
+  .header-title{font-size:0.95rem;font-weight:700;}
+  .header-sub{font-size:0.72rem;color:var(--text-secondary);margin-top:1px;}
+  .header-right{display:flex;align-items:center;gap:8px;}
+  .btn-sm{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:5px 12px;font-size:0.78rem;font-weight:600;color:var(--text-primary);cursor:pointer;font-family:inherit;transition:all var(--transition);}
+  .btn-sm:hover{border-color:var(--accent);color:var(--accent);}
+
+  /* Progress */
+  .progress-bar-wrap{height:4px;background:var(--border);}
+  .progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2));transition:width 0.4s ease;}
+
+  /* Slides */
+  .slide-container{max-width:600px;margin:0 auto;padding:28px 20px 100px;}
+  .slide{display:none;}
+  .slide.active{display:block;animation:fadeIn 0.3s ease;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+  /* Slide card */
+  .slide-card{background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius-lg);padding:28px 28px 24px;}
+  .slide-icon{font-size:2.5rem;text-align:center;display:block;margin-bottom:12px;}
+  .slide-title{font-size:1.2rem;font-weight:700;text-align:center;margin-bottom:8px;}
+  .slide-sub{font-size:0.88rem;color:var(--text-secondary);text-align:center;line-height:1.6;margin-bottom:24px;}
+
+  /* Name input */
+  .name-input{width:100%;background:var(--bg-card);border:2px solid var(--border);border-radius:var(--radius);padding:14px 16px;color:var(--text-primary);font-family:inherit;font-size:1rem;text-align:center;font-weight:600;transition:border-color var(--transition);margin-bottom:6px;}
+  .name-input:focus{outline:none;border-color:var(--accent);}
+
+  /* MC */
+  .question-text{font-size:1rem;font-weight:600;margin-bottom:16px;line-height:1.4;text-align:center;}
+  .choices{display:flex;flex-direction:column;gap:10px;margin-bottom:8px;}
+  .choice-btn{background:var(--bg-card);border:2px solid var(--border);border-radius:var(--radius);padding:12px 16px;text-align:left;font-family:inherit;font-size:0.9rem;color:var(--text-primary);cursor:pointer;transition:all var(--transition);}
+  .choice-btn:hover:not(:disabled){border-color:var(--accent);background:color-mix(in srgb,var(--accent) 8%,var(--bg-card));}
+  .choice-btn.selected{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,var(--bg-card));}
+  .choice-btn:disabled{cursor:not-allowed;}
+  .no-feedback{font-size:0.75rem;color:var(--text-secondary);text-align:center;margin-top:6px;font-style:italic;}
+
+  /* Open question */
+  textarea{width:100%;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px;color:var(--text-primary);font-family:inherit;font-size:0.9rem;resize:vertical;min-height:90px;transition:border-color var(--transition);}
+  textarea:focus{outline:none;border-color:var(--accent);}
+
+  /* Ampel */
+  .ampel-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px;}
+  .ampel-btn{background:var(--bg-card);border:3px solid var(--border);border-radius:var(--radius-lg);padding:18px 10px;text-align:center;cursor:pointer;font-family:inherit;transition:all var(--transition);font-size:0.82rem;font-weight:600;line-height:1.4;}
+  .ampel-btn:hover{transform:translateY(-2px);}
+  .ampel-btn .ampel-light{font-size:2rem;display:block;margin-bottom:6px;}
+  .ampel-btn.red-btn{border-color:transparent;}
+  .ampel-btn.yellow-btn{border-color:transparent;}
+  .ampel-btn.green-btn{border-color:transparent;}
+  .ampel-btn.red-btn:hover,.ampel-btn.red-btn.selected{border-color:#ef4444;background:color-mix(in srgb,#ef4444 12%,transparent);}
+  .ampel-btn.yellow-btn:hover,.ampel-btn.yellow-btn.selected{border-color:var(--yellow);background:color-mix(in srgb,var(--yellow) 12%,transparent);}
+  .ampel-btn.green-btn:hover,.ampel-btn.green-btn.selected{border-color:var(--green);background:color-mix(in srgb,var(--green) 12%,transparent);}
+
+  /* Thank you slide */
+  .thankyou-big{font-size:4rem;text-align:center;margin:20px 0 12px;}
+  .thankyou-msg{text-align:center;font-size:1rem;color:var(--text-secondary);line-height:1.7;}
+
+  /* Bottom nav */
+  .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--bg-secondary);border-top:1px solid var(--border);padding:10px 24px;display:flex;align-items:center;justify-content:space-between;z-index:100;}
+  .bottom-nav-center{font-size:0.82rem;color:var(--text-secondary);font-weight:500;}
+  .btn-nav{background:linear-gradient(135deg,var(--accent),var(--accent-2));border:none;border-radius:var(--radius);padding:10px 22px;font-size:0.9rem;font-weight:700;color:white;cursor:pointer;font-family:inherit;transition:all var(--transition);}
+  .btn-nav:hover{transform:translateY(-1px);}
+  .btn-nav:disabled{opacity:0.35;cursor:not-allowed;transform:none;}
+  .btn-nav-ghost{background:var(--bg-card);color:var(--text-primary);}
+
+  /* Print */
+  #printContent{display:none;}
+  @media print{body>*:not(#printContent){display:none!important;}#printContent{display:block!important;}}
+
+  /* Timer badge */
+  .time-badge{display:inline-flex;align-items:center;gap:6px;background:color-mix(in srgb,var(--accent) 15%,transparent);border:1px solid color-mix(in srgb,var(--accent) 30%,transparent);border-radius:99px;padding:3px 10px;font-size:0.72rem;font-weight:700;color:var(--accent);}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="header-title">🎫 Exit Ticket</div>
+    <div class="header-sub">[Lektionstitel] · <span id="studentNameDisplay">Schüler/in</span></div>
+  </div>
+  <div class="header-right">
+    <span class="time-badge">⏱️ ~3 Min.</span>
+    <button class="btn-sm" onclick="printTicket()">🖨️ Ausdruck</button>
+    <button class="btn-sm" onclick="toggleTheme()"><span id="themeIcon">🌙</span></button>
+  </div>
+</div>
+
+<div class="progress-bar-wrap">
+  <div class="progress-fill" id="progressFill" style="width:0%"></div>
+</div>
+
+<div class="slide-container">
+
+  <!-- Slide 1: Welcome + Name -->
+  <div class="slide active" id="slide-1">
+    <div class="slide-card">
+      <span class="slide-icon">🎫</span>
+      <div class="slide-title">Exit Ticket</div>
+      <div class="slide-sub">3 kurze Fragen zur heutigen Lektion.<br>Deine ehrliche Antwort hilft der Lehrperson!</div>
+      <input class="name-input" id="nameInput" type="text" placeholder="Dein Vorname" oninput="updateName()">
+    </div>
+  </div>
+
+  <!-- Slide 2: Question 1 (MC) -->
+  <div class="slide" id="slide-2">
+    <div class="slide-card">
+      <span class="slide-icon">❓</span>
+      <div class="question-text" id="q1-text">[Frage 1: Was haben wir heute über [Thema] gelernt?]</div>
+      <div class="choices" id="q1-choices"></div>
+      <p class="no-feedback">Keine Auswertung — wähle die Antwort, die du für richtig hältst.</p>
+    </div>
+  </div>
+
+  <!-- Slide 3: Question 2 (Open) -->
+  <div class="slide" id="slide-3">
+    <div class="slide-card">
+      <span class="slide-icon">✍️</span>
+      <div class="question-text">[Frage 2: Was war heute unklar oder was möchtest du nochmals erklären haben?]</div>
+      <textarea id="q2-text" placeholder="Schreibe 1–2 Sätze..." oninput="saveState()"></textarea>
+    </div>
+  </div>
+
+  <!-- Slide 4: Question 3 (YN or MC) -->
+  <div class="slide" id="slide-4">
+    <div class="slide-card">
+      <span class="slide-icon">🤔</span>
+      <div class="question-text" id="q3-text">[Frage 3: Richtig oder falsch?]</div>
+      <div class="choices" id="q3-choices"></div>
+    </div>
+  </div>
+
+  <!-- Slide 5: Ampel -->
+  <div class="slide" id="slide-5">
+    <div class="slide-card">
+      <span class="slide-icon">🚦</span>
+      <div class="slide-title">Wie sicher fühlst du dich?</div>
+      <div class="slide-sub">Wähle die Ampelfarbe, die deinem heutigen Verständnis entspricht.</div>
+      <div class="ampel-grid">
+        <button class="ampel-btn red-btn" onclick="setAmpel('red',this)">
+          <span class="ampel-light">🔴</span>
+          Ich brauche Hilfe
+        </button>
+        <button class="ampel-btn yellow-btn" onclick="setAmpel('yellow',this)">
+          <span class="ampel-light">🟡</span>
+          Ich bin unsicher
+        </button>
+        <button class="ampel-btn green-btn" onclick="setAmpel('green',this)">
+          <span class="ampel-light">🟢</span>
+          Ich hab's verstanden
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 6: Thank you -->
+  <div class="slide" id="slide-6">
+    <div class="slide-card">
+      <div class="thankyou-big">🙌</div>
+      <div class="slide-title">Danke, <span id="thankyouName">!</span></div>
+      <div class="thankyou-msg">Dein Exit Ticket wurde gespeichert.<br>Du kannst es ausdrucken oder einfach abgeben.</div>
+      <div style="margin-top:24px;text-align:center;">
+        <button class="btn-nav" onclick="printTicket()">🖨️ Ausdrucken</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Bottom nav -->
+<div class="bottom-nav">
+  <button class="btn-nav btn-nav-ghost" id="btnPrev" onclick="prevSlide()" disabled>← Zurück</button>
+  <span class="bottom-nav-center" id="slideCounter">1 / 6</span>
+  <button class="btn-nav" id="btnNext" onclick="nextSlide()">Weiter →</button>
+</div>
+
+<div id="printContent"></div>
+
+<script>
+// ==================== DATA ====================
+const EXIT_TICKET = {
+  lessonTitle: '[Lektionstitel]',
+  subject: '[Fach]',
+  anonymous: false,  // true = no name captured
+  questions: [
+    {
+      id: 'q1',
+      type: 'mc',
+      text: '[Frage 1: Verständnisfrage zur Lektion]',
+      choices: [
+        '[Antwort A]',
+        '[Antwort B]',
+        '[Antwort C]',
+        '[Antwort D]'
+      ],
+      // No correct answer shown — formative only
+    },
+    {
+      id: 'q2',
+      type: 'open',
+      text: '[Frage 2: Was war heute unklar?]'
+    },
+    {
+      id: 'q3',
+      type: 'yn',
+      text: '[Frage 3: Richtig oder Falsch — Aussage über das Lernthema]',
+      // No correct shown — formative
+    }
+  ]
+};
+
+const TOTAL_SLIDES = 6;
+
+// ==================== STATE ====================
+const STORAGE_KEY = 'exitticket_[slug]_v1';
+let currentSlide = 1;
+let studentName = '';
+let q1Answer = null;    // chosen index
+let q2Text = '';        // open text
+let q3Answer = null;    // 'ja' or 'nein'
+let ampelColor = null;  // 'red'|'yellow'|'green'
+
+function saveState() {
+  q2Text = document.getElementById('q2-text')?.value || q2Text;
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify({
+    currentSlide, studentName, q1Answer, q2Text, q3Answer, ampelColor,
+    theme: document.documentElement.getAttribute('data-theme')
+  })); } catch(e) {}
+}
+function loadState() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch(e) { return {}; } }
+
+// ==================== NAVIGATION ====================
+function goToSlide(n) {
+  if (n < 1 || n > TOTAL_SLIDES) return;
+  document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+  document.getElementById('slide-'+n).classList.add('active');
+  currentSlide = n;
+  document.getElementById('progressFill').style.width = ((n-1)/(TOTAL_SLIDES-1)*100)+'%';
+  document.getElementById('slideCounter').textContent = `${n} / ${TOTAL_SLIDES}`;
+  document.getElementById('btnPrev').disabled = n === 1;
+  document.getElementById('btnNext').disabled = n === TOTAL_SLIDES;
+  document.getElementById('btnNext').textContent = n === TOTAL_SLIDES-1 ? 'Abschliessen ✓' : 'Weiter →';
+  if (n === TOTAL_SLIDES) {
+    document.getElementById('thankyouName').textContent = studentName ? studentName+'!' : '!';
+  }
+  window.scrollTo({top:0,behavior:'smooth'});
+  saveState();
+}
+function nextSlide() { goToSlide(currentSlide+1); }
+function prevSlide() { goToSlide(currentSlide-1); }
+
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') return;
+  if (e.key==='ArrowRight') nextSlide();
+  if (e.key==='ArrowLeft') prevSlide();
+});
+
+// ==================== NAME ====================
+function updateName() {
+  const input = document.getElementById('nameInput');
+  studentName = input?.value || '';
+  document.getElementById('studentNameDisplay').textContent = studentName || 'Schüler/in';
+  saveState();
+}
+
+// ==================== Q1 MC ====================
+function renderQ1() {
+  const q = EXIT_TICKET.questions.find(q => q.id === 'q1');
+  document.getElementById('q1-text').textContent = q.text;
+  document.getElementById('q1-choices').innerHTML = q.choices.map((c, ci) => `
+    <button class="choice-btn ${q1Answer===ci?'selected':''}"
+      onclick="selectQ1(${ci})">○ ${c}</button>`).join('');
+}
+
+function selectQ1(ci) {
+  q1Answer = ci;
+  saveState();
+  renderQ1();
+}
+
+// ==================== Q3 YN ====================
+function renderQ3() {
+  const q = EXIT_TICKET.questions.find(q => q.id === 'q3');
+  document.getElementById('q3-text').textContent = q.text;
+  document.getElementById('q3-choices').innerHTML = `
+    <button class="choice-btn ${q3Answer==='ja'?'selected':''}" onclick="selectQ3('ja')">✅ Richtig</button>
+    <button class="choice-btn ${q3Answer==='nein'?'selected':''}" onclick="selectQ3('nein')">❌ Falsch</button>`;
+}
+
+function selectQ3(val) {
+  q3Answer = val;
+  saveState();
+  renderQ3();
+}
+
+// ==================== AMPEL ====================
+function setAmpel(color, btn) {
+  ampelColor = color;
+  document.querySelectorAll('.ampel-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  saveState();
+}
+
+// ==================== THEME ====================
+function toggleTheme() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  document.getElementById('themeIcon').textContent = isDark ? '☀️' : '🌙';
+  saveState();
+}
+
+// ==================== PRINT ====================
+function printTicket() {
+  saveState();
+  const now = new Date().toLocaleDateString('de-CH');
+  const q = EXIT_TICKET.questions;
+  const mcQ = q.find(q => q.id==='q1');
+  const openQ = q.find(q => q.id==='q2');
+  const ynQ = q.find(q => q.id==='q3');
+  const ampelLabel = {red:'🔴 Ich brauche Hilfe', yellow:'🟡 Ich bin unsicher', green:'🟢 Ich hab\'s verstanden'};
+
+  document.getElementById('printContent').innerHTML = `
+    <style>
+      .ticket{width:340px;display:inline-block;border:2px solid #ddd;border-radius:12px;padding:16px;font-family:Georgia,serif;font-size:0.85rem;color:#111;vertical-align:top;margin:10px;}
+      .ticket h2{font-size:0.95rem;margin-bottom:4px;}
+      .ticket .meta{font-size:0.75rem;color:#666;margin-bottom:12px;}
+      .ticket .section{margin-bottom:10px;}
+      .ticket .label{font-size:0.7rem;text-transform:uppercase;color:#888;margin-bottom:2px;font-weight:700;}
+      .ticket .answer{background:#f8fafc;border-left:3px solid #6366f1;padding:6px 10px;font-size:0.82rem;}
+      @media print{.ticket{break-inside:avoid;}}
+    </style>
+    <div class="ticket">
+      <h2>🎫 Exit Ticket: ${EXIT_TICKET.lessonTitle}</h2>
+      <div class="meta">
+        ${studentName ? 'Name: '+studentName+' | ' : ''}Datum: ${now} | ${EXIT_TICKET.subject}
+      </div>
+      <div class="section">
+        <div class="label">Frage 1 (Auswahl)</div>
+        <div class="answer">${mcQ?.text}<br><strong>${q1Answer !== null ? mcQ?.choices[q1Answer] : '—'}</strong></div>
+      </div>
+      <div class="section">
+        <div class="label">Frage 2 (Offen)</div>
+        <div class="answer">${openQ?.text}<br>${q2Text || '—'}</div>
+      </div>
+      <div class="section">
+        <div class="label">Frage 3 (Richtig/Falsch)</div>
+        <div class="answer">${ynQ?.text}<br><strong>${q3Answer || '—'}</strong></div>
+      </div>
+      <div class="section">
+        <div class="label">Selbsteinschätzung</div>
+        <div class="answer">${ampelColor ? ampelLabel[ampelColor] : '—'}</div>
+      </div>
+    </div>`;
+  window.print();
+}
+
+// ==================== INIT ====================
+document.addEventListener('DOMContentLoaded', () => {
+  const s = loadState();
+  if (s.theme) document.documentElement.setAttribute('data-theme', s.theme);
+  if (s.theme === 'light') document.getElementById('themeIcon').textContent = '☀️';
+  if (s.studentName) { studentName = s.studentName; document.getElementById('nameInput').value = studentName; updateName(); }
+  if (s.q1Answer !== undefined) q1Answer = s.q1Answer;
+  if (s.q2Text) q2Text = s.q2Text;
+  if (s.q3Answer) q3Answer = s.q3Answer;
+  if (s.ampelColor) ampelColor = s.ampelColor;
+
+  renderQ1();
+  renderQ3();
+  if (q2Text) document.getElementById('q2-text').value = q2Text;
+  if (ampelColor) {
+    const map = {red:'.red-btn',yellow:'.yellow-btn',green:'.green-btn'};
+    document.querySelector(map[ampelColor])?.classList.add('selected');
+  }
+  goToSlide(s.currentSlide || 1);
+});
+</script>
+</body>
+</html>
