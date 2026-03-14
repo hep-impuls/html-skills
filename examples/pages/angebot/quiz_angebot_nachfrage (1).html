@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Interaktives Quiz – Angebot und Nachfrage</title>
+  <style>
+    :root {
+      --bg1: #0f172a;
+      --bg2: #1e293b;
+      --card: rgba(255,255,255,0.1);
+      --card-solid: #ffffff;
+      --text: #e5eefc;
+      --muted: #b9c7dd;
+      --primary: #6366f1;
+      --primary-2: #22c55e;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --accent: #06b6d4;
+      --shadow: 0 20px 40px rgba(0,0,0,0.25);
+      --radius: 22px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(99,102,241,0.35), transparent 30%),
+        radial-gradient(circle at top right, rgba(6,182,212,0.25), transparent 25%),
+        linear-gradient(135deg, var(--bg1), var(--bg2));
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .container {
+      width: min(1180px, calc(100% - 32px));
+      margin: 24px auto 40px;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, rgba(255,255,255,0.14), rgba(255,255,255,0.06));
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      padding: 28px;
+      margin-bottom: 22px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(99,102,241,0.18);
+      border: 1px solid rgba(99,102,241,0.35);
+      color: #dbe4ff;
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      margin-bottom: 14px;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      line-height: 1.05;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      max-width: 850px;
+      font-size: 1.05rem;
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1.55fr 0.95fr;
+      gap: 22px;
+      align-items: start;
+    }
+
+    .panel {
+      background: linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.06));
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding: 18px 20px 0;
+    }
+
+    .panel-title {
+      margin: 0;
+      font-size: 1.2rem;
+    }
+
+    .panel-subtitle {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .video-wrap {
+      padding: 20px;
+    }
+
+    .video-frame {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      border-radius: 18px;
+      overflow: hidden;
+      background: #000;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+    }
+
+    .video-frame iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+
+    .video-fallback {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 14px;
+      padding: 28px;
+      background:
+        linear-gradient(180deg, rgba(15,23,42,0.9), rgba(15,23,42,0.96)),
+        radial-gradient(circle at top, rgba(99,102,241,0.28), transparent 35%);
+      color: #e5eefc;
+    }
+
+    .video-fallback[hidden] {
+      display: none;
+    }
+
+    .fallback-icon {
+      width: 76px;
+      height: 76px;
+      border-radius: 999px;
+      display: grid;
+      place-items: center;
+      font-size: 1.9rem;
+      font-weight: 800;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.14);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    }
+
+    .video-fallback h3 {
+      margin: 0;
+      font-size: 1.4rem;
+    }
+
+    .video-fallback p {
+      margin: 0;
+      max-width: 640px;
+      color: #cbd5e1;
+      line-height: 1.6;
+    }
+
+    .fallback-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .primary-link,
+    .secondary-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+      padding: 12px 18px;
+      border-radius: 14px;
+      text-decoration: none;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.2s ease;
+      border: 0;
+    }
+
+    .primary-link {
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      color: #fff;
+      box-shadow: 0 10px 22px rgba(99,102,241,0.28);
+    }
+
+    .secondary-link {
+      background: rgba(255,255,255,0.12);
+      color: #e5eefc;
+      border: 1px solid rgba(255,255,255,0.16);
+    }
+
+    .primary-link:hover,
+    .secondary-link:hover {
+      transform: translateY(-1px);
+    }
+
+    .video-meta {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .stat {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 18px;
+      padding: 14px;
+    }
+
+    .stat-label {
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .stat-value {
+      font-weight: 700;
+      font-size: 1.15rem;
+    }
+
+    .sidebar {
+      padding: 18px;
+      display: grid;
+      gap: 16px;
+    }
+
+    .progress-card,
+    .timeline-card,
+    .score-card {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 20px;
+      padding: 16px;
+    }
+
+    .progress-bar {
+      height: 12px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 999px;
+      overflow: hidden;
+      margin: 10px 0 8px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent), var(--primary));
+      transition: width 0.35s ease;
+      border-radius: inherit;
+    }
+
+    .timeline {
+      display: grid;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .timeline-item {
+      display: grid;
+      grid-template-columns: 84px 1fr;
+      gap: 12px;
+      align-items: center;
+      padding: 10px 12px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid transparent;
+      transition: 0.25s ease;
+    }
+
+    .timeline-item.active {
+      border-color: rgba(6,182,212,0.45);
+      background: rgba(6,182,212,0.12);
+    }
+
+    .timeline-item.done {
+      border-color: rgba(34,197,94,0.35);
+      background: rgba(34,197,94,0.12);
+    }
+
+    .time-pill {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.12);
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+
+    .timeline-text {
+      color: var(--muted);
+      font-size: 0.94rem;
+      line-height: 1.4;
+    }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 23, 0.72);
+      backdrop-filter: blur(10px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 999;
+    }
+
+    .overlay.show { display: flex; }
+
+    .quiz-modal {
+      width: min(760px, 100%);
+      background: #ffffff;
+      color: #0f172a;
+      border-radius: 28px;
+      box-shadow: 0 30px 60px rgba(0,0,0,0.35);
+      overflow: hidden;
+      animation: popIn 0.25s ease;
+    }
+
+    @keyframes popIn {
+      from { transform: translateY(10px) scale(0.98); opacity: 0; }
+      to { transform: translateY(0) scale(1); opacity: 1; }
+    }
+
+    .quiz-top {
+      padding: 22px 24px 16px;
+      background: linear-gradient(135deg, #eef2ff, #ecfeff);
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .quiz-kicker {
+      display: inline-block;
+      background: #dbeafe;
+      color: #1d4ed8;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      margin-bottom: 12px;
+    }
+
+    .quiz-top h2 {
+      margin: 0 0 8px;
+      font-size: 1.55rem;
+    }
+
+    .quiz-top p {
+      margin: 0;
+      color: #475569;
+      line-height: 1.5;
+    }
+
+    .quiz-body {
+      padding: 22px 24px 26px;
+    }
+
+    .answers {
+      display: grid;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .answer-btn {
+      width: 100%;
+      border: 2px solid #e2e8f0;
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 16px 18px;
+      text-align: left;
+      cursor: pointer;
+      transition: transform 0.15s ease, border-color 0.2s ease, background 0.2s ease;
+      font-size: 1rem;
+      line-height: 1.45;
+    }
+
+    .answer-btn:hover:not(.locked) {
+      transform: translateY(-1px);
+      border-color: #a5b4fc;
+      background: #f8faff;
+    }
+
+    .answer-btn.correct {
+      background: #ecfdf5;
+      border-color: #22c55e;
+      color: #166534;
+    }
+
+    .answer-btn.wrong {
+      background: #fef2f2;
+      border-color: #ef4444;
+      color: #991b1b;
+    }
+
+    .answer-btn.locked {
+      cursor: default;
+    }
+
+    .feedback {
+      margin-top: 16px;
+      min-height: 28px;
+      font-weight: 700;
+    }
+
+    .feedback.correct { color: #15803d; }
+    .feedback.wrong { color: #b91c1c; }
+
+    .explanation {
+      margin-top: 8px;
+      color: #475569;
+      line-height: 1.55;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-top: 22px;
+      flex-wrap: wrap;
+    }
+
+    button.primary,
+    button.secondary {
+      border: 0;
+      border-radius: 14px;
+      padding: 12px 18px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    button.primary {
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      color: white;
+      box-shadow: 0 10px 22px rgba(99,102,241,0.28);
+    }
+
+    button.secondary {
+      background: #e2e8f0;
+      color: #1e293b;
+    }
+
+    button.primary:hover,
+    button.secondary:hover { transform: translateY(-1px); }
+
+    button[disabled] {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+
+    .footer-note {
+      margin-top: 18px;
+      color: var(--muted);
+      text-align: center;
+      font-size: 0.92rem;
+    }
+
+    @media (max-width: 980px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .container {
+        width: min(100% - 18px, 1180px);
+      }
+
+      .hero, .video-wrap, .sidebar, .quiz-top, .quiz-body {
+        padding-left: 16px;
+        padding-right: 16px;
+      }
+
+      .video-meta {
+        grid-template-columns: 1fr;
+      }
+
+      .timeline-item {
+        grid-template-columns: 72px 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <section class="hero">
+      <div class="badge">🎓 Interaktives Lernquiz mit Video-Stopps</div>
+      <h1>Angebot und Nachfrage verstehen</h1>
+      <p class="subtitle">
+        Das Video pausiert automatisch an passenden Zeitpunkten. Beantworte 5 Multiple-Choice-Fragen direkt beim Lernen und erhalte sofort Feedback in Grün oder Rot. Am Ende siehst du deinen Punktestand.
+      </p>
+    </section>
+
+    <section class="layout">
+      <div class="panel">
+        <div class="panel-header">
+          <h2 class="panel-title">Lernvideo</h2>
+          <p class="panel-subtitle">Das Quiz stoppt das Video an den hinterlegten Timestamps.</p>
+        </div>
+        <div class="video-wrap">
+          <div class="video-frame" id="videoFrame">
+            <div id="player"></div>
+            <div class="video-fallback" id="videoFallback" hidden>
+              <div class="fallback-icon">▶</div>
+              <h3>YouTube-Embed ist lokal blockiert</h3>
+              <p>
+                Wenn die HTML-Datei direkt per <strong>file://</strong> geöffnet wird, blockiert YouTube den eingebetteten Player häufig
+                mit Fehler 153. Du kannst das Video trotzdem über YouTube öffnen und das Quiz weiterhin mit den Zeitmarken nutzen.
+              </p>
+              <div class="fallback-actions">
+                <a class="primary-link" id="openVideoBtn" href="https://www.youtube.com/watch?v=nJV75nUuO1w" target="_blank" rel="noopener noreferrer">Video auf YouTube öffnen</a>
+                <button class="secondary-link" id="manualModeBtn" type="button">Quiz ohne Embed starten</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="video-meta">
+            <div class="stat">
+              <div class="stat-label">Status</div>
+              <div class="stat-value" id="statusText">Video wird geladen …</div>
+            </div>
+            <div class="stat">
+              <div class="stat-label">Aktuelle Frage</div>
+              <div class="stat-value" id="questionIndex">0 / 5</div>
+            </div>
+            <div class="stat">
+              <div class="stat-label">Punktestand</div>
+              <div class="stat-value" id="scoreText">0 Punkte</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <aside class="panel">
+        <div class="sidebar">
+          <div class="progress-card">
+            <h3 style="margin:0;">Fortschritt</h3>
+            <div class="progress-bar">
+              <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div id="progressLabel" style="color: var(--muted);">Noch keine Frage beantwortet.</div>
+          </div>
+
+          <div class="score-card">
+            <h3 style="margin:0 0 6px;">So funktioniert’s</h3>
+            <div style="color: var(--muted); line-height: 1.6; font-size: 0.95rem;" id="howItWorksText">
+              1. Starte das Video.<br>
+              2. An den markierten Stellen pausiert es automatisch.<br>
+              3. Wähle eine Antwort und erhalte sofort Feedback.<br>
+              4. Klicke danach auf <strong>Weiter mit Video</strong>.
+            </div>
+          </div>
+
+          <div class="timeline-card">
+            <h3 style="margin:0;">Quiz-Timeline</h3>
+            <div class="timeline" id="timeline"></div>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <p class="footer-note">Quelle des Lernvideos: YouTube / Studyflix – Thema „Angebot und Nachfrage“</p>
+  </div>
+
+  <div class="overlay" id="quizOverlay">
+    <div class="quiz-modal">
+      <div class="quiz-top">
+        <div class="quiz-kicker" id="quizKicker">Frage 1 von 5</div>
+        <h2 id="quizQuestion">Frage</h2>
+        <p id="quizTimeInfo">Zeitpunkt im Video</p>
+      </div>
+      <div class="quiz-body">
+        <div class="answers" id="answersContainer"></div>
+        <div class="feedback" id="feedback"></div>
+        <div class="explanation" id="explanation"></div>
+        <div class="actions">
+          <button class="secondary" id="restartBtn" type="button">Quiz neu starten</button>
+          <button class="primary" id="continueBtn" type="button" disabled>Weiter mit Video</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://www.youtube.com/iframe_api"></script>
+  <script>
+    const videoId = "nJV75nUuO1w";
+
+    const quizData = [
+      {
+        time: 39,
+        label: "0:39",
+        title: "Grundbegriffe des Marktes",
+        question: "Was bedeutet in dem Video der Begriff \"Angebot\"?",
+        answers: [
+          "Die Menge an Gütern und Dienstleistungen, die auf einem Markt angeboten wird.",
+          "Die Bereitschaft der Konsumenten, etwas zu kaufen.",
+          "Der Preis, zu dem ein Produkt verkauft wird.",
+          "Die Anzahl der Käufer auf einem Markt."
+        ],
+        correct: 0,
+        explanation: "Im Video wird Angebot als die Menge an Gütern und Dienstleistungen definiert, die auf einem Markt angeboten werden."
+      },
+      {
+        time: 91,
+        label: "1:31",
+        title: "Gesetz der Nachfrage",
+        question: "Welche Aussage beschreibt das Gesetz der Nachfrage korrekt?",
+        answers: [
+          "Je höher der Preis, desto höher die nachgefragte Menge.",
+          "Je geringer der Preis, desto höher die nachgefragte Menge.",
+          "Die nachgefragte Menge ist immer unabhängig vom Preis.",
+          "Die Nachfrage steigt nur bei Dienstleistungen."
+        ],
+        correct: 1,
+        explanation: "Das Gesetz der Nachfrage besagt: Sinkt der Preis, steigt im Normalfall die nachgefragte Menge."
+      },
+      {
+        time: 128,
+        label: "2:08",
+        title: "Gesetz des Angebots",
+        question: "Warum verkaufen Anbieter laut Video mehr Fisch, wenn der Preis steigt?",
+        answers: [
+          "Weil bei höherem Preis die Ertragschancen steigen.",
+          "Weil dann automatisch mehr Käufer da sind.",
+          "Weil die Nachfragekurve nach links rutscht.",
+          "Weil der Markt dann geschlossen wird."
+        ],
+        correct: 0,
+        explanation: "Steigt der Preis, steigen die Ertragschancen der Anbieter. Deshalb wird mehr angeboten – das ist das Gesetz des Angebots."
+      },
+      {
+        time: 165,
+        label: "2:45",
+        title: "Marktgleichgewicht",
+        question: "Wann liegt ein Marktgleichgewicht vor?",
+        answers: [
+          "Wenn der Preis am höchsten ist.",
+          "Wenn die angebotene Menge größer als die nachgefragte Menge ist.",
+          "Wenn die nachgefragte Menge genau der angebotenen Menge entspricht.",
+          "Wenn es auf dem Markt nur einen Verkäufer gibt."
+        ],
+        correct: 2,
+        explanation: "Im Marktgleichgewicht entspricht die nachgefragte Menge genau der angebotenen Menge. Im Diagramm ist das der Schnittpunkt beider Kurven."
+      },
+      {
+        time: 215,
+        label: "3:35",
+        title: "Zusammenfassung und Kurvenverschiebung",
+        question: "Was passiert laut Video, wenn sich Nachfrage oder Angebot unabhängig vom Preis verändern?",
+        answers: [
+          "Es gibt nur eine Bewegung auf derselben Kurve nach oben oder unten.",
+          "Die gesamte Kurve verschiebt sich nach rechts oder links.",
+          "Der Preis bleibt immer exakt gleich.",
+          "Das Marktgleichgewicht verschwindet dauerhaft."
+        ],
+        correct: 1,
+        explanation: "Wenn sich Angebot oder Nachfrage unabhängig vom Preis ändern, verschiebt sich die gesamte Kurve nach rechts oder links."
+      }
+    ];
+
+    let player;
+    let currentQuizIndex = -1;
+    let answeredCount = 0;
+    let score = 0;
+    let checkInterval = null;
+    let waitingForAnswer = false;
+    let quizAnswered = new Array(quizData.length).fill(false);
+    let quizTriggered = new Array(quizData.length).fill(false);
+    let lastTime = 0;
+
+    const statusText = document.getElementById("statusText");
+    const questionIndexText = document.getElementById("questionIndex");
+    const scoreText = document.getElementById("scoreText");
+    const progressFill = document.getElementById("progressFill");
+    const progressLabel = document.getElementById("progressLabel");
+    const timeline = document.getElementById("timeline");
+    const videoFallback = document.getElementById("videoFallback");
+    const openVideoBtn = document.getElementById("openVideoBtn");
+    const manualModeBtn = document.getElementById("manualModeBtn");
+    const howItWorksText = document.getElementById("howItWorksText");
+
+    let manualMode = false;
+    let fallbackTimer = null;
+
+    const quizOverlay = document.getElementById("quizOverlay");
+    const quizKicker = document.getElementById("quizKicker");
+    const quizQuestion = document.getElementById("quizQuestion");
+    const quizTimeInfo = document.getElementById("quizTimeInfo");
+    const answersContainer = document.getElementById("answersContainer");
+    const feedback = document.getElementById("feedback");
+    const explanation = document.getElementById("explanation");
+    const continueBtn = document.getElementById("continueBtn");
+    const restartBtn = document.getElementById("restartBtn");
+
+    function formatTime(seconds) {
+      const mins = Math.floor(seconds / 60);
+      const secs = Math.floor(seconds % 60).toString().padStart(2, "0");
+      return `${mins}:${secs}`;
+    }
+
+    function renderTimeline() {
+      timeline.innerHTML = quizData.map((item, index) => `
+        <div class="timeline-item" id="timeline-${index}">
+          <div class="time-pill">${item.label}</div>
+          <div>
+            <div style="font-weight:700; margin-bottom:4px;">${item.title}</div>
+            <div class="timeline-text">${item.question}</div>
+          </div>
+        </div>
+      `).join("");
+
+      quizData.forEach((item, index) => {
+        const el = document.getElementById(`timeline-${index}`);
+        if (!el) return;
+        el.addEventListener("click", () => {
+          if (manualMode && !quizAnswered[index]) {
+            showQuiz(index);
+          }
+        });
+      });
+    }
+
+    function updateTimeline() {
+      quizData.forEach((_, index) => {
+        const el = document.getElementById(`timeline-${index}`);
+        if (!el) return;
+        el.classList.remove("active", "done");
+        if (quizAnswered[index]) {
+          el.classList.add("done");
+        } else if (index === currentQuizIndex && waitingForAnswer) {
+          el.classList.add("active");
+        }
+      });
+    }
+
+    function updateStats() {
+      questionIndexText.textContent = `${answeredCount} / ${quizData.length}`;
+      scoreText.textContent = `${score} Punkt${score === 1 ? "" : "e"}`;
+      const pct = (answeredCount / quizData.length) * 100;
+      progressFill.style.width = `${pct}%`;
+
+      if (answeredCount === 0) {
+        progressLabel.textContent = manualMode
+          ? "Manueller Modus aktiv – starte die Fragen über die Timeline oder den Button im Videobereich."
+          : "Noch keine Frage beantwortet.";
+      } else if (answeredCount < quizData.length) {
+        progressLabel.textContent = `${answeredCount} von ${quizData.length} Fragen beantwortet.`;
+      } else {
+        progressLabel.textContent = `Fertig. Endstand: ${score} von ${quizData.length} Punkten.`;
+      }
+    }
+
+    function showQuiz(index) {
+      currentQuizIndex = index;
+      waitingForAnswer = true;
+      const item = quizData[index];
+      quizKicker.textContent = `Frage ${index + 1} von ${quizData.length}`;
+      quizQuestion.textContent = item.question;
+      quizTimeInfo.textContent = `Video pausiert bei ${item.label} – ${item.title}`;
+      feedback.textContent = "";
+      feedback.className = "feedback";
+      explanation.textContent = "";
+      continueBtn.disabled = true;
+
+      answersContainer.innerHTML = "";
+      item.answers.forEach((answer, answerIndex) => {
+        const btn = document.createElement("button");
+        btn.className = "answer-btn";
+        btn.type = "button";
+        btn.textContent = `${String.fromCharCode(65 + answerIndex)}. ${answer}`;
+        btn.addEventListener("click", () => handleAnswer(answerIndex));
+        answersContainer.appendChild(btn);
+      });
+
+      quizOverlay.classList.add("show");
+      statusText.textContent = "Quiz aktiv";
+      updateTimeline();
+    }
+
+    function handleAnswer(selectedIndex) {
+      if (currentQuizIndex < 0 || quizAnswered[currentQuizIndex]) return;
+
+      const item = quizData[currentQuizIndex];
+      const buttons = [...answersContainer.querySelectorAll(".answer-btn")];
+      const isCorrect = selectedIndex === item.correct;
+
+      buttons.forEach((btn, index) => {
+        btn.classList.add("locked");
+        if (index === item.correct) btn.classList.add("correct");
+        if (index === selectedIndex && index !== item.correct) btn.classList.add("wrong");
+        btn.disabled = true;
+      });
+
+      quizAnswered[currentQuizIndex] = true;
+      answeredCount += 1;
+      if (isCorrect) score += 1;
+
+      feedback.textContent = isCorrect ? "Richtig!" : "Leider falsch.";
+      feedback.className = `feedback ${isCorrect ? "correct" : "wrong"}`;
+      explanation.textContent = item.explanation;
+      continueBtn.disabled = false;
+      updateStats();
+      updateTimeline();
+
+      if (answeredCount === quizData.length) {
+        continueBtn.textContent = "Endergebnis anzeigen";
+      } else {
+        continueBtn.textContent = "Weiter mit Video";
+      }
+    }
+
+    function showFinalResult() {
+      quizKicker.textContent = "Quiz abgeschlossen";
+      quizQuestion.textContent = `Du hast ${score} von ${quizData.length} Punkten erreicht.`;
+      quizTimeInfo.textContent = score === quizData.length
+        ? "Perfekt – du hast alle Fragen richtig beantwortet."
+        : score >= 3
+          ? "Stark – du hast die Grundideen von Angebot und Nachfrage gut verstanden."
+          : "Gute Basis – wiederhole das Video noch einmal für ein noch sichereres Verständnis.";
+
+      answersContainer.innerHTML = `
+        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:18px; padding:18px; line-height:1.7; color:#334155;">
+          <strong>Auswertung:</strong><br>
+          Richtige Antworten: ${score}<br>
+          Falsche Antworten: ${quizData.length - score}<br>
+          Erfolgsquote: ${Math.round((score / quizData.length) * 100)}%
+        </div>
+      `;
+      feedback.textContent = score >= 4 ? "Sehr gut gemacht!" : "Quiz beendet.";
+      feedback.className = `feedback ${score >= 4 ? "correct" : ""}`;
+      explanation.textContent = manualMode
+        ? "Du kannst das Quiz mit dem Button unten jederzeit neu starten."
+        : "Du kannst das Quiz mit dem Button unten jederzeit neu starten.";
+      continueBtn.disabled = true;
+      statusText.textContent = "Quiz abgeschlossen";
+    }
+
+    function enableManualMode() {
+      manualMode = true;
+      videoFallback.hidden = false;
+      statusText.textContent = "Manueller Modus aktiv";
+      howItWorksText.innerHTML = `
+        1. Öffne das Video über <strong>Video auf YouTube öffnen</strong>.<br>
+        2. Nutze die Zeitmarken in der Timeline als Orientierung.<br>
+        3. Starte die passende Frage durch Klick auf die Timeline-Karte.<br>
+        4. Beantworte die Frage und fahre dann mit dem Video fort.
+      `;
+      updateStats();
+    }
+
+    continueBtn.addEventListener("click", () => {
+      quizOverlay.classList.remove("show");
+      waitingForAnswer = false;
+      quizTriggered[currentQuizIndex] = true;
+      updateTimeline();
+
+      if (answeredCount === quizData.length) {
+        showFinalResult();
+        quizOverlay.classList.add("show");
+        return;
+      }
+
+      statusText.textContent = "Video läuft";
+      if (player && typeof player.playVideo === "function") {
+        player.playVideo();
+      }
+    });
+
+    restartBtn.addEventListener("click", restartQuiz);
+    manualModeBtn.addEventListener("click", () => {
+      enableManualMode();
+      if (!quizAnswered[0]) showQuiz(0);
+    });
+
+    function restartQuiz() {
+      currentQuizIndex = -1;
+      answeredCount = 0;
+      score = 0;
+      waitingForAnswer = false;
+      quizAnswered = new Array(quizData.length).fill(false);
+      quizTriggered = new Array(quizData.length).fill(false);
+      lastTime = 0;
+      quizOverlay.classList.remove("show");
+      continueBtn.textContent = "Weiter mit Video";
+      updateStats();
+      renderTimeline();
+      updateTimeline();
+      statusText.textContent = manualMode ? "Manueller Modus aktiv" : "Quiz zurückgesetzt";
+      if (!manualMode && player && typeof player.seekTo === "function") {
+        player.seekTo(0, true);
+        player.pauseVideo();
+      }
+    }
+
+    function monitorVideo() {
+      if (manualMode || !player || typeof player.getCurrentTime !== "function" || waitingForAnswer) return;
+      const time = player.getCurrentTime();
+      lastTime = time;
+
+      for (let i = 0; i < quizData.length; i++) {
+        if (!quizTriggered[i] && !quizAnswered[i] && time >= quizData[i].time) {
+          player.pauseVideo();
+          showQuiz(i);
+          break;
+        }
+      }
+    }
+
+    function onPlayerReady() {
+      statusText.textContent = "Bereit – starte das Video";
+      updateStats();
+      renderTimeline();
+      updateTimeline();
+      checkInterval = setInterval(monitorVideo, 350);
+      if (fallbackTimer) clearTimeout(fallbackTimer);
+    }
+
+    function onPlayerStateChange(event) {
+      if (waitingForAnswer) return;
+      const YTState = window.YT?.PlayerState;
+      if (event.data === YTState?.PLAYING) {
+        statusText.textContent = "Video läuft";
+      } else if (event.data === YTState?.PAUSED) {
+        statusText.textContent = answeredCount === quizData.length ? "Quiz abgeschlossen" : "Video pausiert";
+      } else if (event.data === YTState?.ENDED) {
+        statusText.textContent = "Video beendet";
+        if (answeredCount === quizData.length) {
+          showFinalResult();
+          quizOverlay.classList.add("show");
+        }
+      }
+    }
+
+    window.onYouTubeIframeAPIReady = function () {
+      fallbackTimer = setTimeout(() => {
+        if (!player || typeof player.playVideo !== "function") {
+          enableManualMode();
+        }
+      }, 4000);
+
+      player = new YT.Player("player", {
+        videoId,
+        playerVars: {
+          rel: 0,
+          modestbranding: 1,
+          playsinline: 1,
+          origin: window.location.origin && window.location.origin !== "null" ? window.location.origin : undefined
+        },
+        events: {
+          onReady: onPlayerReady,
+          onStateChange: onPlayerStateChange,
+          onError: () => enableManualMode()
+        }
+      });
+    };
+
+    if (window.location.protocol === "file:") {
+      window.addEventListener("load", () => {
+        setTimeout(() => {
+          enableManualMode();
+        }, 1200);
+      });
+    }
+  </script>
+</body>
+</html>
